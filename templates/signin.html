@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Sign In - PetConnect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" href="/assets/logos/logo_browser.png" type="image/x-icon">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to left, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.5) 50%), url(/assets/logos/adopt.jpg);
+            width: 100%;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            text-align: center;
+            background: linear-gradient(to left, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.5) 50%);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: orange;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #fff;
+            text-align: left;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select,
+        button {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: orange;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: burlywood;
+        }
+
+        .signup-message {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        #signinMessage {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        #signupLink {
+            color: red;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        #signupLink:hover {
+            color: burlywood;
+        }
+
+        .signup-link-container {
+            padding-top: 15px;
+            border-top: 1px solid #ccc;
+        }
+
+        p {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .password-input-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 35%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: black;
+        }
+
+        .forgot-password-container {
+            text-align: center; /* Center align the content */
+            margin-top: 10px;
+        }
+
+        .forgot-password-container a {
+            color: red;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .forgot-password-container a:hover {
+            color: burlywood;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Log into your account</h2>
+        <form id="signinForm">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            <label for="password">Password</label>
+            <div class="password-input-container">
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <span class="toggle-password" onclick="togglePasswordVisibility()">
+                    <i id="passwordToggleIcon" class="fas fa-eye"></i>
+                </span>
+            </div>
+            <label for="accountType">Account Type</label>
+            <select id="accountType" name="accountType" required>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+            <button type="submit">Sign In</button>
+            <div class="signin-message" id="signinMessage"></div>
+            <div class="forgot-password-container">
+                <p><a href="forgot-password.html" id="forgotPasswordLink">Forgot Password?</a></p>
+            </div>
+        </form>
+        <div class="signin-message" id="signinMessage"></div>
+        <div class="signup-link-container">
+            <p>Don't have an account yet? <a href="signup.html" id="signupLink">Sign up</a>.</p>
+        </div>
+    </div>    
+
+    <script>
+        function togglePasswordVisibility() {
+            var passwordInput = document.getElementById("password");
+            var passwordToggleIcon = document.getElementById("passwordToggleIcon");
+    
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                passwordToggleIcon.classList.remove("fa-eye");
+                passwordToggleIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                passwordToggleIcon.classList.remove("fa-eye-slash");
+                passwordToggleIcon.classList.add("fa-eye");
+            }
+        }
+    
+        document.getElementById("signinForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+            var accountType = document.getElementById("accountType").value;
+    
+            var endpoint = accountType === "admin" ? "http://localhost:3000/admin/signin" : "http://localhost:3000/signin";
+    
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                var signinMessage = document.getElementById("signinMessage");
+                signinMessage.textContent = data.message;
+    
+                if (data.message === "Sign in successful!") {
+                    if (accountType !== "admin") {
+                        // Store the token in local storage only if not admin
+                        localStorage.setItem('token', data.token);
+                    }
+    
+                    var redirectPage = accountType === "admin" ? "/admin/dashboard.html" : "/templates/home.html";
+                    window.location.href = `${redirectPage}?username=${username}${accountType !== "admin" ? `&token=${data.token}` : ''}`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("signinMessage").textContent = 'An error occurred. Please try again.';
+            });
+        });
+    </script>
+    
+</body>
+</html>

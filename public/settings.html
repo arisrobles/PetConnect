@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Font Awesome CSS for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="/assets/logos/logo_browser.png" type="image/x-icon">
+    <title>Account Settings</title>
+    <style>
+        .delete-account-button {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        .delete-account-button:hover {
+            background-color: darkred;
+        }
+        .user-info h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .user-info p {
+            margin: 5px 0;
+        }
+        section {
+            padding: 20px;
+            margin: 0 10%;
+            border-bottom: 1px solid #ddd;
+        }
+        h3 {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            width: 400px;
+            text-align: left;
+        }
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            right: 10px;
+            top: 5px;
+            cursor: pointer;
+        }
+        .radio-button-group {
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #4CAF50;
+            font-size: 1.5em;
+            margin-top: 0;
+        }
+
+        p {
+            margin: 0 0 10px;
+        }
+        .radio-button-group p {
+            font-size: 14px;
+            color: #555;
+        }
+        /* Modal styling */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1000; /* High z-index to ensure it appears above other content */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Dark background with opacity */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px; /* Rounded corners for a softer look */
+            width: 90%;
+            max-width: 500px; /* Limiting maximum width for better readability */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+        }
+
+        .close {
+            color: #888;
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        h3 {
+            margin-top: 0;
+            font-size: 1.5em;
+            color: #333; /* Dark gray for formal appearance */
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500; /* Semi-bold for emphasis */
+            margin-bottom: 5px;
+            color: #555; /* Medium gray for better contrast */
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc; /* Light gray border */
+            border-radius: 4px; /* Rounded corners */
+            box-sizing: border-box; /* Includes padding and border in the element’s total width and height */
+            font-size: 16px; /* Larger text for readability */
+        }
+
+        .form-group select {
+            /* Ensure the dropdown arrow is styled consistently */
+            background-color: #fff; /* White background for consistency */
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .button-group button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease; /* Smooth transition for hover effects */
+        }
+
+        .button-group button[type="submit"] {
+            background-color: #4CAF50; /* Green for submit button */
+            color: #fff;
+        }
+
+        .button-group button[type="submit"]:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+
+        .button-group button[type="button"] {
+            background-color: #f44336; /* Red for cancel button */
+            color: #fff;
+        }
+
+        .button-group button[type="button"]:hover {
+            background-color: #e53935; /* Darker red on hover */
+        }
+    </style>
+</head>
+<body>
+    <main id="settings-content">
+         <!-- Content page will be loaded here -->
+    </main>
+    <br><br>
+    <section>
+    <h2>Account Details</h2>
+    <h3>
+    <i class="fas fa-user-shield" style="margin-right: 5px;"></i> Personal and Account Information
+        <button id="update-info-btn">Update Information</button></h3>
+        <div id="user-info" class="user-info">
+            <!-- User information will be loaded here -->
+        </div>
+    </section>
+    <!-- Update Password Section -->
+    <section>
+        <h3><i class="fas fa-lock" style="margin-right: 5px;"></i> Security Settings</h3>
+        <p>We recommend using a strong, unique password to enhance your security.</p>
+        <p><strong>Password:</strong> ********
+            <button id="update-password-btn">Update Password</button></p>
+    </section>
+    <section>
+        <h3><i class="fas fa-user-cog" style="margin-right: 5px;"></i> Access and Control</h3>
+        <p id="open-modal" style="cursor: pointer; color: blue;">Manage your data, deactivate your account, delete your account, and more.</p>
+    </section>
+
+    <!-- First Modal -->
+    <div id="manageAccountModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Access and Control</h3>
+            <div class="radio-button-group">
+                <label><input type="radio" name="action" value="deactivate"> Deactivate your Account
+                    <p>You can still go back whenever you want.</p></label>
+                <label><input type="radio" name="action" value="delete"> Delete your Account
+                    <p>All information ascociated into your account will be permanently remove.</p></label>
+               
+            </div>
+            <button id="continue-button">Continue</button>
+            <button id="cancel-button">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Second Modal for Account Deletion Confirmation -->
+    <div id="deleteAccountModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Delete your Account</h3>
+            <p>When you delete your PetConnect account, you won't be able to retrieve the content you've shared on the platform.</p>
+            <p><strong>Note:</strong> Deleting your account is a permanent action and cannot be undone. All your data will be permanently removed from our system.</p>
+            <button class="delete-account-button" id="delete-account-button">Delete Account</button>
+            <button id="cancel-delete-button">Cancel</button>
+        </div>
+    </div>
+
+<!-- Password Update Modal -->
+<div id="updatePasswordModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Update Password</h3>
+        <form id="update-password-form">
+            <div class="form-group">
+                <label for="old-password">Old Password</label>
+                <input type="password" id="old-password" name="old-password" placeholder="Enter your old password" required>
+            </div>
+            <div class="form-group">
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password" name="new-password" placeholder="Enter a new password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm-new-password">Confirm New Password</label>
+                <input type="password" id="confirm-new-password" name="confirm-new-password" placeholder="Confirm your new password" required>
+            </div>
+            <div class="button-group">
+                <button type="submit">Update Password</button>
+                <button type="button" id="cancel-update-btn">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Update Information Modal -->
+<div id="updateInfoModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Update Information</h3>
+        <form id="update-info-form">
+            <div class="form-group">
+                <label for="new-username">Username</label>
+                <input type="text" id="new-username" name="new-username" required>
+            </div>
+            <div class="form-group">
+                <label for="first-name">First Name</label>
+                <input type="text" id="first-name" name="first-name" required>
+            </div>
+            <div class="form-group">
+                <label for="last-name">Last Name</label>
+                <input type="text" id="last-name" name="last-name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" name="role" required>
+                    <option value="">Select Role</option>
+                    <option value="Pet Owner">Pet Owner</option>
+                    <option value="Adopter">Adopter</option>
+                    <option value="Shelter">Shelter</option>
+                    <option value="Veterinary Clinic">Veterinary Clinic</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="location">Location</label>
+                <input type="text" id="location" name="location" required>
+            </div>
+            <div class="button-group">
+                <button type="submit">Save Changes</button>
+                <button type="button" id="cancel-info-btn">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Javascript for Updating Settings -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Load any additional content if needed
+        fetch('http://localhost:3000/api/content/settings')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('settings-content').innerHTML = data.content;
+            })
+            .catch(error => console.error('Error loading content:', error));
+    
+        const token = localStorage.getItem('token');
+        const urlParams = new URLSearchParams(window.location.search);
+        const usernameParam = urlParams.get('username');
+    
+        if (!token) {
+            window.location.href = "/templates/signin.html";
+        } else {
+            console.log("Token found:", token);
+            console.log("User:", usernameParam);
+    
+            // Fetch user information
+            fetch(`http://localhost:3000/api/users/info?username=${usernameParam}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const userInfoSection = document.getElementById('user-info');
+                userInfoSection.innerHTML = `
+                    <p><strong>First Name:</strong> ${data.firstname}</p>
+                    <p><strong>Last Name:</strong> ${data.lastname}</p>
+                    <p><strong>Email:</strong> ${data.email}</p>
+                    <p><strong>Username:</strong> ${data.username}</p>
+                    <p><strong>Role:</strong> ${data.role}</p>
+                `;
+            })
+            .catch(error => console.error('Error loading user information:', error));
+    
+            const updateInfoBtn = document.getElementById('update-info-btn');
+            const updateInfoModal = document.getElementById('updateInfoModal');
+            const cancelInfoBtn = document.getElementById('cancel-info-btn');
+            const updateInfoForm = document.getElementById('update-info-form');
+
+            updateInfoBtn.addEventListener('click', () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const usernameParam = urlParams.get('username');
+
+                fetch(`http://localhost:3000/api/users/${usernameParam}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert(data.error);
+                        } else {
+                            // Prefill form with user data
+                            document.getElementById('new-username').value = data.username;
+                            document.getElementById('first-name').value = data.firstname;
+                            document.getElementById('last-name').value = data.lastname;
+                            document.getElementById('email').value = data.email;
+                            document.getElementById('role').value = data.role; // Set dropdown value
+                            document.getElementById('location').value = data.location;
+
+                            updateInfoModal.style.display = "flex";
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching user information:', error);
+                        alert('An error occurred while fetching your information. Please try again.');
+                    });
+            });
+
+            cancelInfoBtn.addEventListener('click', () => {
+                updateInfoModal.style.display = "none";
+            });
+
+            updateInfoForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const newUsername = document.getElementById('new-username').value;
+                const firstName = document.getElementById('first-name').value;
+                const lastName = document.getElementById('last-name').value;
+                const email = document.getElementById('email').value;
+                const role = document.getElementById('role').value; // Get value from dropdown
+                const location = document.getElementById('location').value;
+
+                fetch('http://localhost:3000/api/users/update-info', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: usernameParam, // Current username
+                        newUsername: newUsername,
+                        firstname: firstName,
+                        lastname: lastName,
+                        email: email,
+                        role: role, // Send selected role
+                        location: location
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        if (newUsername !== usernameParam) {
+                            alert('Information updated successfully. You will be redirected to the sign-in page.');
+                            // Clear token and username
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('username');
+                            // Redirect to sign-in page
+                            window.location.href = "/templates/signin.html";
+                        } else {
+                            alert('Information updated successfully.');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating user information:', error);
+                    alert('An error occurred while updating your information. Please try again.');
+                });
+            });
+
+            // Modal functionality for other operations
+            const manageModal = document.getElementById("manageAccountModal");
+            const openModalBtn = document.getElementById("open-modal");
+            const closeModalBtns = document.querySelectorAll(".close");
+            const continueBtn = document.getElementById("continue-button");
+            const cancelBtn = document.getElementById("cancel-button");
+    
+            openModalBtn.addEventListener('click', () => {
+                manageModal.style.display = "flex";
+            });
+    
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    manageModal.style.display = "none";
+                });
+            });
+    
+            window.addEventListener('click', (event) => {
+                if (event.target === manageModal) {
+                    manageModal.style.display = "none";
+                }
+            });
+    
+            continueBtn.addEventListener('click', () => {
+                const selectedAction = document.querySelector('input[name="action"]:checked').value;
+    
+                if (selectedAction === "delete") {
+                    manageModal.style.display = "none";
+                    const deleteModal = document.getElementById("deleteAccountModal");
+                    deleteModal.style.display = "flex";
+                } else {
+                    // Handle account deactivation if needed
+                }
+            });
+    
+            cancelBtn.addEventListener('click', () => {
+                manageModal.style.display = "none";
+            });
+    
+            // Second Modal functionality for Delete Account
+            const deleteModal = document.getElementById("deleteAccountModal");
+            const deleteAccountBtn = document.getElementById("delete-account-button");
+            const cancelDeleteBtn = document.getElementById("cancel-delete-button");
+    
+            deleteAccountBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you wish to permanently delete your account? This action cannot be undone.')) {
+                    fetch('http://localhost:3000/api/users/delete', {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username: usernameParam })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('username');
+                            
+                            alert('Your account has been successfully deleted.');
+                            window.location.href = "/templates/signin.html";
+                        } else {
+                            return response.json().then(error => Promise.reject(error));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting account:', error);
+                        alert('An error occurred while attempting to delete your account. Please try again.');
+                    });
+                }
+            });
+    
+            cancelDeleteBtn.addEventListener('click', () => {
+                deleteModal.style.display = "none";
+            });
+    
+            // Password Update Modal functionality
+            const updatePasswordBtn = document.getElementById('update-password-btn');
+            const updatePasswordModal = document.getElementById('updatePasswordModal');
+            const cancelUpdateBtn = document.getElementById('cancel-update-btn');
+            const updatePasswordForm = document.getElementById('update-password-form');
+    
+            updatePasswordBtn.addEventListener('click', () => {
+                updatePasswordModal.style.display = "flex";
+            });
+    
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    updatePasswordModal.style.display = "none";
+                });
+            });
+    
+            window.addEventListener('click', (event) => {
+                if (event.target === updatePasswordModal) {
+                    updatePasswordModal.style.display = "none";
+                }
+            });
+    
+            cancelUpdateBtn.addEventListener('click', () => {
+                updatePasswordModal.style.display = "none";
+            });
+    
+            updatePasswordForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+    
+                const oldPassword = document.getElementById('old-password').value;
+                const newPassword = document.getElementById('new-password').value;
+                const confirmNewPassword = document.getElementById('confirm-new-password').value;
+    
+                if (newPassword !== confirmNewPassword) {
+                    alert('New passwords do not match');
+                    return;
+                }
+    
+                fetch('http://localhost:3000/api/users/update-password', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        oldPassword: oldPassword,
+                        newPassword: newPassword,
+                        username: usernameParam
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        alert('Password updated successfully');
+                        updatePasswordModal.style.display = "none";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating password:', error);
+                    alert('An error occurred while updating your password. Please try again.');
+                });
+            });
+        }
+    });
+</script>  
+</body>
+</html>
+

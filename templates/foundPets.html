@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Found Pets - PetConnect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="icon" href="/assets/logos/logo_browser.png" type="image/x-icon">
+    <link rel="stylesheet" href="/assets/css/foundPets.css">
+    <style> 
+    @keyframes walkRight {
+    0% {
+        transform: translateX(-200px); /* Start off-screen to the left */
+    }
+    40% {
+        transform: translateX(calc(50vw - 100px)); /* Move to the center of the viewport */
+    }
+    70% {
+        transform: translateX(calc(40vw - 100px)); /* Pause in the center */
+    }
+    100% {
+        transform: translateX(calc(100vw + 200px)); /* Move to beyond the right edge of the viewport */
+    }
+}
+.footerBtn {
+    cursor: pointer;
+}
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="special-buttons">
+            <button style="background-color: gainsboro; width: 50px; display: flex; justify-content: center; align-items: center; font-size: 16px;"><i class="fas fa-search"></i></button>
+                <button id="adoptBtn" data-section-id="adoptSection" style="background-color: gray;"><i class="fas fa-paw"></i> ADOPT</button>
+                <button id="lostBtn"><i class="fas fa-exclamation-triangle"></i> LOST</button>
+                <button id="foundBtn"><i class="fas fa-map-marker-alt"></i> FOUND</button>
+        </div>
+        <div class="container">
+            <div class="menu-toggle" id="menuToggle">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <h2><img src="/assets/logos/PetConnect_Logo.png" alt="PetConnect Logo" style="max-height: 70px;"></h2>
+            <div class="nav-menu">
+                <ul>
+                    <li id="homeBtn" data-section-id="homeSection"><i class="fas fa-home"></i> HOME</li>
+                    <li id="aboutUsSection" data-section-id="aboutUsSection" class="dialog-button"><i class="fas fa-caret-down"></i> ABOUT US</li>
+                    <li id="faqSection" data-section-id="faqSection" class="dialog-button"><i class="fas fa-caret-down"></i> FAQ</li>
+                    <li id="contact-nav" data-section-id="footer"><i class="fas fa-envelope"></i> CONTACT</li>
+                    <!-- Profile Button in home.html -->
+                    <li id="profileButton"><i class="fas fa-user"></i> PROFILE</li>
+                    <li id="logoutBtn"><i class="fas fa-sign-out-alt"></i> LOGOUT</li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+      
+<!-- Introductory Section -->
+<section id="introSection">
+    <div class="container">
+        <div class="intro-content">
+            <iframe 
+                width="640" 
+                height="360" 
+                src="https://www.youtube.com/embed/jPb45NFfI80" 
+                title="Pets Aren't Just Pets, They're More: Best Friend | Chewy" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerpolicy="strict-origin-when-cross-origin" 
+                allowfullscreen>
+            </iframe>
+            <div class="text-content">
+                <h2>Found a Lost Pet?</h2><br>
+                <p>PetConnect is committed to helping reunite lost pets with their owners. Our "Found Pet" feature allows you to post about pets you've found in your area, connecting them with their owners or local shelters.</p>
+                <p>Contribute to our mission. If you've come across a lost pet, use our platform to share information and increase the chances of reuniting them with their beloved families.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- Add background overlay -->
+<div id="overlay"></div>
+
+<div id="aboutUsContent" class="dialog-content">
+    <h3>About PetConnect</h3>
+    <p>PetConnect is a dedicated platform aimed at reuniting lost pets with their owners and facilitating pet adoptions to caring homes.</p>
+    <div class="section">
+        <a href="#" class="card-link">
+            <div class="card">
+                <h4>Our Commitment</h4>
+                <p>PetConnect is committed to the welfare of animals, advocating for their well-being and ensuring humane treatment for every pet.</p>
+            </div>
+        </a>
+        <a href="#" class="card-link">
+            <div class="card">
+                <h4>Our Initiatives</h4>
+                <p>PetConnect has developed initiatives focused on promoting responsible pet ownership and facilitating seamless adoptions to ensure every pet finds a loving home.</p>
+            </div>
+        </a>
+        <a href="#" class="card-link">
+            <div class="card">
+                <h4>Our Outreach</h4>
+                <p>In our mission to reunite lost pets with their owners, PetConnect conducts awareness campaigns and utilizes diverse media channels to spread the word.</p>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Add content for PetConnect FAQ dialog box -->
+<div id="faqContent" class="dialog-content">
+    <h3 class="">TOP 3 QUESTIONS</h3>
+    <div class="card-container">
+        <div id="card">
+            <h4>What are your adoption procedures?</h4>
+            <p>We aim to simplify pet adoption on PetConnect. Browse profiles, contact owners, and initiate the process. Procedures may vary but we provide necessary tools.</p>
+        </div>
+        <div id="card">
+            <h4>How can I report a lost pet?</h4>
+            <p>Reporting lost pets is easy. Visit the "Lost Pets" section, fill out details, and submit. Your report will be visible to our community, increasing the chances of a reunion.</p>
+        </div>
+        <div id="card">
+            <h4>What should I do if I find a stray animal?</h4>
+            <p>Assess its condition, check for identification, and report found animals. Provide details for a potential reunion or finding a new loving home.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Important Reminder Section -->
+<section id="reminderSection">
+    <div id="reminder-container">
+        <h2>Important Reminder for Posting Found Pets</h2>
+        <p>When posting about a found pet, it's crucial to include as much detailed information as possible. This helps increase the chances of reuniting the pet with its owner. Remember to include:</p>
+        <ul>
+            <li>Color and markings</li>
+            <li>Any distinguishable features (such as scars, moles, or unique patterns)</li>
+            <li>Breed or breed mix</li>
+            <li>Size and weight</li>
+            <li>The area where the pet was found</li>
+            <li>Any observed behavioral traits or special needs</li>
+            <li>Contact information</li>
+        </ul>
+        <p>By providing accurate and detailed information, you can help the pet's owner identify and reclaim their lost companion more effectively. Thank you for being proactive in reuniting pets with their families!</p>
+        <br>
+        <div class="checkbox-wrapper">
+            <input type="checkbox" id="understandCheckbox">
+            <label for="understandCheckbox">Yes, I understand!</label>
+        </div>
+        <!-- Continue Button -->
+        <button id="continueBtn" disabled>Continue</button>
+    </div>
+</section>
+
+    <!-- Post Section -->
+    <section id="postSection" class="post-section-visible">
+        <div id="post-container" style="text-align: center;">
+            <h1 style="font-size: 30px;">Post Found Pet</h1>
+            <div class="post-area" id="postArea">
+                <i class="fas fa-plus-circle"></i>&nbsp; <!-- Non-breaking space -->
+                Click here to add Found Pet...
+            </div> 
+        </div>
+    </section>
+<br><br>    
+<h1 style="font-size: 30px;">Discover Found Pets</h1>
+<div class="search-container">
+    <div class="search-group">
+        <label for="filterDropdown">Filter by:</label>
+        <select class="search-input" id="filterDropdown">
+            <option value="">Select Filter</option>
+            <option value="gender">Gender</option>
+            <option value="age">Age</option>
+            <option value="breed">Breed</option>
+            <option value="location">Location</option>
+        </select>
+        <div class="input-field" style="display: none;">
+            <input type="text" class="search-input" id="inputValue" placeholder="Enter value">
+        </div>
+        <button type="button" class="search-btn">Go</button>
+    </div>
+</div>
+
+<!-- HTML Section for Filter Buttons -->
+<div class="filter-buttons">
+<button id="allButton">All</button>
+<button id="dogsButton">Dogs</button>
+<button id="catsButton">Cats</button>
+</div>
+
+    <!-- HTML Section for Displaying Pet Records -->
+<div class="pet-container" id="foundPetContainer">
+    <!-- Pet records will be dynamically added here -->
+</div>
+<br><br>
+
+ <!-- Footer -->
+ <footer id="footer" style="background-color: rgb(240, 251, 251); color: black; padding: 50px 0; font-family: Arial, sans-serif;">
+    <div style="text-align: center;">
+        <h2 style="margin-bottom: 10px;">Stay Connected</h2>
+        <p>Follow us on social media for the latest updates and exclusive offers!</p>
+        <div style="margin-top: 20px;">
+            <a href="https://www.facebook.com/aristonroblescaragay" target="_blank" style="text-decoration: none; color: black; margin: 0 10px; font-size: 24px;"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" target="_blank" style="text-decoration: none; color: black; margin: 0 10px; font-size: 24px;"><i class="fab fa-twitter"></i></a>
+            <a href="#" target="_blank" style="text-decoration: none; color: black; margin: 0 10px; font-size: 24px;"><i class="fab fa-instagram"></i></a>
+            <a href="#" target="_blank" style="text-decoration: none; color: black; margin: 0 10px; font-size: 24px;"><i class="fab fa-linkedin"></i></a>
+        </div>
+        <div style="margin-top: 30px;">
+            <input type="email" placeholder="Enter your email" style="padding: 10px; width: 250px; border: none; border-radius: 20px 0 0 20px; font-size: 16px;">
+            <button style="background-color: #ff6600; color: #fff; border: none; padding: 10px 20px; border-radius: 0 20px 20px 0; font-size: 16px;">Subscribe</button>
+        </div>
+    </div>
+    <div style="text-align: center; margin-top: 50px;">
+        <p>&copy; 2024 PetConnect. All rights reserved.</p>
+    </div>
+    <br>
+    <div style="text-align: center; margin-top: 20px; font-size: 14px;">
+        <a id="settingsBtn" class="footerBtn" style="text-decoration: none; color: black; margin: 0 10px;">
+            <i class="fas fa-cog" style="margin-right: 5px;"></i> Settings
+        </a>
+        <a id="supportBtn" class="footerBtn" style="text-decoration: none; color: black; margin: 0 10px;">
+            <i class="fas fa-life-ring" style="margin-right: 5px;"></i> Support
+        </a>
+        <a id="termsBtn" class="footerBtn" style="text-decoration: none; color: black; margin: 0 10px;">
+            <i class="fas fa-file-contract" style="margin-right: 5px;"></i> Terms and Conditions
+        </a>
+        <a id="privacyBtn" class="footerBtn" style="text-decoration: none; color: black; margin: 0 10px;">
+            <i class="fas fa-user-shield" style="margin-right: 5px;"></i> Privacy Policy
+        </a>
+    </div>
+</footer>
+
+<!-- Add this HTML code somewhere in your document, preferably near the top -->
+<div id="descriptionDialog" class="dialog-box" style="display: none; max-width: 250px;">
+    <div id="descriptionUser"></div><br>
+    <div id="descriptionText"></div>
+</div>
+
+<!-- HTML form for posting found pets -->
+<div class="dialog-box" id="dialogBox">
+    <div class="container-form">
+        <h1>Add Found Pet</h1>
+        <form id="petForm">
+            <label for="name">Name: (Optional)</label>
+            <input type="text" id="name" name="name">
+            
+            <label for="type">Specie:</label>
+            <select id="type" name="type" required>
+                <option value="dog">Dog</option>
+                <option value="cat">Cat</option>
+            </select>
+            
+            <label for="breed">Breed:</label>
+            <select id="breed" name="breed" required></select> <!-- Breed options will be populated dynamically -->
+            <p id="specify" style="display: none;">If others, please specify:</p>
+            <input type="text" id="breedInput" name="breedInput" placeholder="" style="display: none;">
+
+            <label for="age">Estimated Age:</label>
+            <input type="text" id="age" name="age" required>
+            
+            <label for="gender">Gender:</label>
+            <select id="gender" name="gender" required>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+            
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
+            
+            <label for="contact">Contact:</label>
+            <input type="number" id="contact" name="contact" placeholder="09 XXX XX XXX" required>
+            
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" required>
+            
+            <label for="photo">Add Photos:</label>
+            <input type="file" name="images" multiple required><br> <!-- Allow multiple image selection -->
+            <button type="submit">Add Pet</button>
+        </form>
+    </div>
+</div>
+
+<!-- Javascript for Breeds-->
+<script>
+    // Define breed options for dogs and cats
+    const dogBreeds = [
+    'Aspin',
+    'Labrador Retriever',
+    'German Shepherd',
+    'Golden Retriever',
+    'Bulldog',
+    'Beagle',
+    'Poodle',
+    'Rottweiler',
+    'Yorkshire Terrier',
+    'Boxer',
+    'Dachshund',
+    'Siberian Husky',
+    'Doberman Pinscher',
+    'Shih Tzu',
+    'Great Dane',
+    'Pembroke Welsh Corgi',
+    'Australian Shepherd',
+    'Cavalier King Charles Spaniel',
+    'Miniature Schnauzer',
+    'Shetland Sheepdog',
+    'Boston Terrier',
+    'Havanese',
+    'Shiba Inu',
+    'Bernese Mountain Dog',
+    'Basset Hound',
+    'Mastiff',
+    'Cocker Spaniel',
+    'Rhodesian Ridgeback',
+    'Weimaraner',
+    'Newfoundland',
+    'Border Collie',
+    'Brittany',
+    'West Highland White Terrier',
+    'Bull Terrier',
+    'Maltese',
+    'Dalmatian',
+    'Pointer',
+    'Staffordshire Bull Terrier',
+    'Chihuahua',
+    'Akita',
+    'Vizsla',
+    'Australian Cattle Dog',
+    'Staffordshire Terrier',
+    'Papillon',
+    'Alaskan Malamute',
+    'Samoyed',
+    'Bullmastiff',
+    'Pomeranian',
+    'Australian Terrier',
+    'Chinese Crested',
+    'Tibetan Mastiff',
+    'Afghan Hound',
+    'Basenji',
+    'Chinese Shar-Pei',
+    'English Springer Spaniel',
+    'Tibetan Spaniel',
+    'Irish Wolfhound',
+    'American Eskimo Dog',
+    'Portuguese Water Dog'
+];
+
+const catBreeds = [
+    'Puspin',
+    'Persian',
+    'Siamese',
+    'Maine Coon',
+    'Ragdoll',
+    'British Shorthair',
+    'Bengal',
+    'Sphynx',
+    'Abyssinian',
+    'Scottish Fold',
+    'Burmese',
+    'Birman',
+    'Russian Blue',
+    'Oriental',
+    'American Shorthair',
+    'Cornish Rex',
+    'Devon Rex',
+    'Himalayan',
+    'Turkish Angora',
+    'Manx',
+    'American Bobtail',
+    'Norwegian Forest Cat',
+    'Somali',
+    'Chartreux',
+    'Tonkinese',
+    'Turkish Van',
+    'Exotic Shorthair',
+    'Japanese Bobtail',
+    'Balinese',
+    'Ocicat',
+    'Ragamuffin',
+    'Singapura',
+    'Snowshoe',
+    'Selkirk Rex',
+    'LaPerm',
+    'Javanese',
+    'Munchkin',
+    'Pixie-bob',
+    'Havana Brown',
+    'American Curl',
+    'Egyptian Mau',
+    'Abyssinian',
+    'American Curl',
+    'American Wirehair',
+    'Balinese',
+    'Birman',
+    'Bombay',
+    'Burmilla',
+    'Colorpoint Shorthair',
+    'Havana Brown',
+    'Japanese Bobtail',
+    'LaPerm',
+    'Manx',
+    'Ocicat',
+    'Pixie-bob',
+    'Scottish Fold',
+    'Singapura',
+    'Somali',
+    'Tonkinese',
+    'Turkish Van',
+    'York Chocolate'
+];
+
+// Function to populate breed options based on selected type
+function populateBreeds() {
+    const typeSelect = document.getElementById('type');
+    const breedSelect = document.getElementById('breed');
+    const breedInput = document.getElementById('breedInput');
+    const specify = document.getElementById('specify');
+    const selectedType = typeSelect.value;
+
+    // Clear existing options
+    breedSelect.innerHTML = '';
+
+    // Populate breed options based on selected type
+    let breeds = (selectedType === 'dog') ? dogBreeds : catBreeds;
+
+    // Add an "Others" option
+    breeds.push('Others');
+
+    breeds.forEach(breed => {
+        const option = document.createElement('option');
+        option.text = breed;
+        option.value = breed; // Set the value same as the text
+        breedSelect.add(option);
+    });
+
+    // If "Others" is selected, show an input field for specifying breed
+    breedSelect.addEventListener('change', function () {
+        const selectedBreed = breedSelect.value;
+
+        if (selectedBreed === 'Others') {
+            breedInput.style.display = 'block';
+            specify.style.display = 'block';
+        } else {
+            breedInput.style.display = 'none';
+            specify.style.display = 'none';
+        }
+    });
+
+    // When the custom breed is entered, update the value of the "Others" option
+    breedInput.addEventListener('input', function () {
+        const customBreed = breedInput.value.trim();
+        const othersOption = breedSelect.querySelector('option[value="Others"]');
+
+        if (customBreed !== '') {
+            othersOption.value = customBreed;
+        } else {
+            othersOption.value = 'Others';
+        }
+    });
+}
+
+// Listen for changes in the type select element
+document.getElementById('type').addEventListener('change', populateBreeds);
+
+// Initially populate breed options based on the default type
+populateBreeds();
+</script>
+
+ <!-- Navigation Scroll View -->
+ <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all navigation items
+        const navItems = document.querySelectorAll('nav ul li');
+
+        // Add click event listener to each navigation item
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove color changes from all navigation items
+                navItems.forEach(navItem => {
+                    navItem.style.color = ''; // Revert text color to default
+                    navItem.style.backgroundColor = ''; // Revert background color to default
+                });
+
+                // Set text color to green for the clicked navigation item
+                this.style.color = '#30d300';
+
+                // Scroll to the corresponding section if a navigation button is clicked
+                const sectionId = this.dataset.sectionId;
+                if (sectionId) {
+                    const section = document.getElementById(sectionId);
+                    section.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    });
+</script>
+
+<!-- Navigation to previous pages -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the username from the URL query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const usernameParam = urlParams.get('username');
+
+    // Add event listeners to navigation buttons
+    const homeBtn = document.getElementById('homeBtn');
+    const adoptBtn = document.getElementById('adoptBtn');
+    const contactBtn = document.getElementById('contact-nav');
+    const lostBtn = document.getElementById('lostBtn');
+    
+    homeBtn.addEventListener('click', function() {
+        var token = localStorage.getItem('token');
+        // Navigate back to home page with username parameter
+        window.location.href = `home.html?username=${usernameParam}&token=${token}`;
+    });
+
+    adoptBtn.addEventListener('click', function() {
+        var token = localStorage.getItem('token');
+        // Navigate to the adopt section on the home page with username parameter
+        window.location.href = `home.html?username=${usernameParam}#adoptSection&token=${token}`;
+    });
+    lostBtn.addEventListener('click', function() {
+        var token = localStorage.getItem('token');
+        // Navigate to the contact section on the home page with username parameter
+        window.location.href = `lostPets.html?username=${usernameParam}&token=${token}`;
+    });
+});
+</script>
+
+<!-- Redirect to profile page -->
+<script>
+// Function to redirect to profile page
+function redirectToProfile(username) {
+    // Redirect to profile.html with username as query parameter
+    window.location.href = `profile.html?username=${username}`;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is logged in
+    var loggedIn = sessionStorage.getItem('loggedIn');
+    if (!loggedIn) {
+        // If user is not logged in, redirect to sign-in page
+        window.location.href = "signin.html";
+    }
+
+  // Event listener for profile button
+document.getElementById("profileButton").addEventListener("click", function() {
+    var token = localStorage.getItem('token');
+// Redirect to profile page with username query parameter
+const urlParams = new URLSearchParams(window.location.search);
+const usernameParam = urlParams.get('username');
+window.location.href = `profile.html?username=${usernameParam}&token=${token}`;
+});
+
+});
+</script>
+
+<!-- Javascript for logout button -->
+<script>
+    document.getElementById("logoutBtn").addEventListener("click", function() {
+        // Retrieve username from query parameters or another source
+        const urlParams = new URLSearchParams(window.location.search);
+        const usernameParam = urlParams.get('username');
+
+        fetch(`http://localhost:3000/logout?username=${usernameParam}`, {
+            method: 'POST'
+        })
+        .then(response => response.text())
+        .then(message => {
+            console.log(message); // Log the message
+            if (message === "Logout successful") {
+                // Remove token and username from localStorage or sessionStorage
+                localStorage.removeItem('token');
+                localStorage.removeItem('username'); // If username is stored separately
+                // Redirect to sign-in page after successful logout
+                window.location.href = "signin.html";
+            } else {
+                alert("Logout failed. Please try again.");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+
+ <!-- Javascript for yes I understand checkbox -->
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the checkbox, continue button, reminder section, and post section
+            const understandCheckbox = document.getElementById('understandCheckbox');
+            const continueBtn = document.getElementById('continueBtn');
+            const reminderSection = document.getElementById('reminderSection');
+            const postSection = document.getElementById('postSection');
+
+            // Add event listener to the continue button
+            continueBtn.addEventListener('click', function() {
+                // Hide the reminder section
+                reminderSection.style.display = 'none';
+                // Show the post section
+                postSection.style.display = 'block';
+                // Add class to perform slide animation
+                postSection.classList.add('post-section-visible');
+            });
+
+            // Add event listener to the checkbox
+            understandCheckbox.addEventListener('change', function() {
+                // Enable or disable the continue button based on checkbox state
+                continueBtn.disabled = !this.checked;
+            });
+        });
+</script>
+
+<!-- Javascript to close dialog box -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const postArea = document.getElementById("postArea");
+    const dialogBox = document.getElementById("dialogBox");
+
+    postArea.addEventListener("click", function() {
+        dialogBox.classList.add("show");
+    });
+
+    // Close the dialog box when clicking outside of it
+    window.addEventListener("click", function(event) {
+        if (event.target == dialogBox) {
+            dialogBox.classList.remove("show");
+        }
+    });
+});
+</script>
+
+<!-- Javascript for adding found pets -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const petForm = document.getElementById("petForm");
+    
+        petForm.addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent form submission
+    
+            // Gather form data including image
+            const formData = new FormData(petForm);
+    
+            // Add the currently logged-in username to the pet data (if needed)
+            const urlParams = new URLSearchParams(window.location.search);
+            const usernameParam = urlParams.get('username');
+            formData.append('owner_username', usernameParam);
+    
+            // Send pet data to the server
+            fetch("http://localhost:3000/add-found-pet", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.text())
+            .then(message => {
+                console.log(message); // Log the server response
+                // Store the form submission status and pet type in session storage
+                sessionStorage.setItem('formSubmitted', 'true');
+                sessionStorage.setItem('petType', formData.get('type')); // Store pet type
+                // Redirect to the same page to trigger load event
+                window.location.href = window.location.href;
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    
+        window.addEventListener('load', function() {
+            // Check if the form was submitted
+            if (sessionStorage.getItem('formSubmitted') === 'true') {
+                // Clear the form submission status
+                sessionStorage.removeItem('formSubmitted');
+                const petType = sessionStorage.getItem('petType');
+                sessionStorage.removeItem('petType');
+                showThankYouMessage(petType); // Show thank you message and GIF based on pet type
+            }
+        });
+    
+        function showThankYouMessage(petType) {
+            // Create overlay to block page interaction
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // Darker overlay background
+            overlay.style.zIndex = '9999';
+            overlay.style.pointerEvents = 'auto';
+            overlay.style.display = 'flex';
+            overlay.style.justifyContent = 'center';
+            overlay.style.alignItems = 'center';
+    
+            // Create main container for GIF and message
+            const messageContainer = document.createElement('div');
+            messageContainer.style.backgroundColor = '#fff'; // Dark background for message container
+            messageContainer.style.padding = '20px';
+            messageContainer.style.borderRadius = '10px';
+            messageContainer.style.display = 'flex';
+            messageContainer.style.flexDirection = 'column'; // Stack items vertically
+            messageContainer.style.alignItems = 'center'; // Center horizontally
+            messageContainer.style.zIndex = '10000';
+            messageContainer.style.position = 'relative'; // Ensure positioning within the overlay
+            messageContainer.style.overflow = 'hidden'; // Hide overflow for animation
+    
+            // Create GIF element
+            const gifImage = document.createElement('img');
+            // Set GIF source based on pet type
+            if (petType === 'cat') {
+                gifImage.src = '/assets/gifs/cat-walking-with-shopping-bags-unscreen.gif'; 
+            } else {
+                gifImage.src = '/assets/gifs/dog-animated-icon-download-in--unscreen.gif'; 
+            }
+            gifImage.alt = 'Thank You GIF';
+            gifImage.style.width = '150px'; // Adjust size as needed
+            gifImage.style.position = 'absolute'; // Absolute positioning to animate
+            gifImage.style.top = '50px'; // Start a bit lower to create space above
+            gifImage.style.left = '0'; // Start off-screen to the left of the container
+    
+            // Add animation to GIF
+            gifImage.style.animation = 'walkRight 10s linear forwards'; // Adjust duration as needed
+    
+            // Create thank you message element
+            const thankYouMessage = document.createElement('p');
+            thankYouMessage.textContent = 'Thank you for letting us know about the found pet! Your effort in helping them find their way back home is greatly appreciated.';
+            thankYouMessage.style.fontSize = '20px';
+            thankYouMessage.style.color = 'black';
+            thankYouMessage.style.marginTop = '220px'; // Adjust margin to create space below the GIF
+    
+            // Append GIF and message to the container
+            messageContainer.appendChild(gifImage);
+            messageContainer.appendChild(thankYouMessage);
+    
+            // Append the container and overlay to the body
+            document.body.appendChild(overlay);
+            overlay.appendChild(messageContainer); // Append to overlay to center it
+    
+            // Extend the container width to match the GIF animation length
+            const containerWidth = window.innerWidth * 2; // Extend to twice the viewport width or as needed
+            messageContainer.style.width = containerWidth + 'px';
+    
+            // Remove the overlay and message after 10 seconds
+            setTimeout(function() {
+                document.body.removeChild(overlay);
+            }, 10000); // Adjust duration as needed
+        }
+    });
+</script>
+
+<!-- Javascript for displaying found pets -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch pets data from the server
+        fetch('http://localhost:3000/found-pets')
+            .then(response => response.json())
+            .then(pets => {
+                const petsContainer = document.getElementById('foundPetContainer');
+                pets.forEach(pet => {
+                    // Skip displaying pets with Confirm column set to "Yes"
+             if (pet.Confirm === 'Yes') {
+                 return;
+             }
+                    const petElement = document.createElement('div');
+                    petElement.classList.add('pet');
+
+                    // Determine the status icon and color based on pet status
+                    let statusIcon, statusColor;
+                    let statusText = pet.status || 'Lost'; // Default status text to 'Lost' if null
+                    
+                    switch (statusText) {
+                        case 'Lost':
+                            statusIcon = 'fas fa-question-circle';
+                            statusColor = 'gray';
+                            break;
+                        case 'Adoptable':
+                            statusIcon = 'fas fa-heart';
+                            statusColor = 'green';
+                            break;
+                        case 'Reunited':
+                            statusIcon = 'fas fa-handshake';
+                            statusColor = 'blue';
+                            break;
+                        case 'Adopted':
+                            statusIcon = 'fas fa-home';
+                            statusColor = 'purple';
+                            break;
+                        case 'Deceased':
+                            statusIcon = 'fas fa-skull-crossbones';
+                            statusColor = 'red';
+                            break;
+                        default:
+                            statusIcon = 'fas fa-question-circle';
+                            statusColor = 'gray';
+                    }
+
+                    // Add pet's information and image with status indicators
+                    petElement.innerHTML = `
+                        <div class="pet" style="position: relative;">
+                            <h2>Breed: ${pet.breed}</h2>
+                            <p>Estimated Age: ${pet.age}</p>
+                            <p>Gender: ${pet.gender}</p><br>
+                            <p>Status: <i class="${statusIcon}" style="color: ${statusColor};"></i> ${statusText}</p>
+                            <div class="image-container">
+                                <img class="main-image" src="/${pet.image.split(',')[0]}" alt="${pet.name}">
+                                <div class="image-navigation">
+                                    <span class="nav-arrow left-arrow">&lt;</span>
+                                    <span class="nav-arrow right-arrow">&gt;</span>
+                                </div>
+                            <div class="buttons">
+                                <button class="adopt-button" data-name="${pet.name}" data-contact="${pet.contact}" data-location="${pet.location}" ${statusText !== 'Lost' ? 'disabled' : ''}>Contact</button>
+                                <button class="description-button" data-user="${pet.owner_username}" data-description="${pet.description}">Description</button>
+                            </div>
+                        </div>
+                    `;
+
+                    petsContainer.appendChild(petElement);
+
+                    // Add event listener for adopt button within the loop
+                    const adoptButton = petElement.querySelector('.adopt-button');
+                    adoptButton.addEventListener('click', function(event) {
+                        if (statusText !== 'Lost') {
+                            return; // Do nothing if the pet is not Lost
+                        }
+                        event.stopPropagation(); // Prevent click event from propagating to window
+                        const name = this.dataset.name;
+                        const contact = this.dataset.contact;
+                        const location = this.dataset.location;
+                        const dialogBox = document.getElementById('descriptionDialog');
+                        const contactElement = document.getElementById('descriptionUser');
+                        const locationElement = document.getElementById('descriptionText');
+                        // Wrap the contact information in a <strong> tag
+                        contactElement.innerHTML = `If you own this pet, contact: <p style="font-size: 30px; text-align: center;"><strong>${contact}</strong></p>`;
+                        locationElement.innerHTML = `Location: <br><strong style="font-size: 20px;">${location}</strong>`;
+                        // Position the dialog box relative to the adopt button
+                        const buttonRect = adoptButton.getBoundingClientRect();
+                        dialogBox.style.top = `${buttonRect.top}px`;
+                        dialogBox.style.left = `${buttonRect.right}px`;
+                        dialogBox.style.display = 'block';
+                        dialogBox.style.background = '#333';
+                        dialogBox.style.color = 'white';
+                    });
+
+                    // Add event listener for description button within the loop
+                    const descriptionButton = petElement.querySelector('.description-button');
+                    descriptionButton.addEventListener('click', function(event) {
+                        event.stopPropagation(); // Prevent click event from propagating to window
+                        const user = this.dataset.user;
+                        const description = this.dataset.description;
+                        const dialogBox = document.getElementById('descriptionDialog');
+                        const userElement = document.getElementById('descriptionUser');
+                        const descriptionElement = document.getElementById('descriptionText');
+                        userElement.innerHTML = `From: <a href="profile.html?username=${user}" style="color: black; text-decoration: none;"><strong>@${user}</strong></a>`;
+                        descriptionElement.textContent = description;
+                        // Position the dialog box relative to the description button
+                        const buttonRect = descriptionButton.getBoundingClientRect();
+                        dialogBox.style.top = `${buttonRect.top}px`;
+                        dialogBox.style.left = `${buttonRect.left}px`;
+                        dialogBox.style.display = 'block';
+                        dialogBox.style.background = 'white';
+                        dialogBox.style.color = 'black';
+                    });
+                    
+                        const imageContainer = petElement.querySelector('.image-container');
+                        const mainImage = petElement.querySelector('.main-image');
+                        const leftArrow = petElement.querySelector('.left-arrow');
+                        const rightArrow = petElement.querySelector('.right-arrow');
+
+                        let currentIndex = 0;
+                        const images = pet.image.split(',');
+                        mainImage.src = `/${images[currentIndex]}`;
+
+                        leftArrow.addEventListener('click', function() {
+                            currentIndex = (currentIndex - 1 + images.length) % images.length;
+                            mainImage.src = `/${images[currentIndex]}`;
+                        });
+
+                        rightArrow.addEventListener('click', function() {
+                            currentIndex = (currentIndex + 1) % images.length;
+                            mainImage.src = `/${images[currentIndex]}`;
+                        });
+
+                        imageContainer.addEventListener('mouseenter', function() {
+                            if (images.length > 1) {
+                                petElement.querySelector('.image-navigation').style.display = 'block';
+                            }
+                        });
+
+                        imageContainer.addEventListener('mouseleave', function() {
+                            petElement.querySelector('.image-navigation').style.display = 'none';
+                        });
+                    });
+                })
+                .catch(error => console.error('Error fetching pets:', error));
+        });
+
+    // Add click event listener to window to close dialog box when clicking outside of it
+    window.addEventListener('click', function(event) {
+        const dialogBox = document.getElementById('descriptionDialog');
+        if (event.target !== dialogBox && !dialogBox.contains(event.target)) {
+            dialogBox.style.display = 'none'; // Hide the dialog box
+        }
+    });
+</script>
+
+ <!-- Javascript to handle search filtering -->
+ <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    let activeCategory = 'all'; // Store the active category globally
+
+    // Function to fetch pets based on category
+    function filterPets(category) {
+        activeCategory = category; // Update the active category
+        // Send a GET request to the server to fetch pets by category
+        fetch(`http://localhost:3000/filterFoundPetsByCategory/${category}`)
+            .then(response => response.json())
+            .then(pets => {
+                displayPets(pets); // Call function to display the filtered pets
+                highlightActiveButton(category); // Highlight the active button
+            })
+            .catch(error => console.error('Error filtering pets by category:', error));
+    }
+
+ // Function to display pets
+function displayPets(pets) {
+    const petsContainer = document.getElementById('foundPetContainer');
+    var token = localStorage.getItem('token');
+
+    // Redirect to page with username query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const usernameParam = urlParams.get('username');
+    var token = localStorage.getItem('token');
+
+    petsContainer.innerHTML = ''; // Clear previous pet elements
+
+    if (pets.length === 0) {
+        const noPetsMessage = document.createElement('div');
+        noPetsMessage.textContent = 'No pets found';
+        noPetsMessage.style.fontSize = '24px'; // Increase font size
+        petsContainer.appendChild(noPetsMessage);
+        return; // Exit the function early if no pets are found
+    }
+
+    pets.forEach(pet => {
+        // Skip displaying pets with Confirm column set to "Yes"
+        if (pet.Confirm === 'Yes') {
+                 return;
+             }
+        const petElement = document.createElement('div');
+        petElement.classList.add('pet');
+
+        // Determine the status icon and color based on pet status
+        let statusIcon, statusColor;
+                    let statusText = pet.status || 'Lost'; // Default status text to 'Lost' if null
+                    
+                    switch (statusText) {
+                        case 'Lost':
+                            statusIcon = 'fas fa-question-circle';
+                            statusColor = 'gray';
+                            break;
+                        case 'Adoptable':
+                            statusIcon = 'fas fa-paw';
+                            statusColor = 'green';
+                            break;
+                        case 'Reunited':
+                            statusIcon = 'fas fa-handshake';
+                            statusColor = 'blue';
+                            break;
+                        case 'Adopted':
+                            statusIcon = 'fas fa-home';
+                            statusColor = 'purple';
+                            break;
+                        case 'Deceased':
+                            statusIcon = 'fas fa-skull-crossbones';
+                            statusColor = 'black';
+                            break;
+                        default:
+                            statusIcon = 'fas fa-question-circle';
+                            statusColor = 'gray';
+                    }
+
+                    // Add pet's information and image with status indicators
+                    petElement.innerHTML = `
+                        <div class="pet" style="position: relative;">
+                            <h2>Breed: ${pet.breed}</h2>
+                            <p>Estimated Age: ${pet.age}</p>
+                            <p>Gender: ${pet.gender}</p><br>
+                            <p>Status: <i class="${statusIcon}" style="color: ${statusColor};"></i> ${statusText}</p>
+                            <div class="image-container">
+                                <a href="petDetails.html?id=${pet.id}&source=found&token=${token}&username=${usernameParam}&token=${token}">
+                                <img class="main-image" src="/${pet.image.split(',')[0]}" alt="${pet.name}">
+                                </a>
+                                <div class="image-navigation">
+                                    <span class="nav-arrow left-arrow">&lt;</span>
+                                    <span class="nav-arrow right-arrow">&gt;</span>
+                                </div>
+                            <div class="buttons">
+                                <button class="adopt-button" data-name="${pet.name}" data-contact="${pet.contact}" data-location="${pet.location}" ${statusText !== 'Lost' ? 'disabled' : ''}>Contact</button>
+                                <button class="description-button" data-user="${pet.owner_username}" data-description="${pet.description}">Description</button>
+                            </div>
+                        </div>
+                    `;
+
+                    petsContainer.appendChild(petElement);
+
+                                    // Prevent opening dialog on arrow click
+                const navigationArrows = petElement.querySelectorAll('.nav-arrow');
+                navigationArrows.forEach(arrow => {
+                    arrow.addEventListener('click', function(event) {
+                        event.stopPropagation(); // Stop event propagation to parent elements
+                    });
+                });
+
+                // Add event listener for adopt button within the loop
+                const adoptButton = petElement.querySelector('.adopt-button');
+                adoptButton.addEventListener('click', function(event) {
+                    if (statusText !== 'Lost') {
+                        return; // Do nothing if the pet is not Lost
+                    }
+                    event.stopPropagation(); // Prevent click event from propagating to window
+                    const name = this.dataset.name;
+                    const contact = this.dataset.contact;
+                    const location = this.dataset.location;
+                    const dialogBox = document.getElementById('descriptionDialog');
+                    const contactElement = document.getElementById('descriptionUser');
+                    const locationElement = document.getElementById('descriptionText');
+                    // Wrap the contact information in a <strong> tag
+                    contactElement.innerHTML = `If you own this pet, contact: <p style="font-size: 30px; text-align: center;"><strong>${contact}</strong></p>`;
+                    locationElement.innerHTML = `Location: <br><strong style="font-size: 20px;">${location}</strong>`;
+                    // Position the dialog box relative to the adopt button
+                    const buttonRect = adoptButton.getBoundingClientRect();
+                    dialogBox.style.top = `${buttonRect.top}px`;
+                    dialogBox.style.left = `${buttonRect.right}px`;
+                    dialogBox.style.display = 'block';
+                    dialogBox.style.background = '#333';
+                    dialogBox.style.color = 'white';
+                });
+
+
+            // Add event listener for description button within the loop
+            const descriptionButton = petElement.querySelector('.description-button');
+            descriptionButton.addEventListener('click', function(event) {
+                event.stopPropagation(); // Prevent click event from propagating to window
+                const user = this.dataset.user;
+                const description = this.dataset.description;
+                const dialogBox = document.getElementById('descriptionDialog');
+                const userElement = document.getElementById('descriptionUser');
+                const descriptionElement = document.getElementById('descriptionText');
+                userElement.innerHTML = `From: <a href="profile.html?username=${user}" style="color: black; text-decoration: none;"><strong>@${user}</strong></a>`;
+                descriptionElement.textContent = description;
+                // Position the dialog box relative to the description button
+                const buttonRect = descriptionButton.getBoundingClientRect();
+                dialogBox.style.top = `${buttonRect.top}px`;
+                dialogBox.style.left = `${buttonRect.left}px`;
+                dialogBox.style.display = 'block';
+                dialogBox.style.background = 'white';
+                dialogBox.style.color = 'black';
+            });
+            
+        // Image navigation functionality
+        const imageContainer = petElement.querySelector('.image-container');
+        const mainImage = petElement.querySelector('.main-image');
+        const leftArrow = petElement.querySelector('.left-arrow');
+        const rightArrow = petElement.querySelector('.right-arrow');
+
+        let currentIndex = 0;
+        const images = pet.image.split(',');
+        mainImage.src = `/${images[currentIndex]}`;
+
+        leftArrow.addEventListener('click', function() {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            mainImage.src = `/${images[currentIndex]}`;
+        });
+
+        rightArrow.addEventListener('click', function() {
+            currentIndex = (currentIndex + 1) % images.length;
+            mainImage.src = `/${images[currentIndex]}`;
+        });
+
+        // Show image navigation on hover
+        imageContainer.addEventListener('mouseenter', function() {
+            if (images.length > 1) {
+                petElement.querySelector('.image-navigation').style.display = 'block';
+            }
+        });
+
+        imageContainer.addEventListener('mouseleave', function() {
+            petElement.querySelector('.image-navigation').style.display = 'none';
+        });
+
+        let currentDialog = null; // Track the current active dialog
+
+// Event listener for displaying full pet details on click
+mainImage.addEventListener('click', function() {
+    // Close the current dialog if one is open
+    if (currentDialog) {
+        closeDialog();
+    }
+
+    const dialogBox = document.createElement('div');
+    dialogBox.classList.add('pet-dialog');
+    dialogBox.style.background = 'white';
+    dialogBox.style.color = 'black';
+    dialogBox.style.padding = '20px';
+    dialogBox.style.position = 'fixed';
+    dialogBox.style.top = '50%';
+    dialogBox.style.left = '50%';
+    dialogBox.style.transform = 'translate(-50%, -50%)';
+    dialogBox.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+    dialogBox.style.zIndex = '1000';
+
+    let currentIndex = 0;
+    const images = pet.image.split(',');
+    const totalImages = images.length;
+
+    function showCurrentImage() {
+        const mainImage = dialogBox.querySelector('.main-image');
+        mainImage.src = `/${images[currentIndex]}`;
+    }
+
+    dialogBox.innerHTML = `
+        <h2>${pet.owner_username}</h2>
+        <p>${pet.description}</p>
+        <br>
+        <p>Estimated Age: ${pet.age}</p>
+        <p>Breed: ${pet.breed}</p>
+        <p>Gender: ${pet.gender}</p>
+        <p>Status: <i class="${statusIcon}" style="color: ${statusColor};"></i> ${statusText}</p>
+        <p>Contact: <strong>${pet.contact}</strong></p>
+        <p>Location: <strong>${pet.location}</strong></p>
+        <div class="image-container">
+            <img class="main-image" src="/${images[currentIndex]}" alt="${pet.name}">
+            <div class="image-navigation">
+                <span class="nav-arrow left-arrow">&lt;</span>
+                <span class="nav-arrow right-arrow">&gt;</span>
+            </div>
+        </div>
+        <button class="close-button">Close</button>
+    `;
+
+    document.body.appendChild(dialogBox);
+    currentDialog = dialogBox; // Set the current active dialog
+
+    // Function to close the dialog box
+    const closeDialog = function() {
+        if (currentDialog && document.body.contains(currentDialog)) {
+            document.body.removeChild(currentDialog);
+            currentDialog = null; // Reset currentDialog when dialog is closed
+        }
+    };
+
+    // Close button functionality
+    const closeButton = dialogBox.querySelector('.close-button');
+    closeButton.addEventListener('click', function() {
+        closeDialog();
+    });
+
+    // Image navigation functionality
+    const mainImage = dialogBox.querySelector('.main-image');
+    const leftArrow = dialogBox.querySelector('.left-arrow');
+    const rightArrow = dialogBox.querySelector('.right-arrow');
+
+    leftArrow.addEventListener('click', function() {
+        currentIndex = (currentIndex - 1 + totalImages) % totalImages;
+        showCurrentImage();
+    });
+
+    rightArrow.addEventListener('click', function() {
+        currentIndex = (currentIndex + 1) % totalImages;
+        showCurrentImage();
+    });
+});
+
+        });
+    }
+
+    // Function to apply filter using the selected dropdown value
+function applyFilter() {
+    const selectedValue = document.getElementById('filterDropdown').value;
+    let inputValue = '';
+
+    if (selectedValue === 'gender' || selectedValue === 'age' || selectedValue === 'breed' || selectedValue === 'location') {
+        inputValue = document.getElementById('inputValue').value;
+    }
+
+    // Make AJAX request to filterPets endpoint
+    fetch(`http://localhost:3000/filterFoundPets`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ filter: selectedValue, value: inputValue, category: activeCategory }) // Send active category along with filter
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Display filtered pets
+        displayPets(data);
+    })
+    .catch(error => {
+        console.error('Error applying filter:', error);
+    });
+}
+
+    // Rest of the existing code remains the same...
+
+    // Add event listener for the Go button
+    document.querySelector('.search-btn').addEventListener('click', applyFilter);
+
+    // Add event listeners for filter buttons
+    const allButton = document.getElementById('allButton');
+    const dogsButton = document.getElementById('dogsButton');
+    const catsButton = document.getElementById('catsButton');
+
+    allButton.addEventListener('click', function() {
+        filterPets('all');
+    });
+
+    dogsButton.addEventListener('click', function() {
+        filterPets('dog');
+    });
+
+    catsButton.addEventListener('click', function() {
+        filterPets('cat');
+    });
+
+    // Function to highlight the active button
+    function highlightActiveButton(activeCategory) {
+        // Remove active class from all buttons
+        allButton.classList.remove('active');
+        dogsButton.classList.remove('active');
+        catsButton.classList.remove('active');
+
+        // Add active class to the button corresponding to the active category
+        if (activeCategory === 'all') {
+            allButton.classList.add('active');
+        } else if (activeCategory === 'dog') {
+            dogsButton.classList.add('active');
+        } else if (activeCategory === 'cat') {
+            catsButton.classList.add('active');
+        }
+    }
+
+    // Set default active button to "All" on page load
+    highlightActiveButton('all');
+    filterPets('all'); // Fetch and display all pets on page load
+
+    // Update input field visibility based on selected filter
+    document.getElementById('filterDropdown').addEventListener('change', function() {
+        const filterValue = this.value;
+        const inputField = document.querySelector('.input-field');
+        
+        if (filterValue === 'gender' || filterValue === 'age' || filterValue === 'breed' || filterValue === 'location') {
+            inputField.style.display = 'block';
+            document.getElementById('inputValue').setAttribute('placeholder', `Enter ${filterValue}`);
+        } else {
+            inputField.style.display = 'none';
+        }
+    });
+});
+</script>
+
+ <!-- About us and Faq Buttons -->
+ <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Get references to the ABOUT US and FAQ elements
+        var aboutUsNavItem = document.querySelector('li[data-section-id="aboutUsSection"]');
+        var faqNavItem = document.querySelector('li[data-section-id="faqSection"]');
+    
+        // Get references to the dialog contents
+        var aboutUsContent = document.getElementById('aboutUsContent');
+        var faqContent = document.getElementById('faqContent');
+    
+        // Get reference to the overlay
+        var overlay = document.getElementById('overlay');
+    
+        // Function to show dialog box and overlay
+        function showDialog(dialogContent) {
+            dialogContent.classList.add('active');
+            overlay.style.display = "block"; // Show overlay
+        }
+    
+        // Function to hide dialog box and overlay
+        function hideDialog(dialogContent) {
+            dialogContent.classList.remove('active', 'clicked');
+            overlay.style.display = "none"; // Hide overlay
+        }
+    
+        // Show ABOUT US content on hover
+        aboutUsNavItem.addEventListener("mouseenter", function() {
+            showDialog(aboutUsContent);
+            if (faqContent.classList.contains('clicked')) {
+                hideDialog(faqContent); // Hide FAQ if it's clicked
+            }
+        });
+    
+        // Hide ABOUT US content on mouse leave if it was not clicked
+        aboutUsNavItem.addEventListener("mouseleave", function(event) {
+            // Check if the cursor is not inside the dialog box
+            if (!aboutUsContent.contains(event.relatedTarget) && !aboutUsContent.classList.contains('clicked')) {
+                hideDialog(aboutUsContent);
+            }
+        });
+    
+        // Show ABOUT US content on click
+        aboutUsNavItem.addEventListener("click", function() {
+            hideDialog(faqContent); // Hide FAQ if it's open
+            aboutUsContent.classList.add('clicked');
+            showDialog(aboutUsContent);
+        });
+    
+        // Show FAQ content on hover
+        faqNavItem.addEventListener("mouseenter", function() {
+            showDialog(faqContent);
+            if (aboutUsContent.classList.contains('clicked')) {
+                hideDialog(aboutUsContent); // Hide ABOUT US if it's clicked
+            }
+        });
+    
+        // Hide FAQ content on mouse leave if it was not clicked
+        faqNavItem.addEventListener("mouseleave", function(event) {
+            // Check if the cursor is not inside the dialog box
+            if (!faqContent.contains(event.relatedTarget) && !faqContent.classList.contains('clicked')) {
+                hideDialog(faqContent);
+            }
+        });
+    
+        // Show FAQ content on click
+        faqNavItem.addEventListener("click", function() {
+            hideDialog(aboutUsContent); // Hide ABOUT US if it's open
+            faqContent.classList.add('clicked');
+            showDialog(faqContent);
+        });
+    
+        // Keep the dialog open if hovering over the dialog itself
+        aboutUsContent.addEventListener("mouseenter", function() {
+            showDialog(aboutUsContent);
+        });
+    
+        faqContent.addEventListener("mouseenter", function() {
+            showDialog(faqContent);
+        });
+    
+        // Hide dialog boxes and overlay when clicking outside
+        overlay.addEventListener("click", function() {
+            hideDialog(aboutUsContent);
+            hideDialog(faqContent);
+        });
+    
+        // Prevent clicks inside dialog content from hiding the dialog boxes
+        aboutUsContent.addEventListener("click", function(event) {
+            event.stopPropagation(); // Prevent propagation of click event
+        });
+    
+        faqContent.addEventListener("click", function(event) {
+            event.stopPropagation(); // Prevent propagation of click event
+        });
+    });
+</script>
+
+ <!-- JavaScript to pass the token -->
+ <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var usernameParam = urlParams.get('username');
+    var token = localStorage.getItem('token');
+    if (!token) {
+        // Handle case where token is missing (e.g., redirect to login)
+        window.location.href = "signin.html";
+    } else {
+        console.log("Token found:", token);
+        console.log("User:", usernameParam);
+        // Use the token as needed
+    }
+});
+</script>
+
+<!-- Responsive Nav Bar -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const menuToggle = document.getElementById('menuToggle');
+        const navMenu = document.querySelector('.nav-menu ul');
+
+        menuToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('show');
+        });
+    })
+</script>
+
+ <!-- Javascript to handle token expiration -->
+<script>
+    // Function to check if the JWT token is expired
+    function isTokenExpired(token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+            const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    
+            // Check if the token is expired
+            return payload.exp < currentTime;
+        } catch (error) {
+            console.error('Error decoding token:', error);
+            return true; // Assume token is expired if there's an error
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        const token = localStorage.getItem('token');
+    
+        if (!token || isTokenExpired(token)) {
+            // Token is missing or expired, redirect to sign-in page
+            window.location.href = 'signin.html';
+        }
+    });
+    
+</script>
+
+ <!-- Javascript to footer's btns-->
+ <script>
+    document.getElementById("settingsBtn").addEventListener("click", function() {
+    var token = localStorage.getItem('token');
+    // Redirect to profile page with username query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const usernameParam = urlParams.get('username');
+    window.location.href = `/public/settings.html?username=${usernameParam}&token=${token}`;
+});
+
+    document.getElementById("privacyBtn").addEventListener("click", function() {
+    var token = localStorage.getItem('token');
+    // Redirect to profile page with username query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const usernameParam = urlParams.get('username');
+    window.location.href = `/public/privacy.html?username=${usernameParam}&token=${token}`;
+});
+
+    document.getElementById("supportBtn").addEventListener("click", function() {
+    var token = localStorage.getItem('token');
+    // Redirect to profile page with username query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const usernameParam = urlParams.get('username');
+    window.location.href = `/public/support.html?username=${usernameParam}&token=${token}`;
+});
+
+    document.getElementById("termsBtn").addEventListener("click", function() {
+    var token = localStorage.getItem('token');
+    // Redirect to profile page with username query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const usernameParam = urlParams.get('username');
+    window.location.href = `/public/terms.html?username=${usernameParam}&token=${token}`;
+});
+</script>
+</body>
+</html>

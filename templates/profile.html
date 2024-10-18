@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - PetConnect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" href="/assets/logos/logo_browser.png" type="image/x-icon">
+    <link rel="stylesheet" href="/assets/css/profile.css">
+    <style>
+      /* Modal styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
+}
+
+/* Modal content styles */
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px; /* Ensures the modal does not become too wide */
+    text-align: left; /* Ensure the text is left-aligned */
+}
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* Close button styles */
+.close-btn {
+    color: #555;
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: #000;
+}
+
+/* Form styles */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    margin-bottom: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus {
+    border-color: #007BFF;
+    outline: none;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+}
+
+/* Submit button styles */
+button[type="submit"] {
+    background-color: #ff9500;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+    background-color: #b37100;
+}
+.editForm {
+    text-align: left;
+}
+#editProfileBtn {
+    margin-left: 45%;
+    margin-top: -10px;
+    cursor: pointer;
+}
+@media (max-width: 480px) {
+    #editProfileBtn {
+        margin-left: 40%;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div id="user-container">
+                <!-- User details will be displayed here -->
+            </div>
+            <div class="profile-photo" style="position: relative;">
+                <input type="file" id="profileImage" accept="image/*" onchange="uploadProfileImage(this)" style="display: none;">
+                <!-- Default user icon -->
+                <i class="fas fa-user" id="defaultUserIcon"></i>
+                <!-- Profile image display -->
+                <img src="" id="profileImageDisplay" style="display: none;">
+                
+                <!-- Options for update/delete -->
+                <div id="editOptions" class="edit-options">
+                    <button onclick="triggerUpload()" id="triggerUpload">Update Picture</button>
+                    <button onclick="deleteProfileImage()" id="deleteUpload">Delete Picture</button>
+                </div>
+            </div>
+    
+            <!-- Username and profile info -->
+            <div class="username" id="username"> <!-- Updated to display first and last name --> </div>
+            <div class="profile-info" id="profileInfo">Member since: <!-- Registration date here --></div>   
+            <button id="editProfileBtn" class="btn btn-outline-primary btn-sm mt-2"><i class="fas fa-edit mr-1"></i>Edit Info</button>       
+        </div>
+
+        <!-- Modal for Editing Profile -->
+        <div id="editProfileModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Edit Profile</h2>
+                <form id="editProfileForm">
+                    <label for="editFirstname" class="editForm">First Name:</label>
+                    <input type="text" id="editFirstname" name="firstname">
+                    <label for="editLastname" class="editForm">Last Name:</label>
+                    <input type="text" id="editLastname" name="lastname">
+                    <!-- Remove Username field -->
+                    <!-- Remove Role field -->
+                    <label for="editLocation" class="editForm">Location:</label>
+                    <input type="text" id="editLocation" name="location">
+                    <button type="submit">Save Changes</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button id="petsButton" onclick="getPets()"><i class="fas fa-paw"></i> Pets</button>
+            <button id="lostButton" onclick="getLost()"><i class="fas fa-exclamation-triangle"></i> Lost</button>
+            <button id="foundButton" onclick="getFound()"><i class="fas fa-search"></i> Found</button>
+            <button id="savedButton" onclick="getSaved()"><i class="fas fa-heart"></i> Saved</button>
+        </div>
+        <!-- pets, lost, found, saved pets containers -->
+        <section>
+            <div id="petsContainer" class="pet-container"></div>
+        </section>
+        <section>
+            <div id="lostPetsContainer" class="pet-container"></div>
+        </section>
+        <section>
+            <div id="foundPetsContainer" class="pet-container"></div>
+        </section>
+        <section>
+            <div id="savedPetsContainer" class="pet-container"></div>
+        </section>
+
+       <!-- Logout button -->
+       <li id="logoutBtn"><i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> LOGOUT</li>
+       
+       <!-- Modal for Editing a Pet -->
+        <div id="editPetModal" class="modal">
+            <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>Edit Pet</h2>
+            <form id="editPetForm">
+                <input type="hidden" id="editPetId" />
+                <label for="editPetName">Name:</label>
+                <input type="text" id="editPetName" required>
+                <label for="editPetBreed">Breed:</label>
+                <input type="text" id="editPetBreed">
+                <label for="editPetDescription">Description:</label>
+                <textarea id="editPetDescription"></textarea>
+                <label for="editPetLocation">Location:</label>
+                <input type="text" id="editPetLocation">
+                <label for="editPetContact">Contact:</label>
+                <input type="text" id="editPetContact">
+                <!-- Add other fields as necessary -->
+                <button type="submit">Save Changes</button>
+            </form>
+            </div>
+        </div>
+
+        <!-- Modal for Editing a Lost Pet -->
+        <div id="editLostPetModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeEditLostModal()">&times;</span>
+                <h2>Edit Lost Pet</h2>
+                <form id="editLostPetForm">
+                    <input type="hidden" id="editLostPetId" />
+                    <label for="editLostPetName">Name:</label>
+                    <input type="text" id="editLostPetName" required>
+                    <label for="editLostPetBreed">Breed:</label>
+                    <input type="text" id="editLostPetBreed">
+                    <label for="editLostPetDescription">Description:</label>
+                    <textarea id="editLostPetDescription"></textarea>
+                    <label for="editLostPetLocation">Location:</label>
+                    <input type="text" id="editLostPetLocation">
+                    <label for="editLostPetContact">Contact:</label>
+                    <input type="text" id="editLostPetContact">
+                    <!-- Add other fields as necessary -->
+                    <button type="submit">Save Changes</button>
+                </form>
+            </div>
+        </div>
+        <!-- Modal for Editing a Found Pet -->
+        <div id="editFoundPetModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeEditFoundModal()">&times;</span>
+                <h2>Edit Found Pet</h2>
+                <form id="editFoundPetForm">
+                    <input type="hidden" id="editFoundPetId" />
+                    <label for="editFoundPetBreed">Breed:</label>
+                    <input type="text" id="editFoundPetBreed">
+                    <label for="editFoundPetDescription">Description:</label>
+                    <textarea id="editFoundPetDescription"></textarea>
+                    <label for="editFoundPetLocation">Location:</label>
+                    <input type="text" id="editFoundPetLocation">
+                    <label for="editFoundPetContact">Contact:</label>
+                    <input type="text" id="editFoundPetContact">
+                    <!-- Add other fields as necessary -->
+                    <button type="submit">Save Changes</button>
+                </form>
+            </div>
+        </div>
+
+
+<!-- Overall JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const usernameParam = urlParams.get('username');
+    if (usernameParam) {
+        console.log(`User ${usernameParam}`);
+        document.querySelector('.username').innerText = usernameParam;
+    } else {
+        console.error('Username parameter not found.');
+        window.location.href = "signin.html";
+    }
+    // Initially, display only the pets content
+    getPets();
+});
+
+// Check if a success message should be shown after the page loads
+function checkForSuccessMessage() {
+    if (localStorage.getItem('showSuccessMessage') === 'true') {
+        showSuccessMessage();
+        localStorage.removeItem('showSuccessMessage'); // Remove the flag after showing the message
+    }
+}
+
+function getPets() {
+    setActiveButton('petsButton');
+    const petsContainer = document.getElementById('petsContainer');
+    petsContainer.style.display = 'flex'; // Set display to flex to allow multiple items in a row
+    petsContainer.innerHTML = ''; // Clear the container before adding new content
+    const lostPetsContainer = document.getElementById('lostPetsContainer');
+    lostPetsContainer.style.display = 'none'; // Hide lost pets container
+    const foundPetsContainer = document.getElementById('foundPetsContainer');
+    foundPetsContainer.style.display = 'none'; // Hide found pets container
+    const savedPetsContainer = document.getElementById('savedPetsContainer');
+    savedPetsContainer.style.display = 'none'; // Hide saved pets container
+
+    // Fetch the user's information
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+    if (!username) {
+        console.error('Username parameter not found.');
+        window.location.href = "signin.html";
+        return;
+    }
+
+    // Verify token and username with the server
+    const token = localStorage.getItem('token');
+    let isLoggedIn = false; // Default to false until verified
+    const usernameParam = urlParams.get('username');
+
+    if (token) {
+        fetch('http://localhost:3000/verify-token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ username })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.valid) {
+                isLoggedIn = true;
+            }
+
+            // Fetch and display pets after verifying token
+            fetch(`http://localhost:3000/pets?owner_username=${username}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(pets => {
+                petsContainer.innerHTML = '';
+                const userPets = pets.filter(pet => pet.owner_username === username);
+                userPets.forEach(pet => {
+                    const petElement = document.createElement('div');
+                    petElement.classList.add('pet');
+                    const statusOptions = ['Available', 'Pending Adoption', 'Adopted'];
+
+                    // If status is null, default it to 'Available'
+                    const status = pet.status ? pet.status : 'Available';
+
+                    // Determine if select wrapper should be disabled based on Confirm column
+                    const isConfirmYes = pet.Confirm === 'Yes';
+                    const disableSelect = isConfirmYes || !isLoggedIn ? 'disabled' : '';
+
+                    petElement.innerHTML = `
+                    <div class="menu" ${isLoggedIn ? '' : 'style="display: none;"'}>
+                        <i class="fas fa-ellipsis-v" onclick="toggleMenu(event)"></i>
+                        <div class="menu-content">
+                            <button onclick="editPet(${pet.id})">Edit</button>
+                            <button onclick="deletePet(${pet.id})">Delete</button>
+                        </div>
+                    </div>
+                    <h2>${pet.name}</h2>
+                    <p>Breed: ${pet.breed}</p>
+                    <div class="select-wrapper">
+                        <select onchange="updateStatus(${pet.id}, this.value)" ${disableSelect}>
+                            ${statusOptions.map(option => `
+                                <option value="${option}" ${status === option ? 'selected' : ''}>${option}</option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    <br>
+                    <a href="petDetails.html?id=${pet.id}&source=pets&token=${token}&username=${usernameParam}">
+                        <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
+                    </a>
+                `;
+                    petsContainer.appendChild(petElement);
+                });
+            })
+            .catch(error => console.error('Error fetching pets:', error));
+        })
+        .catch(error => {
+            console.error('There was a problem with the token verification:', error);
+            window.location.href = "signin.html";
+        });
+    } else {
+        console.error('Token is missing.');
+        window.location.href = "signin.html";
+    }
+}
+    function editPet(petId) {
+        // Fetch the pet data by ID (or use the already fetched data)
+        fetch(`http://localhost:3000/pet/${petId}`)
+        .then(response => response.json())
+        .then(pet => {
+            document.getElementById('editPetId').value = pet.id;
+            document.getElementById('editPetName').value = pet.name;
+            document.getElementById('editPetBreed').value = pet.breed;
+            document.getElementById('editPetDescription').value = pet.description;
+            document.getElementById('editPetLocation').value = pet.location;
+            document.getElementById('editPetContact').value = pet.contact;
+            // Open the modal
+            document.getElementById('editPetModal').style.display = 'block';
+        })
+        .catch(error => console.error('Error fetching pet details:', error));
+    }
+
+    function closeEditModal() {
+        document.getElementById('editPetModal').style.display = 'none';
+    }
+    document.getElementById('editPetForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const petId = document.getElementById('editPetId').value;
+        const updatedPetData = {
+            name: document.getElementById('editPetName').value,
+            breed: document.getElementById('editPetBreed').value,
+            description: document.getElementById('editPetDescription').value,
+            location: document.getElementById('editPetLocation').value,
+            contact: document.getElementById('editPetContact').value,
+            // Add any other fields to update
+        };
+
+        fetch(`http://localhost:3000/pets/${petId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedPetData)
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Pet updated successfully.');
+                // Close the modal and refresh the pet list
+                closeEditModal();
+                getPets();
+            } else {
+                throw new Error('Failed to update pet.');
+            }
+        })
+        .catch(error => console.error('Error updating pet:', error));
+    });
+
+function updateStatus(petId, newStatus) {
+    if (newStatus === 'Adopted') {
+        const confirmationMessage = `Marking your pet as ${newStatus} will notify the admin. Once confirmed, the pet will be removed. Proceed?`;
+        
+        // Create toast container and message element
+        const toastContainer = document.createElement('div');
+        toastContainer.classList.add('toast-container');
+        const toastMessage = document.createElement('div');
+        toastMessage.classList.add('toast-message');
+        toastMessage.textContent = confirmationMessage;
+
+        // Append message to container
+        toastContainer.appendChild(toastMessage);
+
+        // Append container to body
+        document.body.appendChild(toastContainer);
+
+        // Position toast container at the center of the page
+        toastContainer.style.top = '50%';
+        toastContainer.style.left = '50%';
+        toastContainer.style.transform = 'translate(-50%, -50%)';
+
+        // Add event listener for confirm button
+        const confirmButton = document.createElement('button');
+        confirmButton.textContent = 'Confirm';
+        confirmButton.addEventListener('click', function() {
+            // Remove toast container
+            document.body.removeChild(toastContainer);
+            // Proceed with status update
+            sendUpdateRequest(petId, newStatus);
+        });
+
+        // Add event listener for cancel button
+        const cancelButton = document.createElement('button');
+        cancelButton.textContent = 'Cancel';
+        cancelButton.addEventListener('click', function() {
+            // Remove toast container
+            document.body.removeChild(toastContainer);
+        });
+
+        // Append buttons to toast container
+        toastContainer.appendChild(confirmButton);
+        toastContainer.appendChild(cancelButton);
+    } else {
+        sendUpdateRequest(petId, newStatus);
+    }
+}
+
+function sendUpdateRequest(petId, newStatus) {
+    fetch(`http://localhost:3000/updatePetStatus?petId=${petId}&status=${newStatus}`, {
+        method: 'PUT'
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log(`Status of pet with ID ${petId} updated successfully.`);
+            if (newStatus === 'Adopted') {
+                localStorage.setItem('showSuccessMessage', 'true'); // Set flag to show success message
+                window.location.reload(); // Reload page to show the success message after the page has loaded
+            }
+        } else {
+            throw new Error(`Failed to update status of pet with ID ${petId}.`);
+        }
+    })
+    .catch(error => console.error('Error updating pet status:', error));
+}
+
+function showSuccessMessage() {
+    // Create overlay to block page interaction
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // Darker overlay background
+    overlay.style.zIndex = '9999';
+    overlay.style.pointerEvents = 'auto';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    
+    // Create main container for GIF and message
+    const messageContainer = document.createElement('div');
+    messageContainer.style.backgroundColor = '#fff'; // Light background for message container
+    messageContainer.style.padding = '20px';
+    messageContainer.style.borderRadius = '10px';
+    messageContainer.style.display = 'flex';
+    messageContainer.style.alignItems = 'center'; // Align items vertically centered
+    messageContainer.style.zIndex = '10000';
+    messageContainer.style.position = 'relative'; // Ensure positioning within the overlay
+    messageContainer.style.overflow = 'hidden'; // Hide overflow for animation
+    
+    // Create GIF element
+    const gifImage = document.createElement('img');
+    gifImage.src = '/assets/gifs/cute-dog-5903965-4921877-unscreen.gif'; // Path to your success GIF
+    gifImage.alt = 'Successful Adoption GIF';
+    gifImage.style.width = '150px'; // Adjust size as needed
+    gifImage.style.marginRight = '20px'; // Space between the GIF and message
+
+    // Create success message element
+    const successMessage = document.createElement('p');
+    successMessage.textContent = 'Congratulations on a successful adoption! Thank you for giving this pet a new home.';
+    successMessage.style.fontSize = '20px';
+    successMessage.style.color = 'black';
+    successMessage.style.margin = '0'; // Remove default margin
+
+    // Append GIF and message to the message container
+    messageContainer.appendChild(gifImage);
+    messageContainer.appendChild(successMessage);
+
+    // Append message container to the overlay
+    overlay.appendChild(messageContainer);
+
+    // Append overlay to the body
+    document.body.appendChild(overlay);
+
+    // Remove the overlay after 5 seconds
+    setTimeout(() => {
+        document.body.removeChild(overlay);
+    }, 5000);
+}
+
+// Function to toggle menu visibility
+function toggleMenu(event) {
+    event.stopPropagation();
+    const menuContent = event.target.nextElementSibling;
+    if (menuContent.style.display === "block") {
+        menuContent.style.display = "none";
+    } else {
+        // Hide all other open menus before showing this one
+        const allMenuContents = document.querySelectorAll('.menu-content');
+        allMenuContents.forEach(content => {
+            content.style.display = "none";
+        });
+        menuContent.style.display = "block";
+    }
+}
+
+// Check for success message after the page loads
+window.onload = checkForSuccessMessage;
+
+// Function to delete a pet
+function deletePet(petID) {
+    const toast = document.createElement('div');
+    toast.classList.add('toast');
+    toast.innerHTML = `
+        <p>Are you sure you want to delete this pet?</p>
+        <button class="yes">Yes</button>
+        <button class="no">No</button>
+    `;
+    document.body.appendChild(toast);
+
+    // Add event listener for the "Yes" button
+    toast.querySelector('.yes').addEventListener('click', () => {
+        // Perform the deletion by making a DELETE request to the server
+        fetch(`http://localhost:3000/pets/${petID}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Pet deleted successfully.');
+                // Remove the toast message after successful deletion
+                toast.remove();
+                // Refresh the pets list after deletion
+                getPets();
+            } else if (response.status === 404) {
+                console.error('Pet not found.');
+                throw new Error('Pet not found.');
+            } else {
+                throw new Error('Failed to delete pet.');
+            }
+        })
+        .catch(error => console.error('Error deleting pet:', error));
+    });
+
+    // Add event listener for the "No" button
+    toast.querySelector('.no').addEventListener('click', () => {
+        // Remove the toast message if the user chooses not to delete the pet
+        toast.remove();
+    });
+}
+
+function getLost() {
+    setActiveButton('lostButton');
+    const lostPetsContainer = document.getElementById('lostPetsContainer');
+    lostPetsContainer.style.display = 'flex'; // Set display to flex to allow multiple items in a row
+    lostPetsContainer.innerHTML = ''; // Clear the container before adding new content
+    const petsContainer = document.getElementById('petsContainer');
+    petsContainer.style.display = 'none'; // Hide pets container
+    const foundPetsContainer = document.getElementById('foundPetsContainer');
+    foundPetsContainer.style.display = 'none'; // Hide found pets container
+    const savedPetsContainer = document.getElementById('savedPetsContainer');
+    savedPetsContainer.style.display = 'none'; // Hide saved pets container
+
+    // Fetch the user's information
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+    if (!username) {
+        console.error('Username parameter not found.');
+        window.location.href = "signin.html";
+        return;
+    }
+
+    // Verify token and username with the server
+    const token = localStorage.getItem('token');
+    let isLoggedIn = false; // Default to false until verified
+    const usernameParam = urlParams.get('username');
+
+    if (token) {
+        fetch('http://localhost:3000/verify-token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ username })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.valid) {
+                isLoggedIn = true;
+            }
+
+            // Fetch and display lost pets after verifying token
+            fetch(`http://localhost:3000/lost-pets?owner_username=${username}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(pets => {
+                lostPetsContainer.innerHTML = ''; // Clear the container before adding new content
+                const userLostPets = pets.filter(pet => pet.owner_username === username);
+                userLostPets.forEach(pet => {
+                    const petElement = document.createElement('div');
+                    petElement.classList.add('pet');
+                    const statusOptions = ['Lost', 'On Process', 'Returned'];
+
+                    // If status is null, default it to 'Lost'
+                    const status = pet.status ? pet.status : 'Lost';
+
+                    // Determine if select wrapper should be disabled based on Confirm column
+                    const isConfirmYes = pet.Confirm === 'Yes';
+                    const disableSelect = isConfirmYes || !isLoggedIn ? 'disabled' : '';
+
+                    petElement.innerHTML = `
+                        <!-- Three dots menu -->
+                        <div class="menu" ${isLoggedIn ? '' : 'style="display: none;"'}>
+                            <i class="fas fa-ellipsis-v" onclick="toggleMenu(event)"></i>
+                            <div class="menu-content">
+                                 <button onclick="editLostPet(${pet.id})">Edit</button>
+                                <button onclick="deleteLostPet(${pet.id})">Delete</button>
+                            </div>
+                        </div>
+                        <h2>${pet.name}</h2>
+                        <p>Breed: ${pet.breed}</p>
+                        <div class="select-wrapper">
+                            <select onchange="updateLostStatus(${pet.id}, this.value)" ${disableSelect}>
+                                ${statusOptions.map(option => `
+                                    <option value="${option}" ${status === option ? 'selected' : ''}>${option}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <br>
+                        <a href="petDetails.html?id=${pet.id}&source=lost&token=${token}&username=${usernameParam}">
+                            <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
+                        </a>
+                    `;
+                    lostPetsContainer.appendChild(petElement);
+                });
+            })
+            .catch(error => console.error('Error fetching lost pets:', error));
+        })
+        .catch(error => {
+            console.error('There was a problem with the token verification:', error);
+            window.location.href = "signin.html";
+        });
+    } else {
+        console.error('Token is missing.');
+        window.location.href = "signin.html";
+    }
+}
+function editLostPet(petId) {
+    // Fetch the lost pet data by ID
+    fetch(`http://localhost:3000/lost-pet/${petId}`)
+    .then(response => response.json())
+    .then(pet => {
+        document.getElementById('editLostPetId').value = pet.id;
+        document.getElementById('editLostPetName').value = pet.name;
+        document.getElementById('editLostPetBreed').value = pet.breed;
+        document.getElementById('editLostPetDescription').value = pet.description;
+        document.getElementById('editLostPetLocation').value = pet.location;
+        document.getElementById('editLostPetContact').value = pet.contact;
+        // Open the modal
+        document.getElementById('editLostPetModal').style.display = 'block';
+    })
+    .catch(error => console.error('Error fetching lost pet details:', error));
+}
+
+function closeEditLostModal() {
+    document.getElementById('editLostPetModal').style.display = 'none';
+}
+
+document.getElementById('editLostPetForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const petId = document.getElementById('editLostPetId').value;
+    const updatedLostPetData = {
+        name: document.getElementById('editLostPetName').value,
+        breed: document.getElementById('editLostPetBreed').value,
+        description: document.getElementById('editLostPetDescription').value,
+        location: document.getElementById('editLostPetLocation').value,
+        contact: document.getElementById('editLostPetContact').value,
+        // Add any other fields to update
+    };
+
+    fetch(`http://localhost:3000/lost-pets/${petId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedLostPetData)
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Lost pet updated successfully.');
+            // Close the modal and refresh the lost pets list
+            closeEditLostModal();
+            getLost();
+        } else {
+            throw new Error('Failed to update lost pet.');
+        }
+    })
+    .catch(error => console.error('Error updating lost pet:', error));
+});
+
+function updateLostStatus(petId, newStatus) {
+    if (newStatus === 'Returned') {
+        const confirmationMessage = `Marking your pet as ${newStatus} will notify the admin. Once confirmed, the pet will be removed. Proceed?`;
+
+        // Create toast container and message element
+        const toastContainer = document.createElement('div');
+        toastContainer.classList.add('toast-container');
+        const toastMessage = document.createElement('div');
+        toastMessage.classList.add('toast-message');
+        toastMessage.textContent = confirmationMessage;
+
+        // Append message to container
+        toastContainer.appendChild(toastMessage);
+
+        // Append container to body
+        document.body.appendChild(toastContainer);
+
+        // Position toast container at the center of the page
+        toastContainer.style.top = '50%';
+        toastContainer.style.left = '50%';
+        toastContainer.style.transform = 'translate(-50%, -50%)';
+
+        // Add event listener for confirm button
+        const confirmButton = document.createElement('button');
+        confirmButton.textContent = 'Confirm';
+        confirmButton.addEventListener('click', function() {
+            // Remove toast container
+            document.body.removeChild(toastContainer);
+            // Proceed with status update
+            sendLostUpdateRequest(petId, newStatus);
+        });
+
+        // Add event listener for cancel button
+        const cancelButton = document.createElement('button');
+        cancelButton.textContent = 'Cancel';
+        cancelButton.addEventListener('click', function() {
+            // Remove toast container
+            document.body.removeChild(toastContainer);
+        });
+
+        // Append buttons to toast container
+        toastContainer.appendChild(confirmButton);
+        toastContainer.appendChild(cancelButton);
+    } else {
+        sendLostUpdateRequest(petId, newStatus);
+    }
+}
+
+function sendLostUpdateRequest(petId, newStatus) {
+    fetch(`http://localhost:3000/updateLostPetStatus?petId=${petId}&status=${newStatus}`, {
+        method: 'PUT'
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log(`Status of lost pet with ID ${petId} updated successfully.`);
+            if (newStatus === 'Returned') {
+                localStorage.setItem('showReturnedSuccessMessage', 'true'); // Set flag to show success message
+                window.location.reload(); // Reload page to show the success message after the page has loaded
+            }
+        } else {
+            throw new Error(`Failed to update status of lost pet with ID ${petId}.`);
+        }
+    })
+    .catch(error => console.error('Error updating lost pet status:', error));
+}
+
+function showReturnedSuccessMessage() {
+    // Create overlay to block page interaction
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // Darker overlay background
+    overlay.style.zIndex = '9999';
+    overlay.style.pointerEvents = 'auto';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    
+    // Create main container for GIF and message
+    const messageContainer = document.createElement('div');
+    messageContainer.style.backgroundColor = '#fff'; // Light background for message container
+    messageContainer.style.padding = '20px';
+    messageContainer.style.borderRadius = '10px';
+    messageContainer.style.display = 'flex';
+    messageContainer.style.alignItems = 'center'; // Align items vertically centered
+    messageContainer.style.zIndex = '10000';
+    messageContainer.style.position = 'relative'; // Ensure positioning within the overlay
+    messageContainer.style.overflow = 'hidden'; // Hide overflow for animation
+    
+    // Create GIF element
+    const gifImage = document.createElement('img');
+    gifImage.src = '/assets/gifs/cute-dog-5903965-4921877-unscreen.gif'; // Path to your success GIF
+    gifImage.alt = 'Successful Return GIF';
+    gifImage.style.width = '150px'; // Adjust size as needed
+    gifImage.style.marginRight = '20px'; // Space between the GIF and message
+
+    // Create success message element
+    const successMessage = document.createElement('p');
+    successMessage.textContent = 'Great news! Your lost pet has been returned successfully. Thank you for your patience! Keep your pet safe always!';
+    successMessage.style.fontSize = '20px';
+    successMessage.style.color = 'black';
+    successMessage.style.margin = '0'; // Remove default margin
+
+    // Append GIF and message to the message container
+    messageContainer.appendChild(gifImage);
+    messageContainer.appendChild(successMessage);
+
+    // Append the message container to the overlay
+    overlay.appendChild(messageContainer);
+
+    // Append the overlay to the body
+    document.body.appendChild(overlay);
+
+    // Remove overlay after 5 seconds
+    setTimeout(() => {
+        document.body.removeChild(overlay);
+    }, 5000);
+}
+
+// Check if flag is set to show success message
+if (localStorage.getItem('showReturnedSuccessMessage') === 'true') {
+    showReturnedSuccessMessage();
+    localStorage.removeItem('showReturnedSuccessMessage'); // Clear the flag after showing message
+}
+
+// Function to delete a lost pet
+function deleteLostPet(petID) {
+    const toast = document.createElement('div');
+    toast.classList.add('toast');
+    toast.innerHTML = `
+        <p>Are you sure you want to delete this pet?</p>
+        <button class="yes">Yes</button>
+        <button class="no">No</button>
+    `;
+    document.body.appendChild(toast);
+
+    // Add event listener for the "Yes" button
+    toast.querySelector('.yes').addEventListener('click', () => {
+        // Perform the deletion by making a DELETE request to the server
+        fetch(`http://localhost:3000/lostpets/${petID}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Lost pet deleted successfully.');
+                // Remove the toast message after successful deletion
+                toast.remove();
+                // Refresh the lost pets list after deletion
+                getLost();
+            } else if (response.status === 404) {
+                console.error('Lost pet not found.');
+                throw new Error('Lost pet not found.');
+            } else {
+                throw new Error('Failed to delete lost pet.');
+            }
+        })
+        .catch(error => console.error('Error deleting lost pet:', error));
+    });
+
+    // Add event listener for the "No" button
+    toast.querySelector('.no').addEventListener('click', () => {
+        // Remove the toast message if the user chooses not to delete the lost pet
+        toast.remove();
+    });
+}
+
+function getFound() {
+    setActiveButton('foundButton');
+    const foundPetsContainer = document.getElementById('foundPetsContainer');
+    foundPetsContainer.style.display = 'flex'; // Set display to flex to allow multiple items in a row
+    foundPetsContainer.innerHTML = ''; // Clear the container before adding new content
+    const petsContainer = document.getElementById('petsContainer');
+    petsContainer.style.display = 'none'; // Hide pets container
+    const lostPetsContainer = document.getElementById('lostPetsContainer');
+    lostPetsContainer.style.display = 'none'; // Hide lost pets container
+    const savedPetsContainer = document.getElementById('savedPetsContainer');
+    savedPetsContainer.style.display = 'none'; // Hide saved pets container
+
+    // Fetch the user's information
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+    if (!username) {
+        console.error('Username parameter not found.');
+        window.location.href = "signin.html";
+        return;
+    }
+
+    // Verify token and username with the server
+    const token = localStorage.getItem('token');
+    let isLoggedIn = false; // Default to false until verified
+    const usernameParam = urlParams.get('username');
+
+    if (token) {
+        fetch('http://localhost:3000/verify-token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ username })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.valid) {
+                isLoggedIn = true;
+            }
+
+            // Fetch and display found pets after verifying token
+            fetch(`http://localhost:3000/found-pets?owner_username=${username}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(pets => {
+                foundPetsContainer.innerHTML = ''; // Clear the container before adding new content
+                const userFoundPets = pets.filter(pet => pet.owner_username === username);
+                userFoundPets.forEach(pet => {
+                    const petElement = document.createElement('div');
+                    petElement.classList.add('pet');
+                    const statusOptions = ['Lost', 'Adoptable', 'Reunited', 'Adopted', 'Deceased'];
+
+                    // If status is null, default it to 'Lost'
+                    const status = pet.status ? pet.status : 'Lost';
+
+                    // Determine if select wrapper should be disabled based on Confirm column
+                    const isConfirmYes = pet.Confirm === 'Yes';
+                    const disableSelect = isConfirmYes || !isLoggedIn ? 'disabled' : '';
+
+                    petElement.innerHTML = `
+                        <!-- Three dots menu -->
+                        <div class="menu" ${isLoggedIn ? '' : 'style="display: none;"'}>
+                            <i class="fas fa-ellipsis-v" onclick="toggleMenu(event)"></i>
+                            <div class="menu-content">
+                                 <button onclick="editFoundPet(${pet.id})">Edit</button>
+                                <button onclick="deleteFoundPet(${pet.id})">Delete</button>
+                            </div>
+                        </div>
+                        <h2>${pet.breed}</h2>
+                        <div class="select-wrapper">
+                            <select onchange="updateFoundStatus(${pet.id}, this.value)" ${disableSelect}>
+                                ${statusOptions.map(option => `
+                                    <option value="${option}" ${status === option ? 'selected' : ''}>${option}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <br>
+                        <a href="petDetails.html?id=${pet.id}&source=found&token=${token}&username=${usernameParam}">
+                            <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
+                        </a>
+                    `;
+                    foundPetsContainer.appendChild(petElement);
+                });
+
+                // Show success or sad message if applicable
+                if (localStorage.getItem('showFoundSuccessMessage') === 'true') {
+                    showFoundSuccessMessage();
+                    localStorage.removeItem('showFoundSuccessMessage'); // Clear the flag after showing message
+                } else if (localStorage.getItem('showFoundSadMessage') === 'true') {
+                    showFoundSadMessage();
+                    localStorage.removeItem('showFoundSadMessage'); // Clear the flag after showing message
+                }
+            })
+            .catch(error => console.error('Error fetching found pets:', error));
+        })
+        .catch(error => {
+            console.error('There was a problem with the token verification:', error);
+            window.location.href = "signin.html";
+        });
+    } else {
+        console.error('Token is missing.');
+        window.location.href = "signin.html";
+    }
+}
+function editFoundPet(petId) {
+    // Fetch the lost pet data by ID
+    fetch(`http://localhost:3000/found-pet/${petId}`)
+    .then(response => response.json())
+    .then(pet => {
+        document.getElementById('editFoundPetId').value = pet.id;
+        document.getElementById('editFoundPetBreed').value = pet.breed;
+        document.getElementById('editFoundPetDescription').value = pet.description;
+        document.getElementById('editFoundPetLocation').value = pet.location;
+        document.getElementById('editFoundPetContact').value = pet.contact;
+        // Open the modal
+        document.getElementById('editFoundPetModal').style.display = 'block';
+    })
+    .catch(error => console.error('Error fetching found pet details:', error));
+}
+
+function closeEditFoundModal() {
+    document.getElementById('editFoundPetModal').style.display = 'none';
+}
+
+document.getElementById('editFoundPetForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const petId = document.getElementById('editFoundPetId').value;
+    const updatedFoundPetData = {
+        breed: document.getElementById('editFoundPetBreed').value,
+        description: document.getElementById('editFoundPetDescription').value,
+        location: document.getElementById('editFoundPetLocation').value,
+        contact: document.getElementById('editFoundPetContact').value,
+        // Add any other fields to update
+    };
+
+    fetch(`http://localhost:3000/found-pets/${petId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedFoundPetData)
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Found pet updated successfully.');
+            // Close the modal and refresh the found pets list
+            closeEditFoundModal();
+            getFound();
+        } else {
+            throw new Error('Failed to update found pet.');
+        }
+    })
+    .catch(error => console.error('Error updating found pet:', error));
+});
+
+function updateFoundStatus(petId, newStatus) {
+    const confirmationStatuses = ['Reunited'];
+    if (confirmationStatuses.includes(newStatus)) {
+        const confirmationMessage = `Marking your pet as ${newStatus} will notify the admin. Once confirmed, the pet will be removed. Proceed?`;
+
+        // Create toast container and message element
+        const toastContainer = document.createElement('div');
+        toastContainer.classList.add('toast-container');
+        const toastMessage = document.createElement('div');
+        toastMessage.classList.add('toast-message');
+        toastMessage.textContent = confirmationMessage;
+
+        // Append message to container
+        toastContainer.appendChild(toastMessage);
+
+        // Append container to body
+        document.body.appendChild(toastContainer);
+
+        // Position toast container at the center of the page
+        toastContainer.style.top = '50%';
+        toastContainer.style.left = '50%';
+        toastContainer.style.transform = 'translate(-50%, -50%)';
+
+        // Add event listener for confirm button
+        const confirmButton = document.createElement('button');
+        confirmButton.textContent = 'Confirm';
+        confirmButton.addEventListener('click', function() {
+            // Remove toast container
+            document.body.removeChild(toastContainer);
+            // Proceed with status update
+            sendFoundUpdateRequest(petId, newStatus);
+        });
+
+        // Add event listener for cancel button
+        const cancelButton = document.createElement('button');
+        cancelButton.textContent = 'Cancel';
+        cancelButton.addEventListener('click', function() {
+            // Remove toast container
+            document.body.removeChild(toastContainer);
+        });
+
+        // Append buttons to toast container
+        toastContainer.appendChild(confirmButton);
+        toastContainer.appendChild(cancelButton);
+    } else {
+        sendFoundUpdateRequest(petId, newStatus);
+    }
+}
+
+function sendFoundUpdateRequest(petId, newStatus) {
+    fetch(`http://localhost:3000/updateFoundPetStatus?petId=${petId}&status=${newStatus}`, {
+        method: 'PUT'
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log(`Status of found pet with ID ${petId} updated successfully.`);
+            if (newStatus === 'Reunited') {
+                localStorage.setItem('showFoundSuccessMessage', 'true'); // Set flag to show success message
+                window.location.reload(); // Reload page to show the success message after the page has loaded
+            } else if (newStatus === 'Deceased') {
+                localStorage.setItem('showFoundSadMessage', 'true'); // Set flag to show sad message
+                window.location.reload(); // Reload page to show the sad message after the page has loaded
+            }
+        } else {
+            throw new Error(`Failed to update status of found pet with ID ${petId}.`);
+        }
+    })
+    .catch(error => console.error('Error updating found pet status:', error));
+}
+
+function showFoundSuccessMessage() {
+    // Create overlay to block page interaction
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // Darker overlay background
+    overlay.style.zIndex = '9999';
+    overlay.style.pointerEvents = 'auto';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    
+    // Create main container for GIF and message
+    const messageContainer = document.createElement('div');
+    messageContainer.style.backgroundColor = '#fff'; // Light background for message container
+    messageContainer.style.padding = '20px';
+    messageContainer.style.borderRadius = '10px';
+    messageContainer.style.display = 'flex';
+    messageContainer.style.alignItems = 'center'; // Align items vertically centered
+    messageContainer.style.zIndex = '10000';
+    messageContainer.style.position = 'relative'; // Ensure positioning within the overlay
+    messageContainer.style.overflow = 'hidden'; // Hide overflow for animation
+    
+    // Create GIF element
+    const gifImage = document.createElement('img');
+    gifImage.src = '/assets/gifs/cute-dog-5903965-4921877-unscreen.gif'; // Path to the GIF
+    gifImage.style.width = '150px'; // Adjust size as needed
+    gifImage.style.height = 'auto'; // Maintain aspect ratio
+    gifImage.style.marginRight = '20px'; // Space between GIF and message text
+    
+    // Create message text
+    const messageText = document.createElement('p');
+    messageText.textContent = 'Congratulations! You successfully returned the pet to its owner!';
+    messageText.style.fontSize = '20px';
+    messageText.style.color = 'black';
+    messageText.style.margin = '0'; // Remove default margin
+    
+    // Append GIF and message to the container
+    messageContainer.appendChild(gifImage);
+    messageContainer.appendChild(messageText);
+    
+    // Append container to the overlay
+    overlay.appendChild(messageContainer);
+    
+    // Append overlay to body
+    document.body.appendChild(overlay);
+    
+    // Remove the overlay after 5 seconds
+    setTimeout(() => {
+        document.body.removeChild(overlay);
+    }, 5000);
+}
+
+function showFoundSadMessage() {
+    // Create overlay to block page interaction
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // Darker overlay background
+    overlay.style.zIndex = '9999';
+    overlay.style.pointerEvents = 'auto';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    
+    // Create main container for GIF and message
+    const messageContainer = document.createElement('div');
+    messageContainer.style.backgroundColor = '#fff'; // Light background for message container
+    messageContainer.style.padding = '20px';
+    messageContainer.style.borderRadius = '10px';
+    messageContainer.style.display = 'flex';
+    messageContainer.style.alignItems = 'center'; // Align items vertically centered
+    messageContainer.style.zIndex = '10000';
+    messageContainer.style.position = 'relative'; // Ensure positioning within the overlay
+    messageContainer.style.overflow = 'hidden'; // Hide overflow for animation
+    
+    // Create GIF element
+    const gifImage = document.createElement('img');
+    gifImage.src = '/assets/gifs/sad-cat-3978265-3291085-unscreen.gif'; // Path to the sad GIF
+    gifImage.style.width = '150px'; // Adjust size as needed
+    gifImage.style.height = 'auto'; // Maintain aspect ratio
+    gifImage.style.marginRight = '20px'; // Space between GIF and message text
+    
+    // Create message text
+    const messageText = document.createElement('p');
+    messageText.textContent = 'We are sorry to hear about the pet. If you need any assistance, please contact us.';
+    messageText.style.fontSize = '20px';
+    messageText.style.color = 'black';
+    messageText.style.margin = '0'; // Remove default margin
+    
+    // Append GIF and message to the container
+    messageContainer.appendChild(gifImage);
+    messageContainer.appendChild(messageText);
+    
+    // Append container to the overlay
+    overlay.appendChild(messageContainer);
+    
+    // Append overlay to body
+    document.body.appendChild(overlay);
+    
+    // Remove the overlay after 5 seconds
+    setTimeout(() => {
+        document.body.removeChild(overlay);
+    }, 5000);
+}
+
+// Check if flag is set to show success message
+if (localStorage.getItem('showFoundSuccessMessage') === 'true') {
+    showFoundSuccessMessage();
+    localStorage.removeItem('showFoundSuccessMessage'); // Clear the flag after showing message
+} else if (localStorage.getItem('showFoundSadMessage') === 'true') {
+    showFoundSadMessage();
+    localStorage.removeItem('showFoundSadMessage'); // Clear the flag after showing message
+}
+
+
+// Function to delete a found pet
+function deleteFoundPet(petID) {
+    const toast = document.createElement('div');
+    toast.classList.add('toast');
+    toast.innerHTML = `
+        <p>Are you sure you want to delete this pet?</p>
+        <button class="yes">Yes</button>
+        <button class="no">No</button>
+    `;
+    document.body.appendChild(toast);
+
+    // Add event listener for the "Yes" button
+    toast.querySelector('.yes').addEventListener('click', () => {
+        // Perform the deletion by making a DELETE request to the server
+        fetch(`http://localhost:3000/foundpets/${petID}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Found pet deleted successfully.');
+                // Remove the toast message after successful deletion
+                toast.remove();
+                // Refresh the found pets list after deletion
+                getFound();
+            } else if (response.status === 404) {
+                console.error('Found pet not found.');
+                throw new Error('Found pet not found.');
+            } else {
+                throw new Error('Failed to delete found pet.');
+            }
+        })
+        .catch(error => console.error('Error deleting found pet:', error));
+    });
+
+    // Add event listener for the "No" button
+    toast.querySelector('.no').addEventListener('click', () => {
+        // Remove the toast message if the user chooses not to delete the found pet
+        toast.remove();
+    });
+}
+
+function getSaved() {
+    setActiveButton('savedButton');
+    const savedPetsContainer = document.getElementById('savedPetsContainer');
+    savedPetsContainer.style.display = 'flex'; // Set display to flex to allow multiple items in a row
+    savedPetsContainer.innerHTML = ''; // Clear the container before adding new content
+    const petsContainer = document.getElementById('petsContainer');
+    petsContainer.style.display = 'none'; // Hide pets container
+    const lostPetsContainer = document.getElementById('lostPetsContainer');
+    lostPetsContainer.style.display = 'none'; // Hide lost pets container
+    const foundPetsContainer = document.getElementById('foundPetsContainer');
+    foundPetsContainer.style.display = 'none'; // Hide found pets container
+
+    // Fetch and display saved pets
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+    const usernameParam = urlParams.get('username');
+    var token = localStorage.getItem('token');
+    if (!username) {
+        console.error('Username parameter not found.');
+        window.location.href = "signin.html";
+        return;
+    }
+
+    fetch(`http://localhost:3000/savedPets?username=${username}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('Failed to fetch saved pets.');
+        }
+    })
+    .then(savedPets => {
+        savedPetsContainer.innerHTML = ''; // Clear the container before adding new content
+        savedPets.forEach(pet => {
+            const petElement = document.createElement('div');
+            petElement.classList.add('pet');
+            petElement.innerHTML = `
+            <div class="menu">
+                    <i class="fas fa-times remove-button" onclick="removeSavedPet('${pet.name}')"></i>
+                </div>
+                <h2>${pet.name}</h2>
+                <p>Breed: ${pet.breed}</p>
+                <br>
+                        <a href="petDetails.html?id=${pet.id}&source=pets&token=${token}&username=${usernameParam}">
+                            <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
+                        </a>
+            `;
+            savedPetsContainer.appendChild(petElement);
+        });
+    })
+    .catch(error => console.error('Error fetching saved pets:', error));
+}
+
+// Function to remove a saved pet
+function removeSavedPet(petName) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+
+    // Create a toast message element
+    const toast = document.createElement('div');
+    toast.classList.add('toast');
+    toast.innerHTML = `
+        <p>Are you sure you want to remove ${petName} from favorites?</p>
+        <button class="yes">Yes</button>
+        <button class="no">No</button>
+    `;
+    document.body.appendChild(toast);
+
+    // Add event listener for the "Yes" button
+    toast.querySelector('.yes').addEventListener('click', () => {
+        // Perform the removal by making a DELETE request to the server
+        fetch(`http://localhost:3000/removeSavedPet?username=${username}&petName=${petName}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Pet removed from saved pets successfully.');
+                // Refresh the saved pets list after removal
+                getSaved();
+                // Remove the toast message after successful removal
+                toast.remove();
+            } else {
+                throw new Error('Failed to remove pet from saved pets.');
+            }
+        })
+        .catch(error => console.error('Error removing pet from saved pets:', error));
+    });
+
+    // Add event listener for the "No" button
+    toast.querySelector('.no').addEventListener('click', () => {
+        // Remove the toast message if the user chooses not to remove the pet
+        toast.remove();
+    });
+}
+
+function setActiveButton(buttonId) {
+    const buttons = document.querySelectorAll('.button-group button');
+    buttons.forEach(button => {
+        button.classList.remove('active');
+    });
+    const activeButton = document.getElementById(buttonId);
+    activeButton.classList.add('active');
+}
+
+</script>
+
+<!-- Javascript for logout button -->
+<script>
+    document.getElementById("logoutBtn").addEventListener("click", function() {
+        // Retrieve username from query parameters or another source
+        const urlParams = new URLSearchParams(window.location.search);
+        const usernameParam = urlParams.get('username');
+
+        fetch(`http://localhost:3000/logout?username=${usernameParam}`, {
+            method: 'POST'
+        })
+        .then(response => response.text())
+        .then(message => {
+            console.log(message); // Log the message
+            if (message === "Logout successful") {
+                // Remove token and username from localStorage or sessionStorage
+                localStorage.removeItem('token');
+                localStorage.removeItem('username'); // If username is stored separately
+                // Redirect to sign-in page after successful logout
+                window.location.href = "signin.html";
+            } else {
+                alert("Logout failed. Please try again.");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+
+ <!-- JavaScript to upload profile picture -->
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const usernameParam = urlParams.get('username');
+    if (usernameParam) {
+        displayImage(usernameParam);
+    } else {
+        console.error('Username parameter not found.');
+        window.location.href = "signin.html";
+    }
+
+    // Show options when the user icon is clicked
+    const profilePhoto = document.querySelector('.profile-photo');
+    const editOptions = document.getElementById('editOptions');
+
+    profilePhoto.addEventListener('click', function(event) {
+        if (editOptions.style.display === 'none' || !editOptions.style.display) {
+            editOptions.style.display = 'block';
+        } else {
+            editOptions.style.display = 'none';
+        }
+        event.stopPropagation();
+    });
+
+    // Hide options when clicking outside
+    document.addEventListener('click', function(event) {
+        const profilePhoto = document.querySelector('.profile-photo');
+        if (!profilePhoto.contains(event.target)) {
+            editOptions.style.display = 'none';
+        }
+    });
+});
+
+function displayImage(username) {
+    fetch(`http://localhost:3000/user?username=${encodeURIComponent(username)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(user => {
+            const profileImageDisplay = document.getElementById('profileImageDisplay');
+            const defaultUserIcon = document.getElementById('defaultUserIcon');
+            const deleteUpload = document.getElementById('deleteUpload');
+            const usernameDisplay = document.getElementById('username');
+
+            if (user.profile_image) {
+                profileImageDisplay.src = `http://localhost:3000/${user.profile_image}`;
+                profileImageDisplay.style.display = 'block';
+                defaultUserIcon.style.display = 'none';
+            } else {
+                profileImageDisplay.style.display = 'none';
+                defaultUserIcon.style.display = 'block';
+                deleteUpload.style.display = 'none';
+            }
+
+            // Display the full name and registration date
+            usernameDisplay.innerHTML = `${user.firstname} ${user.lastname}`;
+            const profileInfo = document.getElementById('profileInfo');
+            const dateJoined = new Date(user.datejoined);
+            const options = { year: 'numeric', month: 'long'};
+            profileInfo.innerHTML = `Member since: ${dateJoined.toLocaleDateString('en-US', options)}`;
+        })
+        .catch(error => console.error('Error fetching user data:', error));
+}
+
+function triggerUpload() {
+    document.getElementById('profileImage').click();
+}
+
+function uploadProfileImage(input) {
+    const file = input.files[0];
+    if (file) {
+        const formData = new FormData();
+        formData.append('image', file);
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('username');
+        fetch(`http://localhost:3000/uploadProfileImage?username=${encodeURIComponent(username)}`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Profile image uploaded successfully.');
+                alert('Profile image uploaded successfully.');
+                displayImage(username);
+            } else {
+                console.error('Failed to upload profile image.');
+            }
+        })
+        .catch(error => console.error('Error uploading profile image:', error));
+    } else {
+        console.error('No file selected.');
+    }
+}
+
+function deleteProfileImage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+    fetch(`http://localhost:3000/deleteProfileImage?username=${encodeURIComponent(username)}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Profile image deleted successfully.');
+            alert('Profile image deleted successfully.');
+            displayImage(username);
+        } else {
+            console.error('Failed to delete profile image.');
+        }
+    })
+    .catch(error => console.error('Error deleting profile image:', error));
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Show the modal when the Edit button is clicked
+    document.getElementById('editProfileBtn').addEventListener('click', function() {
+        openModal();
+    });
+
+    // Handle the form submission
+    document.getElementById('editProfileForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        updateProfile();
+    });
+});
+
+function openModal() {
+    // Fetch existing user data to pre-fill the form
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+    fetch(`http://localhost:3000/user?username=${encodeURIComponent(username)}`)
+        .then(response => response.json())
+        .then(user => {
+            // Pre-fill the form with user data
+            document.getElementById('editFirstname').value = user.firstname;
+            document.getElementById('editLastname').value = user.lastname;
+            document.getElementById('editLocation').value = user.location || '';
+
+            // Show the modal
+            document.getElementById('editProfileModal').style.display = 'block';
+        })
+        .catch(error => console.error('Error fetching user data for modal:', error));
+}
+
+function closeModal() {
+    document.getElementById('editProfileModal').style.display = 'none';
+}
+
+function updateProfile() {
+    const formData = new FormData(document.getElementById('editProfileForm'));
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+
+    fetch(`http://localhost:3000/updateProfile?username=${encodeURIComponent(username)}`, {
+        method: 'POST',
+        body: JSON.stringify({
+            firstname: formData.get('firstname'),
+            lastname: formData.get('lastname'),
+            location: formData.get('location')
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Profile updated successfully.');
+            closeModal();
+            displayImage(username); // Refresh the profile display
+        } else {
+            alert('Failed to update profile.');
+        }
+    })
+    .catch(error => console.error('Error updating profile:', error));
+}
+</script>
+
+ <!-- JavaScript to pass the token -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    var token = localStorage.getItem('token');
+    if (!token) {
+        // Handle case where token is missing (e.g., redirect to login)
+        window.location.href = "signin.html";
+    } else {
+        console.log("Token found:", token);
+        // Use the token as needed
+    }
+});
+</script>
+
+ <!-- JavaScript to hide elements -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const token = localStorage.getItem('token');
+    const username = new URLSearchParams(window.location.search).get('username');
+    
+    if (!token || !username) {
+        // Token or username is missing
+        handleUserNotLoggedIn();
+    } else {
+        // Verify token and username with the server
+        fetch('http://localhost:3000/verify-token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ username })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.valid) {
+                // Token is valid, user is logged in
+                handleUserLoggedIn(data.user);
+            } else {
+                // Token is invalid or expired
+                handleUserNotLoggedIn();
+            }
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+            handleUserNotLoggedIn();
+        });
+    }
+
+    function handleUserLoggedIn(user) {
+        const savedButton = document.getElementById('savedButton');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const profileImage = document.getElementById('profileImage');
+        const editOptions = document.getElementById('triggerUpload');
+        const editProfileBtn = document.getElementById('editProfileBtn');
+        
+        // Show elements and enable profileImage input field
+        savedButton.style.display = 'block';
+        logoutBtn.style.display = 'block';
+        profileImage.disabled = false;
+        editOptions.disabled = false;
+        editProfileBtn.style.display ='block';
+    }
+
+    function handleUserNotLoggedIn() {
+        const savedButton = document.getElementById('savedButton');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const profileImage = document.getElementById('profileImage');
+        const editOptions = document.getElementById('triggerUpload');
+        const deleteUpload = document.getElementById('deleteUpload');
+        const editProfileBtn = document.getElementById('editProfileBtn');
+
+        // Hide elements and disable profileImage input field
+        savedButton.style.display = 'none';
+        logoutBtn.style.display = 'none';
+        profileImage.disabled = true;
+        editOptions.style.display = 'none';
+        deleteUpload.style.display = 'none';
+        editProfileBtn.style.display = 'none';
+    }
+});
+
+</script>
+
+ <!-- Javascript to handle token expiration -->
+<script>
+    // Function to check if the JWT token is expired
+    function isTokenExpired(token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+            const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    
+            // Check if the token is expired
+            return payload.exp < currentTime;
+        } catch (error) {
+            console.error('Error decoding token:', error);
+            return true; // Assume token is expired if there's an error
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        const token = localStorage.getItem('token');
+    
+        if (!token || isTokenExpired(token)) {
+            // Token is missing or expired, redirect to sign-in page
+            window.location.href = 'signin.html';
+        }
+    });
+    
+</script>
+
+</body>
+</html>
