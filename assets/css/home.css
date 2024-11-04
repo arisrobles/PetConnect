@@ -1,0 +1,899 @@
+nav {
+    background-color: #343a40; /* Dark background for navbar */
+    color: #ffffff;
+    padding: 10px 0;
+    position: fixed; /* Make the navbar fixed */
+    top: 0; /* Align it to the top of the page */
+    width: 100%; /* Ensure it spans the full width of the page */
+    z-index: 1000; /* Ensure it stays on top of other content */
+}
+
+.special-buttons {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    background-color: #343a40;
+    z-index: 1000;
+    margin-right: calc(40px + 170px);
+}
+
+.special-buttons button {
+    color: #ffffff;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    width: 140px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1.2;
+    border-radius: 0;
+}
+
+/* Apply border radius only to the bottom of the buttons */
+.special-buttons button:first-child {
+    border-bottom-left-radius: 5px; /* Adjust the radius as needed */
+}
+.special-buttons button:last-child {
+    border-bottom-right-radius: 5px; /* Adjust the radius as needed */
+}
+
+
+.special-buttons button i {
+    font-size: 20px;
+}
+
+.special-buttons #petsBtn {
+    background-color: gray;
+}
+
+.special-buttons #lostPets {
+    background-color: orange;
+}
+
+.special-buttons #foundPets {
+    background-color: green;
+}
+
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 60px;
+    margin-right: 13%;
+}
+
+.container h2 {
+    margin: 0;
+    margin-left: 5%;
+}
+
+.container ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+.container ul li {
+    margin: 0 10px;
+    cursor: pointer;
+}
+
+.container ul li i {
+    margin-right: 5px;
+}
+
+.container ul li:hover {
+    text-decoration: underline;
+}
+
+/* Hamburger menu */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    position: absolute; /* Make sure the menu toggle is positioned correctly */
+    right: 50px; /* Adjust the distance from the right edge */
+}
+
+.menu-toggle div {
+    background-color: #ffffff;
+    width: 30px;
+    height: 3px;
+    margin: 3px 0;
+    transition: 0.3s;
+}
+
+.nav-menu {
+    display: flex;
+}
+
+.nav-menu ul {
+    display: flex;
+}
+
+/* Responsive styles */
+@media (max-width: 767.98px) {
+    .container {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-top: 10px;
+        margin-left: 6%;
+    }
+
+    .container ul {
+        display: none;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .container ul.show {
+        display: flex;
+    }
+
+    .container ul li {
+        margin: 5px 0;
+        margin-bottom: 10px
+    }
+
+    .container img {
+        height: 50px;
+    }
+
+    .special-buttons {
+        position: static;
+        margin: 0;
+        justify-content: center;
+    }
+
+    .special-buttons button {
+        width: 100%;
+        max-width: 100px;
+        height: 50px;
+        font-size: 14px;
+        margin-top: -10px;
+    }
+    .container h2 {
+        margin: 0;
+        margin-left: -4%;
+    }
+
+    .menu-toggle {
+        display: flex;
+    }
+}
+
+html, body {
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    width: 100%; /* Ensure body width fits the viewport */
+}
+    * {
+        margin: 0;
+        padding: 0;
+    }
+    .container-fluid {
+    width: 100%;
+    min-height: 100vh; /* Full viewport height */
+    position: relative; /* To position the slides absolutely within it */
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+.slide {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    animation: slideShow 30s infinite;
+    opacity: 0;
+    transition: opacity 1;
+}
+
+#slide1 {
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.5) 50%), url('/assets/logos/background.jpg'); /* Adjust the URL as needed */
+    background-repeat: no-repeat;
+        background-size: cover;
+        display: flex;
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+    animation-delay: 0s;
+}
+
+#slide2 {
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.5) 50%), url('/assets/logos/quote.jpg');
+    background-repeat: no-repeat;
+        background-size: cover;
+        display: flex;
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+    animation-delay: 5s;
+}
+
+#slide3 {
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.5) 50%), url('/assets/logos/bg2.jpg');
+    background-repeat: no-repeat;
+        background-size: cover;
+        display: flex;
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+    animation-delay: 10s;
+}
+
+#slide4 {
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.5) 50%), url('/assets/logos/slide4.jpg');
+    background-repeat: no-repeat;
+        background-size: cover;
+        display: flex;
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+    animation-delay: 15s;
+}
+.contentMessage {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start; /* Align content to the left */
+    padding-left: 50px; /* Add padding to create space between the message and the left edge */
+    margin-top: 10%;
+    margin-left: 30px;
+}
+
+.contentMessage h1 {
+    font-family: Arial, sans-serif; /* Use a common font stack */
+    font-weight: bold;
+    color: #fff;
+    font-size: 50px;
+    margin-bottom: 20px; /* Add margin to create space between heading and paragraph */
+    text-align: justify;
+}
+
+.contentMessage h2 {
+    font-family: Arial, sans-serif; /* Use a common font stack */
+    font-weight: bold;
+    color: #fff;
+    font-size: 30px;
+    margin-bottom: 20px; /* Add margin to create space between heading and paragraph */
+    text-align: justify;
+}
+
+.contentMessage p {
+    font-family: Arial, sans-serif; /* Use a common font stack */
+    font-weight: bold;
+    color: lightgrey;
+    line-height: 30px;
+}
+
+@keyframes slideShow {
+    0%, 20%, 100% {
+        opacity: 0;
+    }
+    5%, 15% {
+        opacity: 1;
+    }
+}
+    .container-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 5px;
+    color: #666;
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #ff6b6b;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #ff4d4d;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.dialog-box {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    width: 350px; /* Adjust the width as needed */
+    max-height: 80%; /* Set a maximum height for the dialog box */
+    overflow-y: auto; /* Enable vertical scrolling if content overflows */
+    z-index: 9999; /* Ensure the dialog box appears on top */
+}
+.post-area {
+    background-color: #e5e8eb; /* Set background color */
+    border-radius: 999px; /* Make border radius round */
+    padding: 15px 20px; /* Add padding */
+    font-size: 18px; /* Set font size */
+    cursor: pointer; /* Add pointer cursor */
+    width: 30%; /* Adjust width to fit content */
+    margin: auto; /* Center horizontally */
+    margin-top: 20px; /* Add top margin */
+    display: flex; /* Display as flex for centering */
+    align-items: center; /* Center vertically */
+}
+.post-area i {
+    font-size: 26px; /* Increase icon size */
+    margin-right: 10px; /* Add spacing between icon and text */
+    color: #007bff; /* Set icon color */
+}
+
+.dialog-box.show {
+    display: block;
+}
+/* CSS for Displaying Pet Records */
+.pet-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px; /* Adjust the gap between pet records */
+}
+
+.pet {
+    width: 270px; /* Adjust the width of each pet card */
+    height: 420px; /* Adjust the height of each pet card */
+    background-color: #f0f2f5;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.pet h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.pet img {
+    width: 100%; /* Ensure the image fills the container */
+    height: 250px; /* Fixed height for the image */
+    border-radius: 8px;
+    object-fit: cover; /* Maintain aspect ratio while covering the area */
+    transition: transform 0.3s ease-in-out;
+    cursor: pointer;
+}
+.pet img:hover {
+            transform: scale(1.1);
+        }
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.adopt-button, .description-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.adopt-button {
+    background-color: orange;
+    color: white;
+}
+
+.description-button {
+    background-color: green;
+    color: white;
+}
+
+.adopt-button:hover, .description-button:hover {
+    background-color: orangered;
+}
+#descriptionUser {
+    font-size: 1.1em; /* Adjust the size as needed */
+    margin-bottom: 5px; /* Add some space between username and description */
+}
+
+/* CSS for heart icon */
+.heart-icon {
+    position: absolute; /* Position the heart icon */
+    top: 10px; /* Distance from the top */
+    right: 10px; /* Distance from the right */
+    font-size: 28px; /* Adjust the font size to make the icon bigger */
+    transition: color 0.3s, font-size 0.3s; /* Smooth transition for color and size changes */
+    cursor: pointer;
+    color: gray;
+}
+
+.heart-icon.active {
+    color: red; /* Active color */
+}
+/* CSS for heart icon */
+    .search-container {
+      max-width: 500px;
+      margin-right: auto; /* Align container to the left side */
+      padding: 20px;
+      border-radius: 8px;
+      margin-left: 2%;
+    }
+    .search-group {
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+    }
+    .search-group label {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+    .search-input {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      width: 26%;
+    }
+    .search-btn {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      margin-bottom: 3%;
+
+    }
+    .search-btn:hover {
+      background-color: #0056b3;
+    }
+    .input-field {
+      margin-left: 2px; /* Reduce margin between dropdown and input field */
+    }
+/* Style for the background overlay */
+#overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    z-index: 999; /* Ensure it appears below dialog content */
+}
+
+/* Style for dialog content */
+.dialog-content {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(255, 247, 233);
+    padding: 40px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    width: 70%;
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: center;
+    overflow-y: auto;
+}
+
+/* Style for dialog box when shown */
+.dialog-content.active {
+    display: block;
+}
+.dialog-content ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.dialog-content ul li {
+    margin-bottom: 5px;
+}
+/* Style for dialog box headings */
+.dialog-content h3 {
+    margin-top: 0;
+    color: #333;
+    font-size: 24px;
+    text-align: left;
+}
+
+.dialog-content p {    
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+/* Style for section headings */
+.dialog-content .section h4 {
+    color: #232324;
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+/* Style for section descriptions */
+.dialog-content .section p {
+    color: #555;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+/* Style for links on hover */
+.dialog-content .links a:hover {
+    text-decoration: underline;
+}
+
+/* Style for card */
+.card {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px 0 0 10px; /* Set border radius for top-left, bottom-left corners */
+    margin-right: 20px; /* Add margin between cards */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: inline-block; /* Display cards inline */
+    border-left: 4px solid #28a745;
+}
+
+/* Ensure the last card doesn't have right margin */
+.card:last-child {
+    margin-right: 0;
+}
+
+/* Style for section container */
+.section {
+    display: flex; /* Use flexbox for horizontal alignment */
+    gap: 20px; /* Add space between cards */
+}
+
+/* Style for card container */
+.card-container {
+    display: flex; /* Use flexbox */
+    flex-direction: row; /* Arrange cards horizontally */
+    gap: 20px; /* Add space between cards */
+}
+
+#card {
+    flex: 1; /* Distribute available space evenly among cards */
+    border: 1px solid #ccc; /* Add border for each card */
+    border-radius: 8px; /* Add border radius */
+    padding: 20px; /* Add padding */
+    background-color: #f9f9f9; /* Set background color */
+}
+
+#card h4 {
+    margin-top: 0; /* Remove margin for heading */
+    font-size: 28px;
+    line-height: normal;
+    margin-bottom: 5px;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+    .section,
+    .card-container {
+        flex-direction: column; /* Stack cards vertically */
+        gap: 15px; /* Adjust gap between items */
+    }
+
+    .card {
+        width: 90%; /* Ensure cards take full width on smaller screens */
+        margin-right: 0; /* Remove margin on the right */
+        border-radius: 10px; /* Adjust border radius for full rectangle */
+    }
+
+.dialog-content {
+    width: 95%; /* Make the dialog content take more width on small screens */
+    padding: 20px; /* Adjust padding for smaller screens */
+    margin-top: 5%;
+    max-height: 90vh; /* Set a maximum height for the dialog content */
+    overflow-y: auto; /* Allow vertical scrolling if content exceeds max-height */
+}
+}
+
+/* Media query for very small screens (like mobile) */
+@media (max-width: 480px) {
+    #card h4 {
+        font-size: 22px; /* Adjust font size for smaller screens */
+    }
+
+    .dialog-content {
+        font-size: 14px; /* Adjust font size for better readability on mobile */
+        padding: 10px; /* Reduce padding */
+    }
+
+    .section,
+    .card-container {
+        gap: 10px; /* Further adjust spacing for smaller screens */
+    }
+}
+
+/* Style for qoute container */
+.quote-container {
+        width: 100%;
+        height: 80vh;
+        background: linear-gradient(to left, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.5) 50%), url(/assets/);
+        background-size: cover;
+        background-position: center;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    .quote-text {
+        font-size: 65px;
+        color: #fff;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    
+.filter-buttons {
+    display: flex;
+    justify-content: center; /* Horizontally center the buttons */
+    margin-bottom: 15px; /* Adjust margin as needed */
+}
+
+.filter-buttons button {
+    background-color: white; /* Change the color of the button */
+    color: black; /* Set text color to black */
+    border: none; /* Remove the default border */
+    padding: 10px 20px; /* Add padding for better appearance */
+    border-radius: 5px; /* Add border radius for rounded corners */
+    cursor: pointer; /* Change cursor to pointer on hover */
+    transition: background-color 0.3s; /* Smooth transition for color change */
+    font-size: 18px;
+}
+
+.filter-buttons button:hover {
+    background-color: #f0f0f0; /* Change color on hover */
+}
+.filter-buttons button.active {
+    font-weight: bold; /* Bold the text of the active button */
+}
+
+.image-container {
+    position: relative;
+    display: inline-block;
+}
+
+.image-navigation {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    display: none;
+}
+
+.image-navigation .nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.image-navigation .left-arrow {
+    left: 5px;
+}
+
+.image-navigation .right-arrow {
+    right: 5px;
+}
+
+.main-image:hover + .image-navigation {
+    display: block;
+}
+
+.pet-dialog {
+    background: white;
+    color: black;
+    padding: 20px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+}
+
+.pet-dialog h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.pet-dialog p {
+    margin-bottom: 5px;
+}
+
+.pet-dialog .image-container {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.pet-dialog .main-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.pet-dialog button {
+    padding: 10px 20px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.pet-dialog button:hover {
+    background-color: #ff6b6b;
+}
+
+.pet-dialog button:focus {
+    outline: none;
+}
+
+.pet-dialog button:active {
+    background-color: #3e8e41;
+}
+
+.pet-dialog strong {
+    font-weight: bold;
+}
+
+.pet-dialog a {
+    color: black;
+    text-decoration: none;
+}
+
+.pet-dialog a:hover {
+    text-decoration: underline;
+}
+
+     /* Media Queries */
+ @media only screen and (max-width: 768px) {
+        #postArea {
+        padding: 10px 20px; /* Add padding for better spacing */
+        font-size: 16px; /* Decrease font size for smaller screens */
+        width: 80%;
+        height: auto;
+    }
+
+    .pet-dialog {
+        width: 90%;
+        height: auto;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 15px;
+    }
+
+    .pet-dialog h2 {
+        font-size: 20px;
+    }
+
+    .pet-dialog button {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .pet-dialog .image-container {
+        margin-bottom: 10px;
+    }
+
+    .pet-dialog .nav-arrow {
+        padding: 5px;
+    }
+    .quote-container {
+        height: 40vh;
+    }
+    .quote-text {
+        font-size: 30px;
+    }
+
+    .contentMessage {
+        margin-right: 10%;
+    }
+    .contentMessage h1 {
+        font-size: 30px;
+        text-align: left; /* Optional, since the parent class already has right alignment */
+        margin-top: 20px;
+    }
+
+    .contentMessage h2 {
+        font-family: Arial, sans-serif; /* Use a common font stack */
+        font-weight: bold;
+        color: #fff;
+        font-size: 24px;
+        margin-bottom: 20px; /* Add margin to create space between heading and paragraph */
+        text-align: justify;
+    }
+    
+    .contentMessage p {
+        font-size: 14px;
+        line-height: 15px;
+        text-align: left; /* Optional, for consistency */
+        margin-right: 5%; /* Adjust the margin as needed */
+    }
+
+    .container-fluid {
+        width: 100%;
+        min-height: 80vh; /* Full viewport height */
+        position: relative; /* To position the slides absolutely within it */
+        display: flex;
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+    }
+}

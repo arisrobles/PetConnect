@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Sign Up - PetConnect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" href="data:,">
+    <link rel="icon" href="/assets/logos/logo_browser.png" type="image/x-icon">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to left, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.5) 50%), url(/assets/logos/adopt.jpg);
+            width: 100%;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+    
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 600px;
+            text-align: center;
+            background: linear-gradient(to left, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.5) 50%);
+        }
+    
+        h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: orange;
+        }
+    
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+    
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            width: 48%; /* Each form group takes half the width */
+        }
+    
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #fff;
+            text-align: left;
+        }
+    
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        select {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    
+        /* Apply the same style to the 'Select Location' button */
+        button#openModalBtn {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            width: 100%;
+            background-color: #fff; /* Same background as input fields */
+            cursor: pointer;
+            color: #000;
+            text-align: left;
+        }
+    
+        button#openModalBtn:hover {
+            background-color: #f4f4f4;
+        }
+    
+        button {
+            background-color: orange;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+    
+        button:hover {
+            background-color: burlywood;
+        }
+    
+        .signin-message {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+    
+        .signin-link {
+            color: red;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+    
+        .signin-link:hover {
+            color: burlywood;
+        }
+    
+        .password-input-container {
+            position: relative;
+        }
+    
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 35%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: black;
+        }
+    
+        .username-input-container {
+            position: relative;
+        }
+    
+        .username-feedback {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+    
+        .terms-container {
+            text-align: left;
+            margin-bottom: 25px;
+            margin-top: 25px;
+            color: white;
+        }
+    
+        .terms-container label {
+            font-size: 14px;
+            font-weight: lighter;
+        }
+    
+        .terms-container a {
+            color: orange;
+            text-decoration: none;
+        }
+    
+        .terms-container a:hover {
+            text-decoration: underline;
+        }
+    
+        button:disabled {
+            cursor: not-allowed;
+        }
+    
+       /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+            text-align: left;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 30%; /* Default width for larger screens */
+            border-radius: 8px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 80%; /* Increase width on smaller screens */
+                margin: 10% auto; /* Adjust margin for better positioning */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .modal-content {
+                width: 90%; /* Further increase width for very small screens */
+                padding: 15px; /* Reduce padding for smaller screens */
+            }
+
+            .close {
+                font-size: 24px; /* Reduce close button size */
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .form-group-modal {
+            margin-bottom: 15px;
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="container">
+        <h2>Register Account</h2>
+        <form id="signupForm">
+            <div class="form-group">
+                <label for="firstname">First Name</label>
+                <input type="text" id="firstname" name="firstname" placeholder="Enter your first name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="lastname">Last Name</label>
+                <input type="text" id="lastname" name="lastname" placeholder="Enter your last name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Username</label>
+                <div class="username-input-container">
+                    <input type="text" id="username" name="username" placeholder="Enter a unique username" required>
+                    <span class="username-feedback" id="username-feedback"></span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="password" name="password" placeholder="Enter password" required>
+                    <span class="toggle-password" onclick="togglePasswordVisibility()">
+                        <i id="passwordToggleIcon" class="fas fa-eye"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter a valid email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location</label>
+                <button type="button" id="openModalBtn">Select Location</button>
+            </div>
+
+            <!-- Modal for Location Selection -->
+            <div id="locationModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h3>Select Location</h3>
+
+                    <div class="form-group-modal">
+                        <label for="modalProvince">Province</label>
+                        <select id="modalProvince" required>
+                            <option value="">Select Province</option>
+                        </select>
+                    </div>
+                    <div class="form-group-modal">
+                        <label for="modalMunicipality">Municipality</label>
+                        <select id="modalMunicipality" required>
+                            <option value="">Select Municipality</option>
+                        </select>
+                    </div>
+                    <div class="form-group-modal">
+                        <label for="modalBarangay">Barangay</label>
+                        <select id="modalBarangay" required>
+                            <option value="">Select Barangay</option>
+                        </select>
+                    </div>
+                    <button type="button" id="saveLocationBtn">Save Location</button>
+                </div>
+            </div>
+
+            <!-- Hidden Inputs to Store Selected Location Data -->
+            <input type="hidden" id="province" name="province" required>
+            <input type="hidden" id="municipality" name="municipality" required>
+            <input type="hidden" id="barangay" name="barangay" required>
+            
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" name="role" required>
+                    <option value="">Select your role</option>
+                    <option value="PetOwner">Pet Owner</option>
+                    <option value="Adopter">Adopter</option>
+                    <option value="Shelter">Shelter</option>
+                    <option value="VeterinaryClinics">Veterinary Clinics</option>
+                </select>
+            </div>
+
+             <!-- Terms and Conditions checkbox -->
+             <div class="terms-container">
+                <input type="checkbox" id="terms-checkbox">
+                <label for="terms-checkbox">
+                    By signing up you agree to our <a href="/public/terms.html">Terms and Conditions</a> and <a href="/public/privacy.html">Privacy Policy</a>.
+                </label>
+            </div>
+            
+            <button type="submit" id="signupBtn" disabled>Sign Up</button>
+            <p id="error-message" style="color: red; display: none;"></p>
+        </form>
+        <div class="signin-message">
+            <p>Already have an account? <a href="signin.html" class="signin-link">Sign in</a>.</p>
+        </div>
+    </div> 
+
+    <script>
+        function togglePasswordVisibility() {
+            var passwordInput = document.getElementById("password");
+            var passwordToggleIcon = document.getElementById("passwordToggleIcon");
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                passwordToggleIcon.classList.remove("fa-eye");
+                passwordToggleIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                passwordToggleIcon.classList.remove("fa-eye-slash");
+                passwordToggleIcon.classList.add("fa-eye");
+            }
+        }
+
+            // Enable the Sign Up button when the checkbox is checked
+            document.getElementById("terms-checkbox").addEventListener("change", function() {
+            var signupBtn = document.getElementById("signupBtn");
+            signupBtn.disabled = !this.checked; // Enable/disable based on checkbox status
+            });
+
+        document.getElementById("signupForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent form submission
+        var firstname = document.getElementById("firstname").value;
+        var lastname = document.getElementById("lastname").value;
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+        var email = document.getElementById("email").value;
+        var role = document.getElementById("role").value; // Get the selected role
+
+        // Send signup request to the server
+        fetch('http://localhost:3000/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                firstname: firstname,
+                lastname: lastname,
+                username: username,
+                password: password,
+                email: email,
+                province: document.getElementById("province").value,
+                municipality: document.getElementById("municipality").value,
+                barangay: document.getElementById("barangay").value,
+                role: role
+            })
+        })
+        .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok ' + response.statusText);
+                return response.text();
+            })
+            .then(message => {
+                console.log(message);
+                document.getElementById("message").textContent = message;
+                alert("Email sent successfully!");
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert(error.message === 'Failed to fetch' ? "Email Sent!" : error.message);
+            });
+        });
+             // Modal functionality
+        const modal = document.getElementById("locationModal");
+        const openModalBtn = document.getElementById("openModalBtn");
+        const closeModalBtn = modal.querySelector(".close");
+        const saveLocationBtn = document.getElementById("saveLocationBtn");
+
+        openModalBtn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        closeModalBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        saveLocationBtn.onclick = function() {
+        const province = document.getElementById("modalProvince").selectedOptions[0].text;
+        const municipality = document.getElementById("modalMunicipality").selectedOptions[0].text;
+        const barangay = document.getElementById("modalBarangay").selectedOptions[0].text;
+
+        if (province && municipality && barangay) {
+            document.getElementById("province").value = province;
+            document.getElementById("municipality").value = municipality;
+            document.getElementById("barangay").value = barangay;
+
+            // Update the button text
+            openModalBtn.textContent = `${barangay}, ${municipality}, ${province}`;
+            modal.style.display = "none"; // Close the modal after saving
+        } else {
+            alert("Please select all location fields.");
+        }
+    }
+
+        // Fetch provinces, municipalities, and barangays (use the same functions you had for fetching these)
+        // Fetch provinces when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('http://localhost:3000/api/provinces')
+                .then(response => response.json())
+                .then(data => {
+                    const provinceSelect = document.getElementById('modalProvince');
+                    data.forEach(province => {
+                        const option = document.createElement('option');
+                        option.value = province.id;
+                        option.textContent = province.name;
+                        provinceSelect.appendChild(option);
+                    });
+                });
+        });
+
+        // Fetch municipalities when a province is selected
+        document.getElementById('modalProvince').addEventListener('change', function() {
+            const provinceId = this.value;
+            const municipalitySelect = document.getElementById('modalMunicipality');
+            municipalitySelect.innerHTML = '<option value="">Select Municipality</option>'; // Reset municipalities
+            document.getElementById('modalBarangay').innerHTML = '<option value="">Select Barangay</option>'; // Reset barangays
+
+            if (provinceId) {
+                fetch(`http://localhost:3000/api/municipalities/${provinceId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(municipality => {
+                            const option = document.createElement('option');
+                            option.value = municipality.id;
+                            option.textContent = municipality.name;
+                            municipalitySelect.appendChild(option);
+                        });
+                    });
+            }
+        });
+
+        // Fetch barangays when a municipality is selected
+        document.getElementById('modalMunicipality').addEventListener('change', function() {
+            const municipalityId = this.value;
+            const barangaySelect = document.getElementById('modalBarangay');
+            barangaySelect.innerHTML = '<option value="">Select Barangay</option>'; // Reset barangays
+
+            if (municipalityId) {
+                fetch(`http://localhost:3000/api/barangays/${municipalityId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(barangay => {
+                            const option = document.createElement('option');
+                            option.value = barangay.id;
+                            option.textContent = barangay.name;
+                            barangaySelect.appendChild(option);
+                        });
+                    });
+            }
+        });
+
+// Function to perform real-time validation of username
+function validateUsername() {
+    var username = document.getElementById("username").value;
+    var usernameFeedback = document.getElementById("username-feedback");
+
+    // Check if the username input is empty
+    if (username.trim() === "") {
+        usernameFeedback.innerHTML = ""; // Clear the feedback icon
+        return; // Exit the function
+    }
+
+    // Check if username meets the specified condition
+    var usernameRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{3,}$/; // Letters, numbers, and special characters, at least one of each, 3 characters long
+    if (!usernameRegex.test(username)) {
+        usernameFeedback.innerHTML = '<i class="fas fa-exclamation-circle" style="color: red;"></i>';
+        return; // Exit the function
+    }
+
+    // Send request to check if username exists
+    fetch(`http://localhost:3000/check-username?username=${username}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists) {
+                // Username already exists
+                usernameFeedback.innerHTML = '<i class="fas fa-exclamation-circle" style="color: red;"></i>';
+            } else {
+                // Username is available
+                usernameFeedback.innerHTML = '<i class="fas fa-check-circle" style="color: green;"></i>';
+            }
+        })
+        .catch(error => {
+            console.error('Error checking username:', error);
+            usernameFeedback.innerHTML = '<i class="fas fa-exclamation-circle" style="color: red;"></i>';
+        });
+}
+
+// Add event listener for real-time validation
+document.getElementById("username").addEventListener("input", validateUsername);
+
+    </script>
+</body>
+</html>

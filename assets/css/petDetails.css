@@ -1,0 +1,108 @@
+nav {
+    background-color: #343a40; /* Dark background for navbar */
+    color: #ffffff;
+    padding: 10px 0;
+    position: fixed; /* Make the navbar fixed */
+    top: 0; /* Align it to the top of the page */
+    width: 100%; /* Ensure it spans the full width of the page */
+    z-index: 1000; /* Ensure it stays on top of other content */
+}
+nav h2 {
+    margin-left: 4%;
+    margin-top: 5px;
+}
+
+.container {
+    margin-top: 50px; /* Existing margin-top */
+    padding-top: 80px; /* Adjust this value to ensure content is fully visible */
+}
+
+.pet-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+.carousel-inner img {
+    width: 100%;
+    height: auto;
+}
+.pet-details {
+    margin-top: 20px;
+}
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: #000;
+    border-radius: 50%;
+}
+.pet-details h3 {
+    font-size: 2rem;
+    margin-bottom: 10px; /* Reduced margin-bottom for better spacing */
+}
+.pet-details p {
+    font-size: 1rem; /* Adjusted font-size for consistency */
+    margin-bottom: 10px; /* Reduced margin-bottom for better spacing */
+}
+.pet-details p#petDatePosted {
+    font-size: 0.875rem; /* Smaller font-size for the date posted */
+    color: #606770; /* Subtle color similar to Facebook's style */
+    margin-bottom: 5px; /* Reduced margin for closer spacing */
+}
+.pet-details strong {
+    font-weight: 600;
+    color: #333;
+}
+.container .btn-primary {
+    margin-top: 20px;
+}
+.pet-details .interested-icon {
+    color: #ff0000; /* Red color */
+}
+
+    /* Example CSS for status colors */
+.text-success {
+    color: #28a745; /* Green */
+}
+
+.text-warning {
+    color: #ffc107; /* Yellow */
+}
+
+.text-danger {
+    color: #dc3545; /* Red */
+}
+
+.text-info {
+    color: #17a2b8; /* Light blue */
+}
+
+.text-primary {
+    color: #007bff; /* Blue */
+}
+
+.text-secondary {
+    color: #6c757d; /* Gray */
+}
+
+.text-dark {
+    color: #343a40; /* Dark gray */
+}
+
+.text-purple {
+    color: #6f42c1; /* Purple */
+}
+
+.text-gray {
+    color: #6c757d; /* Gray */
+}
+
+@media (min-width: 768px) {
+    .pet-details {
+        margin-top: 0;
+    }
+    .pet-details h3 {
+        font-size: 2.5rem;
+    }
+    .pet-details p {
+        font-size: 1.125rem;
+    }
+}

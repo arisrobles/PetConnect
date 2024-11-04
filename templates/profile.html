@@ -1,0 +1,2466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - PetConnect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="icon" href="/assets/logos/logo_browser.png" type="image/x-icon">
+    <link rel="stylesheet" href="/assets/css/profile.css">
+    <style>
+      /* Modal styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
+    z-index: 2; /* Ensure profile image is above the cover photo */
+}
+
+/* Modal content styles */
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px; /* Ensures the modal does not become too wide */
+    text-align: left; /* Ensure the text is left-aligned */
+}
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* Close button styles */
+.close-btn {
+    color: #555;
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: #000;
+}
+
+/* Form styles */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    margin-bottom: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus {
+    border-color: #007BFF;
+    outline: none;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+}
+
+/* Submit button styles */
+button[type="submit"] {
+    background-color: #ff9500;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+    background-color: #b37100;
+}
+.editForm {
+    text-align: left;
+}
+#editProfileBtn {
+    margin-left: 45%;
+    margin-top: -10px;
+    cursor: pointer;
+}
+@media (max-width: 480px) {
+    #editProfileBtn {
+        margin-left: 40%;
+    }
+}
+.dropdown-menu {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    z-index: 1000; /* Keep this high to ensure it's above other elements */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 120px; /* Set a width for the dropdown */
+    display: none; /* Initially hidden */
+    top: 140px; /* Position just below the camera icon */
+    right: 0; /* Align to the left of the camera icon */
+}
+
+.dropdown-item {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #f1f1f1; /* Highlight on hover */
+}
+#settingsBtn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+@media (max-width: 768px) {
+    #settingsBtn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+    }
+}
+.toasts {
+    padding: 10px 20px;
+    margin: 10px;
+    border-radius: 5px;
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    transition: opacity 0.5s;
+}
+
+.toasts.success {
+    background-color: green;
+    color: white;
+}
+
+.toasts.error {
+    background-color: red;
+    color: white;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Settings Button -->
+        <button id="settingsBtn" style="background: none; border: none; color: rgb(81, 81, 81); cursor: pointer; position: absolute; top: 10px; right: 10px; font-size: 24px;">
+            <i class="fas fa-cog"></i>
+        </button>
+        <div class="header">
+        <!-- Cover Photo Section -->
+        <div class="cover-photo">
+            <input type="file" id="coverImage" accept="image/*" onchange="uploadCoverImage(this)" style="display: none;">
+            <img src="" id="coverImageDisplay" style="display: none;" class="cover-image">
+            <span class="fas fa-camera" id="coverCamera" style="font-size: 30px; color: white; cursor: pointer;" onclick="toggleDropdown()"></span>
+            <div id="dropdownMenu" class="dropdown-menu">
+                <div class="dropdown-item" onclick="triggerCoverUpload()">Upload Photo</div>
+                <div id="removeCoverButton" class="dropdown-item" onclick="removeCoverImage()">Remove</div>
+            </div>            
+        </div>
+
+            <div id="user-container">
+            </div>
+            <div class="profile-photo" style="position: relative;">
+                <input type="file" id="profileImage" accept="image/*" onchange="uploadProfileImage(this)" style="display: none;">
+                <!-- Default user icon -->
+                <img src="/assets/logos/149071.png" id="defaultUserIcon">
+                <!-- Profile image display -->
+                <img src="" id="profileImageDisplay" style="display: none;">
+                
+                <!-- Options for update/delete -->
+                <div id="editOptions" class="edit-options">
+                    <button onclick="triggerUpload()" id="triggerUpload">Update Picture</button>
+                    <button onclick="deleteProfileImage()" id="deleteUpload">Delete Picture</button>
+                </div>
+            </div>
+        
+            <!-- Username and profile info -->
+            <div class="username" id="username"></div>
+            <div class="profile-info" id="profileInfo">Member since: <!-- Registration date here --></div>   
+            <button id="editProfileBtn" class="btn btn-outline-primary btn-sm mt-2"><i class="fas fa-edit mr-1"></i>Edit Info</button>       
+        </div>
+        
+        <!-- Modal for Editing Profile -->
+        <div id="editProfileModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Edit Profile</h2>
+                <form id="editProfileForm">
+                    <label for="editFirstname" class="editForm">First Name:</label>
+                    <input type="text" id="editFirstname" name="firstname">
+                    <label for="editLastname" class="editForm">Last Name:</label>
+                    <input type="text" id="editLastname" name="lastname">
+                    <label for="editLocation" class="editForm">Location:</label>
+                    <input type="text" id="editLocation" name="location">
+                    <button type="submit">Save Changes</button>
+                </form>
+            </div>
+        </div>
+        
+
+        <div class="button-group">
+            <button id="petsButton" onclick="getPets()"><i class="fas fa-paw"></i> Pets</button>
+            <button id="lostButton" onclick="getLost()"><i class="fas fa-exclamation-triangle"></i> Lost</button>
+            <button id="foundButton" onclick="getFound()"><i class="fas fa-search"></i> Found</button>
+            <button id="savedButton" onclick="getSaved()"><i class="fas fa-heart"></i> Saved</button>
+        </div>
+        <!-- pets, lost, found, saved pets containers -->
+        <section>
+            <div id="petsContainer" class="pet-container"></div>
+        </section>
+        <section>
+            <div id="lostPetsContainer" class="pet-container"></div>
+        </section>
+        <section>
+            <div id="foundPetsContainer" class="pet-container"></div>
+        </section>
+        <section>
+            <div id="savedPetsContainer" class="pet-container"></div>
+        </section>
+
+       <!-- Logout button -->
+       <li id="logoutBtn"><i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> LOGOUT</li>
+       
+       <!-- Modal for Editing a Pet -->
+        <div id="editPetModal" class="modal">
+            <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>Edit Pet</h2>
+            <form id="editPetForm">
+                <input type="hidden" id="editPetId" />
+                <label for="editPetName">Name:</label>
+                <input type="text" id="editPetName" required>
+                <label for="editPetBreed">Breed:</label>
+                <input type="text" id="editPetBreed">
+                <label for="editPetDescription">Description:</label>
+                <textarea id="editPetDescription"></textarea>
+                <label for="editPetLocation">Location:</label>
+                <input type="text" id="editPetLocation">
+                <label for="editPetContact">Contact:</label>
+                <input type="text" id="editPetContact">
+                <!-- Add other fields as necessary -->
+                <button type="submit">Save Changes</button>
+            </form>
+            </div>
+        </div>
+
+        <!-- Modal for Editing a Lost Pet -->
+        <div id="editLostPetModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeEditLostModal()">&times;</span>
+                <h2>Edit Lost Pet</h2>
+                <form id="editLostPetForm">
+                    <input type="hidden" id="editLostPetId" />
+                    <label for="editLostPetName">Name:</label>
+                    <input type="text" id="editLostPetName" required>
+                    <label for="editLostPetBreed">Breed:</label>
+                    <input type="text" id="editLostPetBreed">
+                    <label for="editLostPetDescription">Description:</label>
+                    <textarea id="editLostPetDescription"></textarea>
+                    <label for="editLostPetLocation">Location:</label>
+                    <input type="text" id="editLostPetLocation">
+                    <label for="editLostPetContact">Contact:</label>
+                    <input type="text" id="editLostPetContact">
+                    <!-- Add other fields as necessary -->
+                    <button type="submit">Save Changes</button>
+                </form>
+            </div>
+        </div>
+        <!-- Modal for Editing a Found Pet -->
+        <div id="editFoundPetModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeEditFoundModal()">&times;</span>
+                <h2>Edit Found Pet</h2>
+                <form id="editFoundPetForm">
+                    <input type="hidden" id="editFoundPetId" />
+                    <label for="editFoundPetBreed">Breed:</label>
+                    <input type="text" id="editFoundPetBreed">
+                    <label for="editFoundPetDescription">Description:</label>
+                    <textarea id="editFoundPetDescription"></textarea>
+                    <label for="editFoundPetLocation">Location:</label>
+                    <input type="text" id="editFoundPetLocation">
+                    <label for="editFoundPetContact">Contact:</label>
+                    <input type="text" id="editFoundPetContact">
+                    <!-- Add other fields as necessary -->
+                    <button type="submit">Save Changes</button>
+                </form>
+            </div>
+        </div>
+
+<!-- Adoption Modal -->
+<div id="adoption-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Adoption Details</h2>
+        <p>Please fill out the needed details to confirm the adoption process.</p>
+        <p style="font-size: smaller; color: #4d4b4b;">Note: You can mention the adopter's username to prefill other fields automatically.</p>
+        <form id="adoption-form">
+            <label for="username">Adopter's Username:</label>
+            <input type="text" id="adopter-username" placeholder="Enter the adopter's username" required>
+            <label for="adopter-name">Adopter's Name:</label>
+            <input type="text" id="adopter-name" placeholder="Enter the adopter's full name" required>
+            <label for="contact-number">Contact Number:</label>
+            <input type="text" id="contact-number" placeholder="Enter the adopter's contact number" required>
+            <label for="address">Address:</label>
+            <input type="text" id="address" placeholder="Enter the adopter's address" required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+
+<!-- Return Modal -->
+<div id="return-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Return Details</h2>
+        <p>Please fill out the details to confirm the return process.</p>
+        <p style="font-size: smaller; color: #4d4b4b;">Note: You can mention the returner's username to prefill other fields automatically.</p>
+        <form id="return-form">
+            <label for="username">Returner's Username:</label>
+            <input type="text" id="returner-username" placeholder="Enter the returner's username" required>
+            <label for="returner-name">Returner's Name:</label>
+            <input type="text" id="returner-name" placeholder="Enter the returner's full name" required>
+            <label for="contact-number">Contact Number:</label>
+            <input type="text" id="return-contact-number" placeholder="Enter the returner's contact number" required>
+            <label for="address">Address:</label>
+            <input type="text" id="return-address" placeholder="Enter the returner's address" required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+
+<!-- Reunion Modal -->
+<div id="reunion-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Reunited Details</h2>
+        <p>Please fill out the details to confirm the reunion process.</p>
+        <p style="font-size: smaller; color: #4d4b4b;">Note: You can mention the owner's username to prefill other fields automatically.</p>
+        <form id="reunion-form">
+            <label for="username">Owner's Username:</label>
+            <input type="text" id="owner-username" placeholder="Enter the owner's username" required>
+            <label for="owner-name">Owner's Name:</label>
+            <input type="text" id="owner-name" placeholder="Enter the owner's full name" required>
+            <label for="contact-number">Contact Number:</label>
+            <input type="text" id="owner-contact-number" placeholder="Enter the owner's contact number" required>
+            <label for="address">Address:</label>
+            <input type="text" id="owner-address" placeholder="Enter the owner's address" required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<!-- Overall JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const usernameParam = urlParams.get('username');
+    if (usernameParam) {
+        console.log(`User ${usernameParam}`);
+        document.querySelector('.username').innerText = usernameParam;
+    } else {
+        console.error('Username parameter not found.');
+        window.location.href = "signin.html";
+    }
+    // Initially, display only the pets content
+    getPets();
+});
+
+// Check if a success message should be shown after the page loads
+function checkForSuccessMessage() {
+    if (localStorage.getItem('showSuccessMessage') === 'true') {
+        showSuccessMessage();
+        localStorage.removeItem('showSuccessMessage'); // Remove the flag after showing the message
+    }
+}
+
+function getPets() {
+    setActiveButton('petsButton');
+    const petsContainer = document.getElementById('petsContainer');
+    petsContainer.style.display = 'flex'; // Set display to flex to allow multiple items in a row
+    petsContainer.innerHTML = ''; // Clear the container before adding new content
+    const lostPetsContainer = document.getElementById('lostPetsContainer');
+    lostPetsContainer.style.display = 'none'; // Hide lost pets container
+    const foundPetsContainer = document.getElementById('foundPetsContainer');
+    foundPetsContainer.style.display = 'none'; // Hide found pets container
+    const savedPetsContainer = document.getElementById('savedPetsContainer');
+    savedPetsContainer.style.display = 'none'; // Hide saved pets container
+
+    // Fetch the user's information
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+    if (!username) {
+        console.error('Username parameter not found.');
+        window.location.href = "signin.html";
+        return;
+    }
+
+    // Verify token and username with the server
+    const token = localStorage.getItem('token');
+    let isLoggedIn = false; // Default to false until verified
+    const usernameParam = urlParams.get('username');
+
+    if (token) {
+        fetch('http://localhost:3000/verify-token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ username })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.valid) {
+                isLoggedIn = true;
+            }
+
+            // Fetch and display pets after verifying token
+            fetch(`http://localhost:3000/pets?owner_username=${username}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(pets => {
+                petsContainer.innerHTML = '';
+                const userPets = pets.filter(pet => pet.owner_username === username);
+                userPets.forEach(pet => {
+                    const petElement = document.createElement('div');
+                    petElement.classList.add('pet');
+                    const statusOptions = ['Available', 'Pending Adoption', 'Adopted'];
+
+                    // If status is null, default it to 'Available'
+                    const status = pet.status ? pet.status : 'Available';
+
+                    // Determine if select wrapper should be disabled based on Confirm column
+                    const isConfirmYes = pet.Confirm === 'Yes';
+                    const disableSelect = isConfirmYes || !isLoggedIn ? 'disabled' : '';
+
+                    petElement.innerHTML = `
+                        <div class="menu" ${isLoggedIn ? '' : 'style="display: none;"'}>
+                            <i class="fas fa-ellipsis-v" onclick="toggleMenu(event)"></i>
+                            <div class="menu-content">
+                                <button onclick="editPet(${pet.id})">Edit</button>
+                                <button onclick="deletePet(${pet.id})">Delete</button>
+                                ${status === 'Adopted' ? `
+                                    <button onclick="showAdopterDetails(${pet.id})">Adopter</button>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <h2>${pet.name}</h2>
+                        <p>Breed: ${pet.breed}</p>
+                        <div class="select-wrapper">
+                            <select onchange="updateStatus(${pet.id}, this.value)" ${disableSelect}>
+                                ${statusOptions.map(option => `
+                                    <option value="${option}" ${status === option ? 'selected' : ''}>${option}</option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <br>
+                        <a href="petDetails.html?id=${pet.id}&source=pets&token=${token}&username=${usernameParam}">
+                            <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
+                        </a>
+                        <div id="adopterModal-${pet.id}" class="modal" style="display: none;">
+                            <div class="modal-content">
+                                <span onclick="closeModal('adopterModal', ${pet.id})" class="close-btn">&times;</span>
+                                <h3>Adopter Details</h3>
+                                <p id="adopterDetails-${pet.id}">Loading...</p>
+                            </div>
+                        </div>
+                    `;
+                    petsContainer.appendChild(petElement);
+                });
+            })
+            .catch(error => console.error('Error fetching pets:', error));
+        })
+        .catch(error => {
+            console.error('There was a problem with the token verification:', error);
+            window.location.href = "signin.html";
+        });
+    } else {
+        console.error('Token is missing.');
+        window.location.href = "signin.html";
+    }
+}
+
+function showAdopterDetails(petId) {
+    // Make a request to fetch adopter details by petId
+    fetch(`http://localhost:3000/getAdopterDetails?petId=${petId}`)
+        .then(response => response.json())
+        .then(data => {
+            // Display adopter details in the modal
+            const adopterDetails = `
+                <p>Name: ${data.adopterName}</p>
+                <p>Contact Number: ${data.contactNumber}</p>
+                <p>Address: ${data.address}</p>
+                <p>Date Adopted: ${data.dateAdopted}</p>
+            `;
+            document.getElementById(`adopterDetails-${petId}`).innerHTML = adopterDetails;
+            document.getElementById(`adopterModal-${petId}`).style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error fetching adopter details:', error);
+            document.getElementById(`adopterDetails-${petId}`).innerHTML = 'Failed to load details.';
+        });
+}
+
+function closeModal(petId) {
+    document.getElementById(`adopterModal-${petId}`).style.display = 'none';
+}
+
+    function editPet(petId) {
+        // Fetch the pet data by ID (or use the already fetched data)
+        fetch(`http://localhost:3000/pet/${petId}`)
+        .then(response => response.json())
+        .then(pet => {
+            document.getElementById('editPetId').value = pet.id;
+            document.getElementById('editPetName').value = pet.name;
+            document.getElementById('editPetBreed').value = pet.breed;
+            document.getElementById('editPetDescription').value = pet.description;
+            document.getElementById('editPetLocation').value = pet.location;
+            document.getElementById('editPetContact').value = pet.contact;
+            // Open the modal
+            document.getElementById('editPetModal').style.display = 'block';
+        })
+        .catch(error => console.error('Error fetching pet details:', error));
+    }
+
+    function closeEditModal() {
+        document.getElementById('editPetModal').style.display = 'none';
+    }
+    document.getElementById('editPetForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const petId = document.getElementById('editPetId').value;
+        const updatedPetData = {
+            name: document.getElementById('editPetName').value,
+            breed: document.getElementById('editPetBreed').value,
+            description: document.getElementById('editPetDescription').value,
+            location: document.getElementById('editPetLocation').value,
+            contact: document.getElementById('editPetContact').value,
+            // Add any other fields to update
+        };
+
+        fetch(`http://localhost:3000/pets/${petId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedPetData)
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Pet updated successfully.');
+                // Close the modal and refresh the pet list
+                closeEditModal();
+                getPets();
+            } else {
+                throw new Error('Failed to update pet.');
+            }
+        })
+        .catch(error => console.error('Error updating pet:', error));
+    });
+
+    function updateStatus(petId, newStatus) {
+    if (newStatus === 'Adopted') {
+        const modal = document.getElementById('adoption-modal');
+        modal.style.display = "block";
+
+        // Close modal function
+        const closeButton = modal.querySelector('.close-button');
+        closeButton.addEventListener('click', () => {
+            modal.style.display = "none";
+        });
+
+        // Handle username input
+        const usernameInput = modal.querySelector('#adopter-username');
+        usernameInput.addEventListener('input', (event) => {
+            const username = event.target.value;
+            if (username) {
+                fetchUserDetails(username, 'adoption');
+            }
+        });
+
+        // Handle form submission
+        const adoptionForm = modal.querySelector('#adoption-form');
+        adoptionForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent default form submission
+            const adopterName = document.getElementById('adopter-name').value;
+            const contactNumber = document.getElementById('contact-number').value;
+            const address = document.getElementById('address').value;
+
+            // Create confirmation modal
+            createConfirmationModal(() => {
+                sendUpdateRequest(petId, newStatus, adopterName, contactNumber, address);
+                modal.style.display = "none";
+            });
+        });
+    } else {
+        sendUpdateRequest(petId, newStatus);
+    }
+}
+
+function sendUpdateRequest(petId, status, adopterName, contactNumber, address) {
+    let url = `http://localhost:3000/updatePetStatus?petId=${petId}&status=${status}&adopterName=${adopterName}&contactNumber=${contactNumber}&address=${address}`;
+
+    // Append dateAdopted in ISO format if status is Adopted
+    if (status === 'Adopted') {
+        const dateAdopted = new Date().toISOString(); // Full ISO format
+        url += `&dateAdopted=${encodeURIComponent(dateAdopted)}`;
+    }
+
+    fetch(url, { method: 'PUT' })
+        .then(response => {
+            if (response.ok) {
+                console.log(`Status of pet with ID ${petId} updated successfully.`);
+                if (status === 'Adopted') {
+                    localStorage.setItem('showSuccessMessage', 'true');
+                }
+            } else {
+                throw new Error(`Failed to update status of pet with ID ${petId}.`);
+            }
+        })
+        .catch(error => console.error('Error updating pet status:', error));
+}
+
+function showSuccessMessage() {
+    // Create overlay to block page interaction
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // Darker overlay background
+    overlay.style.zIndex = '9999';
+    overlay.style.pointerEvents = 'auto';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    
+    // Create main container for GIF and message
+    const messageContainer = document.createElement('div');
+    messageContainer.style.backgroundColor = '#fff'; // Light background for message container
+    messageContainer.style.padding = '20px';
+    messageContainer.style.borderRadius = '10px';
+    messageContainer.style.display = 'flex';
+    messageContainer.style.alignItems = 'center'; // Align items vertically centered
+    messageContainer.style.zIndex = '10000';
+    messageContainer.style.position = 'relative'; // Ensure positioning within the overlay
+    messageContainer.style.overflow = 'hidden'; // Hide overflow for animation
+    
+    // Create GIF element
+    const gifImage = document.createElement('img');
+    gifImage.src = '/assets/gifs/cute-dog-5903965-4921877-unscreen.gif'; // Path to your success GIF
+    gifImage.alt = 'Successful Adoption GIF';
+    gifImage.style.width = '150px'; // Adjust size as needed
+    gifImage.style.marginRight = '20px'; // Space between the GIF and message
+
+    // Create success message element
+    const successMessage = document.createElement('p');
+    successMessage.textContent = 'Congratulations on a successful adoption! Thank you for giving this pet a new home.';
+    successMessage.style.fontSize = '20px';
+    successMessage.style.color = 'black';
+    successMessage.style.margin = '0'; // Remove default margin
+
+    // Append GIF and message to the message container
+    messageContainer.appendChild(gifImage);
+    messageContainer.appendChild(successMessage);
+
+    // Append message container to the overlay
+    overlay.appendChild(messageContainer);
+
+    // Append overlay to the body
+    document.body.appendChild(overlay);
+
+    // Remove the overlay after 5 seconds
+    setTimeout(() => {
+        document.body.removeChild(overlay);
+    }, 5000);
+}
+
+// Function to toggle menu visibility
+function toggleMenu(event) {
+    event.stopPropagation();
+    const menuContent = event.target.nextElementSibling;
+    if (menuContent.style.display === "block") {
+        menuContent.style.display = "none";
+    } else {
+        // Hide all other open menus before showing this one
+        const allMenuContents = document.querySelectorAll('.menu-content');
+        allMenuContents.forEach(content => {
+            content.style.display = "none";
+        });
+        menuContent.style.display = "block";
+    }
+}
+
+// Check for success message after the page loads
+function checkForSuccessMessage() {
+    const showMessage = localStorage.getItem('showSuccessMessage');
+    if (showMessage === 'true') {
+        showSuccessMessage(); // Show the success message
+        localStorage.removeItem('showSuccessMessage'); // Clear the flag after displaying
+    }
+}
+// Check for success message after the page loads
+window.onload = checkForSuccessMessage;
+
+// Function to delete a pet
+function deletePet(petID) {
+    const toast = document.createElement('div');
+    toast.classList.add('toast');
+    toast.innerHTML = `
+        <p>Are you sure you want to delete this pet?</p>
+        <button class="yes">Yes</button>
+        <button class="no">No</button>
+    `;
+    document.body.appendChild(toast);
+
+    // Add event listener for the "Yes" button
+    toast.querySelector('.yes').addEventListener('click', () => {
+        // Perform the deletion by making a DELETE request to the server
+        fetch(`http://localhost:3000/pets/${petID}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Pet deleted successfully.');
+                // Remove the toast message after successful deletion
+                toast.remove();
+                // Refresh the pets list after deletion
+                getPets();
+            } else if (response.status === 404) {
+                console.error('Pet not found.');
+                throw new Error('Pet not found.');
+            } else {
+                throw new Error('Failed to delete pet.');
+            }
+        })
+        .catch(error => console.error('Error deleting pet:', error));
+    });
+
+    // Add event listener for the "No" button
+    toast.querySelector('.no').addEventListener('click', () => {
+        // Remove the toast message if the user chooses not to delete the pet
+        toast.remove();
+    });
+}
+
+function getLost() {
+    setActiveButton('lostButton');
+    const lostPetsContainer = document.getElementById('lostPetsContainer');
+    lostPetsContainer.style.display = 'flex'; // Set display to flex to allow multiple items in a row
+    lostPetsContainer.innerHTML = ''; // Clear the container before adding new content
+    const petsContainer = document.getElementById('petsContainer');
+    petsContainer.style.display = 'none'; // Hide pets container
+    const foundPetsContainer = document.getElementById('foundPetsContainer');
+    foundPetsContainer.style.display = 'none'; // Hide found pets container
+    const savedPetsContainer = document.getElementById('savedPetsContainer');
+    savedPetsContainer.style.display = 'none'; // Hide saved pets container
+
+    // Fetch the user's information
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+    if (!username) {
+        console.error('Username parameter not found.');
+        window.location.href = "signin.html";
+        return;
+    }
+
+    // Verify token and username with the server
+    const token = localStorage.getItem('token');
+    let isLoggedIn = false; // Default to false until verified
+    const usernameParam = urlParams.get('username');
+
+    if (token) {
+        fetch('http://localhost:3000/verify-token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ username })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.valid) {
+                isLoggedIn = true;
+            }
+
+            // Fetch and display lost pets after verifying token
+            fetch(`http://localhost:3000/lost-pets?owner_username=${username}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(pets => {
+                lostPetsContainer.innerHTML = ''; // Clear the container before adding new content
+                const userLostPets = pets.filter(pet => pet.owner_username === username);
+                userLostPets.forEach(pet => {
+                    const petElement = document.createElement('div');
+                    petElement.classList.add('pet');
+                    const statusOptions = ['Lost', 'On Process', 'Returned'];
+
+                    // If status is null, default it to 'Lost'
+                    const status = pet.status ? pet.status : 'Lost';
+
+                    // Determine if select wrapper should be disabled based on Confirm column
+                    const isConfirmYes = pet.Confirm === 'Yes';
+                    const disableSelect = isConfirmYes || !isLoggedIn ? 'disabled' : '';
+
+                    petElement.innerHTML = `
+                    <!-- Three dots menu -->
+                    <div class="menu" ${isLoggedIn ? '' : 'style="display: none;"'}>
+                        <i class="fas fa-ellipsis-v" onclick="toggleMenu(event)"></i>
+                        <div class="menu-content">
+                            <button onclick="editLostPet(${pet.id})">Edit</button>
+                            <button onclick="deleteLostPet(${pet.id})">Delete</button>
+                            ${status === 'Returned' ? `
+                                <button onclick="showReturnerDetails(${pet.id})">Returner</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <h2>${pet.name}</h2>
+                    <p>Breed: ${pet.breed}</p>
+                    <div class="select-wrapper">
+                        <select onchange="updateLostStatus(${pet.id}, this.value)" ${disableSelect}>
+                            ${statusOptions.map(option => `
+                                <option value="${option}" ${status === option ? 'selected' : ''}>${option}</option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    <br>
+                    <a href="petDetails.html?id=${pet.id}&source=lost&token=${token}&username=${usernameParam}">
+                        <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
+                    </a>
+                    <div id="returnerModal-${pet.id}" class="modal" style="display: none;">
+                        <div class="modal-content">
+                           <span onclick="closeModal('returnerModal', ${pet.id})" class="close-btn">&times;</span>
+                            <h3>Returner Details</h3>
+                            <p id="returnerDetails-${pet.id}">Loading...</p>
+                        </div>
+                    </div>
+                `;
+
+                    lostPetsContainer.appendChild(petElement);
+                });
+            })
+            .catch(error => console.error('Error fetching lost pets:', error));
+        })
+        .catch(error => {
+            console.error('There was a problem with the token verification:', error);
+            window.location.href = "signin.html";
+        });
+    } else {
+        console.error('Token is missing.');
+        window.location.href = "signin.html";
+    }
+}
+
+function showReturnerDetails(petId) {
+    // Make a request to fetch adopter details by petId
+    fetch(`http://localhost:3000/getReturnerDetails?petId=${petId}`)
+        .then(response => response.json())
+        .then(data => {
+            // Display adopter details in the modal
+            const returnerDetails = `
+                <p>Name: ${data.returnerName}</p>
+                <p>Contact Number: ${data.contactNumber}</p>
+                <p>Address: ${data.address}</p>
+                <p>Date Adopted: ${data.dateReturned}</p>
+            `;
+            document.getElementById(`returnerDetails-${petId}`).innerHTML = returnerDetails;
+            document.getElementById(`returnerModal-${petId}`).style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error fetching returner details:', error);
+            document.getElementById(`returnerDetails-${petId}`).innerHTML = 'Failed to load details.';
+        });
+}
+
+function closeModal(petId) {
+    document.getElementById(`returnerModal-${petId}`).style.display = 'none';
+}
+
+function editLostPet(petId) {
+    // Fetch the lost pet data by ID
+    fetch(`http://localhost:3000/lost-pet/${petId}`)
+    .then(response => response.json())
+    .then(pet => {
+        document.getElementById('editLostPetId').value = pet.id;
+        document.getElementById('editLostPetName').value = pet.name;
+        document.getElementById('editLostPetBreed').value = pet.breed;
+        document.getElementById('editLostPetDescription').value = pet.description;
+        document.getElementById('editLostPetLocation').value = pet.location;
+        document.getElementById('editLostPetContact').value = pet.contact;
+        // Open the modal
+        document.getElementById('editLostPetModal').style.display = 'block';
+    })
+    .catch(error => console.error('Error fetching lost pet details:', error));
+}
+
+function closeEditLostModal() {
+    document.getElementById('editLostPetModal').style.display = 'none';
+}
+
+document.getElementById('editLostPetForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const petId = document.getElementById('editLostPetId').value;
+    const updatedLostPetData = {
+        name: document.getElementById('editLostPetName').value,
+        breed: document.getElementById('editLostPetBreed').value,
+        description: document.getElementById('editLostPetDescription').value,
+        location: document.getElementById('editLostPetLocation').value,
+        contact: document.getElementById('editLostPetContact').value,
+        // Add any other fields to update
+    };
+
+    fetch(`http://localhost:3000/lost-pets/${petId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedLostPetData)
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Lost pet updated successfully.');
+            // Close the modal and refresh the lost pets list
+            closeEditLostModal();
+            getLost();
+        } else {
+            throw new Error('Failed to update lost pet.');
+        }
+    })
+    .catch(error => console.error('Error updating lost pet:', error));
+});
+
+function updateLostStatus(petId, newStatus) {
+    if (newStatus === 'Returned') {
+        const modal = document.getElementById('return-modal');
+        modal.style.display = "block";
+
+        const closeButton = modal.querySelector('.close-button');
+        closeButton.addEventListener('click', () => {
+            modal.style.display = "none";
+        });
+
+        const usernameInput = modal.querySelector('#returner-username');
+        usernameInput.addEventListener('input', (event) => {
+            const username = event.target.value;
+            if (username) {
+                fetchUserDetails(username, 'return');
+            }
+        });
+
+        const returnForm = modal.querySelector('#return-form');
+        returnForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const returnerName = document.getElementById('returner-name').value;
+            const contactNumber = document.getElementById('return-contact-number').value;
+            const address = document.getElementById('return-address').value;
+
+            createConfirmationModal(() => {
+                sendLostUpdateRequest(petId, newStatus, returnerName, contactNumber, address);
+                modal.style.display = "none";
+            });
+        });
+    } else {
+        sendLostUpdateRequest(petId, newStatus);
+    }
+}
+
+function createConfirmationModal(confirmCallback) {
+    // Create the modal element
+    const modal = document.createElement('div');
+    modal.className = 'confirmation-modal';
+    modal.style.position = 'fixed';
+    modal.style.top = '50%';
+    modal.style.left = '50%';
+    modal.style.transform = 'translate(-50%, -50%)';
+    modal.style.backgroundColor = 'white';
+    modal.style.padding = '20px';
+    modal.style.borderRadius = '8px';
+    modal.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+    modal.style.zIndex = '10000';
+
+    // Create the message
+    const message = document.createElement('p');
+    message.textContent = 'Are you sure you want to proceed?';
+    modal.appendChild(message);
+
+    // Create the confirm button
+    const confirmButton = document.createElement('button');
+    confirmButton.textContent = 'Yes';
+    confirmButton.onclick = () => {
+        confirmCallback();
+        document.body.removeChild(modal); // Remove modal
+    };
+    modal.appendChild(confirmButton);
+
+    // Create the cancel button
+    const cancelButton = document.createElement('button');
+    cancelButton.textContent = 'No';
+    cancelButton.onclick = () => {
+        document.body.removeChild(modal); // Remove modal
+    };
+    modal.appendChild(cancelButton);
+
+    // Append modal to the body
+    document.body.appendChild(modal);
+}
+
+
+function sendLostUpdateRequest(petId, newStatus, returnerName, contactNumber, address) {
+    let url = `http://localhost:3000/updateLostPetStatus?petId=${petId}&status=${newStatus}&returnerName=${returnerName}&contactNumber=${contactNumber}&address=${address}`;
+
+    // Append dateReturned in ISO format if the status is Returned
+    if (newStatus === 'Returned') {
+        const dateReturned = new Date().toISOString(); // Full ISO format
+        url += `&dateReturned=${encodeURIComponent(dateReturned)}`;
+    }
+
+    fetch(url, { method: 'PUT' })
+        .then(response => {
+            if (response.ok) {
+                console.log(`Status of lost pet with ID ${petId} updated successfully.`);
+                if (newStatus === 'Returned') {
+                    localStorage.setItem('showReturnedSuccessMessage', 'true'); // Set flag to show success message
+                    showReturnedSuccessMessage(); // Show success message without reload
+                }
+            } else {
+                throw new Error(`Failed to update status of lost pet with ID ${petId}.`);
+            }
+        })
+        .catch(error => console.error('Error updating lost pet status:', error));
+}
+
+
+function showReturnedSuccessMessage() {
+     // Create overlay to block page interaction
+     const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // Darker overlay background
+    overlay.style.zIndex = '9999';
+    overlay.style.pointerEvents = 'auto';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    
+    // Create main container for GIF and message
+    const messageContainer = document.createElement('div');
+    messageContainer.style.backgroundColor = '#fff'; // Light background for message container
+    messageContainer.style.padding = '20px';
+    messageContainer.style.borderRadius = '10px';
+    messageContainer.style.display = 'flex';
+    messageContainer.style.alignItems = 'center'; // Align items vertically centered
+    messageContainer.style.zIndex = '10000';
+    messageContainer.style.position = 'relative'; // Ensure positioning within the overlay
+    messageContainer.style.overflow = 'hidden'; // Hide overflow for animation
+    
+    // Create GIF element
+    const gifImage = document.createElement('img');
+    gifImage.src = '/assets/gifs/cute-dog-5903965-4921877-unscreen.gif'; // Path to your success GIF
+    gifImage.alt = 'Successful Adoption GIF';
+    gifImage.style.width = '150px'; // Adjust size as needed
+    gifImage.style.marginRight = '20px'; // Space between the GIF and message
+
+    // Create success message element
+    const successMessage = document.createElement('p');
+    successMessage.textContent = 'Congratulations on successfully returning back your pet! Take care your pet more.';
+    successMessage.style.fontSize = '20px';
+    successMessage.style.color = 'black';
+    successMessage.style.margin = '0';
+
+    // Append GIF and message to the message container
+    messageContainer.appendChild(gifImage);
+    messageContainer.appendChild(successMessage);
+
+    // Append message container to the overlay
+    overlay.appendChild(messageContainer);
+
+    // Append overlay to the body
+    document.body.appendChild(overlay);
+
+    // Remove the overlay after 5 seconds
+    setTimeout(() => {
+        document.body.removeChild(overlay);
+    }, 5000);
+}
+
+// Check if flag is set to show success message
+if (localStorage.getItem('showReturnedSuccessMessage') === 'true') {
+    showReturnedSuccessMessage();
+    localStorage.removeItem('showReturnedSuccessMessage'); // Clear the flag after showing message
+}
+
+// Function to delete a lost pet
+function deleteLostPet(petID) {
+    const toast = document.createElement('div');
+    toast.classList.add('toast');
+    toast.innerHTML = `
+        <p>Are you sure you want to delete this pet?</p>
+        <button class="yes">Yes</button>
+        <button class="no">No</button>
+    `;
+    document.body.appendChild(toast);
+
+    // Add event listener for the "Yes" button
+    toast.querySelector('.yes').addEventListener('click', () => {
+        // Perform the deletion by making a DELETE request to the server
+        fetch(`http://localhost:3000/lostpets/${petID}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Lost pet deleted successfully.');
+                // Remove the toast message after successful deletion
+                toast.remove();
+                // Refresh the lost pets list after deletion
+                getLost();
+            } else if (response.status === 404) {
+                console.error('Lost pet not found.');
+                throw new Error('Lost pet not found.');
+            } else {
+                throw new Error('Failed to delete lost pet.');
+            }
+        })
+        .catch(error => console.error('Error deleting lost pet:', error));
+    });
+
+    // Add event listener for the "No" button
+    toast.querySelector('.no').addEventListener('click', () => {
+        // Remove the toast message if the user chooses not to delete the lost pet
+        toast.remove();
+    });
+}
+
+function getFound() {
+    setActiveButton('foundButton');
+    const foundPetsContainer = document.getElementById('foundPetsContainer');
+    foundPetsContainer.style.display = 'flex'; // Set display to flex to allow multiple items in a row
+    foundPetsContainer.innerHTML = ''; // Clear the container before adding new content
+    const petsContainer = document.getElementById('petsContainer');
+    petsContainer.style.display = 'none'; // Hide pets container
+    const lostPetsContainer = document.getElementById('lostPetsContainer');
+    lostPetsContainer.style.display = 'none'; // Hide lost pets container
+    const savedPetsContainer = document.getElementById('savedPetsContainer');
+    savedPetsContainer.style.display = 'none'; // Hide saved pets container
+
+    // Fetch the user's information
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+    if (!username) {
+        console.error('Username parameter not found.');
+        window.location.href = "signin.html";
+        return;
+    }
+
+    // Verify token and username with the server
+    const token = localStorage.getItem('token');
+    let isLoggedIn = false; // Default to false until verified
+    const usernameParam = urlParams.get('username');
+
+    if (token) {
+        fetch('http://localhost:3000/verify-token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ username })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.valid) {
+                isLoggedIn = true;
+            }
+
+            // Fetch and display found pets after verifying token
+            fetch(`http://localhost:3000/found-pets?owner_username=${username}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(pets => {
+                foundPetsContainer.innerHTML = ''; // Clear the container before adding new content
+                const userFoundPets = pets.filter(pet => pet.owner_username === username);
+                userFoundPets.forEach(pet => {
+                    const petElement = document.createElement('div');
+                    petElement.classList.add('pet');
+                    const statusOptions = ['Lost', 'Adoptable', 'Reunited', 'Adopted', 'Deceased'];
+
+                    // If status is null, default it to 'Lost'
+                    const status = pet.status ? pet.status : 'Lost';
+
+                    // Determine if select wrapper should be disabled based on Confirm column
+                    const isConfirmYes = pet.Confirm === 'Yes';
+                    const disableSelect = isConfirmYes || !isLoggedIn ? 'disabled' : '';
+
+                    petElement.innerHTML = `
+                    <!-- Three dots menu -->
+                    <div class="menu" ${isLoggedIn ? '' : 'style="display: none;"'}>
+                        <i class="fas fa-ellipsis-v" onclick="toggleMenu(event)"></i>
+                        <div class="menu-content">
+                            <button onclick="editFoundPet(${pet.id})">Edit</button>
+                            <button onclick="deleteFoundPet(${pet.id})">Delete</button>
+                            ${status === 'Reunited' ? `
+                                <button onclick="showOwnerDetails(${pet.id})">Owner</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <h2>${pet.breed}</h2>
+                    <div class="select-wrapper">
+                        <select onchange="updateFoundStatus(${pet.id}, this.value)" ${disableSelect}>
+                            ${statusOptions.map(option => `
+                                <option value="${option}" ${status === option ? 'selected' : ''}>${option}</option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    <br>
+                    <a href="petDetails.html?id=${pet.id}&source=found&token=${token}&username=${usernameParam}">
+                        <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
+                    </a>
+                    <div id="ownerModal-${pet.id}" class="modal" style="display: none;">
+                        <div class="modal-content">
+                            <span onclick="closeModal('ownerModal', ${pet.id})" class="close-btn">&times;</span>
+                            <h3>Owner Details</h3>
+                            <p id="ownerDetails-${pet.id}">Loading...</p>
+                        </div>
+                    </div>
+                `;
+                    foundPetsContainer.appendChild(petElement);
+                });
+
+                // Show success or sad message if applicable
+                if (localStorage.getItem('showFoundSuccessMessage') === 'true') {
+                    showFoundSuccessMessage();
+                    localStorage.removeItem('showFoundSuccessMessage'); // Clear the flag after showing message
+                } else if (localStorage.getItem('showFoundSadMessage') === 'true') {
+                    showFoundSadMessage();
+                    localStorage.removeItem('showFoundSadMessage'); // Clear the flag after showing message
+                }
+            })
+            .catch(error => console.error('Error fetching found pets:', error));
+        })
+        .catch(error => {
+            console.error('There was a problem with the token verification:', error);
+            window.location.href = "signin.html";
+        });
+    } else {
+        console.error('Token is missing.');
+        window.location.href = "signin.html";
+    }
+}
+
+function showOwnerDetails(petId) {
+    // Make a request to fetch owner details by petId
+    fetch(`http://localhost:3000/getOwnerDetails?petId=${petId}`)
+        .then(response => response.json())
+        .then(data => {
+            // Display owner details in the modal
+            const ownerDetails = `
+                <p>Name: ${data.ownerName}</p>
+                <p>Contact Number: ${data.contactNumber}</p>
+                <p>Address: ${data.address}</p>
+                <p>Date Adopted: ${data.dateReunited}</p>
+            `;
+            document.getElementById(`ownerDetails-${petId}`).innerHTML = ownerDetails;
+            document.getElementById(`ownerModal-${petId}`).style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error fetching owner details:', error);
+            document.getElementById(`ownerDetails-${petId}`).innerHTML = 'Failed to load details.';
+        });
+}
+
+function closeModal(petId) {
+    document.getElementById(`ownerModal-${petId}`).style.display = 'none';
+}
+
+function editFoundPet(petId) {
+    // Fetch the lost pet data by ID
+    fetch(`http://localhost:3000/found-pet/${petId}`)
+    .then(response => response.json())
+    .then(pet => {
+        document.getElementById('editFoundPetId').value = pet.id;
+        document.getElementById('editFoundPetBreed').value = pet.breed;
+        document.getElementById('editFoundPetDescription').value = pet.description;
+        document.getElementById('editFoundPetLocation').value = pet.location;
+        document.getElementById('editFoundPetContact').value = pet.contact;
+        // Open the modal
+        document.getElementById('editFoundPetModal').style.display = 'block';
+    })
+    .catch(error => console.error('Error fetching found pet details:', error));
+}
+
+function closeEditFoundModal() {
+    document.getElementById('editFoundPetModal').style.display = 'none';
+}
+
+document.getElementById('editFoundPetForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const petId = document.getElementById('editFoundPetId').value;
+    const updatedFoundPetData = {
+        breed: document.getElementById('editFoundPetBreed').value,
+        description: document.getElementById('editFoundPetDescription').value,
+        location: document.getElementById('editFoundPetLocation').value,
+        contact: document.getElementById('editFoundPetContact').value,
+        // Add any other fields to update
+    };
+
+    fetch(`http://localhost:3000/found-pets/${petId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatedFoundPetData)
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Found pet updated successfully.');
+            // Close the modal and refresh the found pets list
+            closeEditFoundModal();
+            getFound();
+        } else {
+            throw new Error('Failed to update found pet.');
+        }
+    })
+    .catch(error => console.error('Error updating found pet:', error));
+});
+
+function updateFoundStatus(petId, newStatus) {
+    if (newStatus === 'Reunited') {
+        const modal = document.getElementById('reunion-modal');
+        modal.style.display = "block";
+
+        const closeButton = modal.querySelector('.close-button');
+        closeButton.addEventListener('click', () => {
+            modal.style.display = "none";
+        });
+
+        const usernameInput = modal.querySelector('#owner-username');
+        usernameInput.addEventListener('input', (event) => {
+            const username = event.target.value;
+            if (username) {
+                fetchUserDetails(username, 'reunion');
+            }
+        });
+
+        const reunionForm = modal.querySelector('#reunion-form');
+        reunionForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const ownerName = document.getElementById('owner-name').value;
+            const contactNumber = document.getElementById('owner-contact-number').value;
+            const address = document.getElementById('owner-address').value;
+
+            createConfirmationModal(() => {
+                sendFoundUpdateRequest(petId, newStatus, ownerName, contactNumber, address);
+                modal.style.display = "none";
+            });
+        });
+    } else {
+        sendFoundUpdateRequest(petId, newStatus);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Embed CSS styles for autocomplete dropdown
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            width: 15%;
+        }
+        .autocomplete-item {
+            padding: 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .autocomplete-item:hover {
+            background-color: #f0f0f0;
+        }
+    `;
+    document.head.appendChild(style);
+
+    function setupAutocomplete(inputId, context) {
+        const usernameInput = document.getElementById(inputId);
+        const autocompleteList = document.createElement('div');
+        autocompleteList.className = 'autocomplete-items';
+        usernameInput.parentNode.appendChild(autocompleteList);
+
+        usernameInput.addEventListener('input', (event) => {
+            const username = event.target.value;
+            if (username.length > 0) {
+                fetch(`http://localhost:3000/getUserDetails?username=${username}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        autocompleteList.innerHTML = ''; // Clear previous suggestions
+                        data.forEach(user => {
+                            const item = document.createElement('div');
+                            item.textContent = user.username;
+                            item.classList.add('autocomplete-item');
+
+                            item.addEventListener('click', () => {
+                                usernameInput.value = user.username;
+
+                                // Fill in the details based on the modal context
+                                if (context === 'adoption') {
+                                    document.getElementById('adopter-name').value = user.firstname + " " + user.lastname;
+                                    document.getElementById('contact-number').value = user.contact;
+                                    document.getElementById('address').value = user.location;
+                                } else if (context === 'return') {
+                                    document.getElementById('returner-name').value = user.firstname + " " + user.lastname;
+                                    document.getElementById('return-contact-number').value = user.contact;
+                                    document.getElementById('return-address').value = user.location;
+                                } else if (context === 'reunion') {
+                                    document.getElementById('owner-name').value = user.firstname + " " + user.lastname;
+                                    document.getElementById('owner-contact-number').value = user.contact;
+                                    document.getElementById('owner-address').value = user.location;
+                                }
+
+                                autocompleteList.innerHTML = ''; // Clear suggestions after selection
+                            });
+
+                            autocompleteList.appendChild(item);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching user details:', error));
+            } else {
+                autocompleteList.innerHTML = ''; // Clear suggestions if input is empty
+            }
+        });
+
+        // Close autocomplete list when clicking outside of it
+        document.addEventListener('click', (event) => {
+            if (event.target !== usernameInput) {
+                autocompleteList.innerHTML = '';
+            }
+        });
+    }
+
+    // Set up autocomplete for each modal
+    setupAutocomplete('adopter-username', 'adoption');
+    setupAutocomplete('returner-username', 'return');
+    setupAutocomplete('owner-username', 'reunion');
+});
+
+
+function sendFoundUpdateRequest(petId, newStatus, ownerName, contactNumber, address) {
+    let url = `http://localhost:3000/updateFoundPetStatus?petId=${petId}&status=${newStatus}&ownerName=${ownerName}&contactNumber=${contactNumber}&address=${address}`;
+
+    // Append dateReunited in ISO format if the status is Reunited
+    if (newStatus === 'Reunited') {
+        const dateReunited = new Date().toISOString(); // Full ISO format
+        url += `&dateReunited=${encodeURIComponent(dateReunited)}`;
+    }
+
+    fetch(url, { method: 'PUT' })
+        .then(response => {
+            if (response.ok) {
+                console.log(`Status of found pet with ID ${petId} updated successfully.`);
+                if (newStatus === 'Reunited') {
+                    localStorage.setItem('showFoundSuccessMessage', 'true'); // Set flag to show success message
+                    window.location.reload(); // Reload page to show the success message after reload
+                } else if (newStatus === 'Deceased') {
+                    localStorage.setItem('showFoundSadMessage', 'true'); // Set flag to show sad message
+                    window.location.reload(); // Reload page to show the sad message after reload
+                }
+            } else {
+                throw new Error(`Failed to update status of found pet with ID ${petId}.`);
+            }
+        })
+        .catch(error => console.error('Error updating found pet status:', error));
+}
+
+
+function showFoundSuccessMessage() {
+    // Create overlay to block page interaction
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // Darker overlay background
+    overlay.style.zIndex = '9999';
+    overlay.style.pointerEvents = 'auto';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    
+    // Create main container for GIF and message
+    const messageContainer = document.createElement('div');
+    messageContainer.style.backgroundColor = '#fff'; // Light background for message container
+    messageContainer.style.padding = '20px';
+    messageContainer.style.borderRadius = '10px';
+    messageContainer.style.display = 'flex';
+    messageContainer.style.alignItems = 'center'; // Align items vertically centered
+    messageContainer.style.zIndex = '10000';
+    messageContainer.style.position = 'relative'; // Ensure positioning within the overlay
+    messageContainer.style.overflow = 'hidden'; // Hide overflow for animation
+    
+    // Create GIF element
+    const gifImage = document.createElement('img');
+    gifImage.src = '/assets/gifs/cute-dog-5903965-4921877-unscreen.gif'; // Path to the GIF
+    gifImage.style.width = '150px'; // Adjust size as needed
+    gifImage.style.height = 'auto'; // Maintain aspect ratio
+    gifImage.style.marginRight = '20px'; // Space between GIF and message text
+    
+    // Create message text
+    const messageText = document.createElement('p');
+    messageText.textContent = 'Congratulations! You successfully returned the pet to its owner!';
+    messageText.style.fontSize = '20px';
+    messageText.style.color = 'black';
+    messageText.style.margin = '0'; // Remove default margin
+    
+    // Append GIF and message to the container
+    messageContainer.appendChild(gifImage);
+    messageContainer.appendChild(messageText);
+    
+    // Append container to the overlay
+    overlay.appendChild(messageContainer);
+    
+    // Append overlay to body
+    document.body.appendChild(overlay);
+    
+    // Remove the overlay after 5 seconds
+    setTimeout(() => {
+        document.body.removeChild(overlay);
+    }, 5000);
+}
+
+function showFoundSadMessage() {
+    // Create overlay to block page interaction
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // Darker overlay background
+    overlay.style.zIndex = '9999';
+    overlay.style.pointerEvents = 'auto';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    
+    // Create main container for GIF and message
+    const messageContainer = document.createElement('div');
+    messageContainer.style.backgroundColor = '#fff'; // Light background for message container
+    messageContainer.style.padding = '20px';
+    messageContainer.style.borderRadius = '10px';
+    messageContainer.style.display = 'flex';
+    messageContainer.style.alignItems = 'center'; // Align items vertically centered
+    messageContainer.style.zIndex = '10000';
+    messageContainer.style.position = 'relative'; // Ensure positioning within the overlay
+    messageContainer.style.overflow = 'hidden'; // Hide overflow for animation
+    
+    // Create GIF element
+    const gifImage = document.createElement('img');
+    gifImage.src = '/assets/gifs/sad-cat-3978265-3291085-unscreen.gif'; // Path to the sad GIF
+    gifImage.style.width = '150px'; // Adjust size as needed
+    gifImage.style.height = 'auto'; // Maintain aspect ratio
+    gifImage.style.marginRight = '20px'; // Space between GIF and message text
+    
+    // Create message text
+    const messageText = document.createElement('p');
+    messageText.textContent = 'We are sorry to hear about the pet. If you need any assistance, please contact us.';
+    messageText.style.fontSize = '20px';
+    messageText.style.color = 'black';
+    messageText.style.margin = '0'; // Remove default margin
+    
+    // Append GIF and message to the container
+    messageContainer.appendChild(gifImage);
+    messageContainer.appendChild(messageText);
+    
+    // Append container to the overlay
+    overlay.appendChild(messageContainer);
+    
+    // Append overlay to body
+    document.body.appendChild(overlay);
+    
+    // Remove the overlay after 5 seconds
+    setTimeout(() => {
+        document.body.removeChild(overlay);
+    }, 5000);
+}
+
+// Check if flag is set to show success message
+if (localStorage.getItem('showFoundSuccessMessage') === 'true') {
+    showFoundSuccessMessage();
+    localStorage.removeItem('showFoundSuccessMessage'); // Clear the flag after showing message
+} else if (localStorage.getItem('showFoundSadMessage') === 'true') {
+    showFoundSadMessage();
+    localStorage.removeItem('showFoundSadMessage'); // Clear the flag after showing message
+}
+
+
+// Function to delete a found pet
+function deleteFoundPet(petID) {
+    const toast = document.createElement('div');
+    toast.classList.add('toast');
+    toast.innerHTML = `
+        <p>Are you sure you want to delete this pet?</p>
+        <button class="yes">Yes</button>
+        <button class="no">No</button>
+    `;
+    document.body.appendChild(toast);
+
+    // Add event listener for the "Yes" button
+    toast.querySelector('.yes').addEventListener('click', () => {
+        // Perform the deletion by making a DELETE request to the server
+        fetch(`http://localhost:3000/foundpets/${petID}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Found pet deleted successfully.');
+                // Remove the toast message after successful deletion
+                toast.remove();
+                // Refresh the found pets list after deletion
+                getFound();
+            } else if (response.status === 404) {
+                console.error('Found pet not found.');
+                throw new Error('Found pet not found.');
+            } else {
+                throw new Error('Failed to delete found pet.');
+            }
+        })
+        .catch(error => console.error('Error deleting found pet:', error));
+    });
+
+    // Add event listener for the "No" button
+    toast.querySelector('.no').addEventListener('click', () => {
+        // Remove the toast message if the user chooses not to delete the found pet
+        toast.remove();
+    });
+}
+
+function getSaved() {
+    setActiveButton('savedButton');
+    const savedPetsContainer = document.getElementById('savedPetsContainer');
+    savedPetsContainer.style.display = 'flex'; // Set display to flex to allow multiple items in a row
+    savedPetsContainer.innerHTML = ''; // Clear the container before adding new content
+    const petsContainer = document.getElementById('petsContainer');
+    petsContainer.style.display = 'none'; // Hide pets container
+    const lostPetsContainer = document.getElementById('lostPetsContainer');
+    lostPetsContainer.style.display = 'none'; // Hide lost pets container
+    const foundPetsContainer = document.getElementById('foundPetsContainer');
+    foundPetsContainer.style.display = 'none'; // Hide found pets container
+
+    // Fetch and display saved pets
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+    const usernameParam = urlParams.get('username');
+    var token = localStorage.getItem('token');
+    if (!username) {
+        console.error('Username parameter not found.');
+        window.location.href = "signin.html";
+        return;
+    }
+
+    fetch(`http://localhost:3000/savedPets?username=${username}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('Failed to fetch saved pets.');
+        }
+    })
+    .then(savedPets => {
+        savedPetsContainer.innerHTML = ''; // Clear the container before adding new content
+        savedPets.forEach(pet => {
+            const petElement = document.createElement('div');
+            petElement.classList.add('pet');
+            petElement.innerHTML = `
+            <div class="menu">
+                    <i class="fas fa-times remove-button" onclick="removeSavedPet('${pet.name}')"></i>
+                </div>
+                <h2>${pet.name}</h2>
+                <p>Breed: ${pet.breed}</p>
+                <br>
+                        <a href="petDetails.html?id=${pet.id}&source=pets&token=${token}&username=${usernameParam}">
+                            <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
+                        </a>
+            `;
+            savedPetsContainer.appendChild(petElement);
+        });
+    })
+    .catch(error => console.error('Error fetching saved pets:', error));
+}
+
+// Function to remove a saved pet
+function removeSavedPet(petName) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+
+    // Create a toast message element
+    const toast = document.createElement('div');
+    toast.classList.add('toast');
+    toast.innerHTML = `
+        <p>Are you sure you want to remove ${petName} from favorites?</p>
+        <button class="yes">Yes</button>
+        <button class="no">No</button>
+    `;
+    document.body.appendChild(toast);
+
+    // Add event listener for the "Yes" button
+    toast.querySelector('.yes').addEventListener('click', () => {
+        // Perform the removal by making a DELETE request to the server
+        fetch(`http://localhost:3000/removeSavedPet?username=${username}&petName=${petName}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Pet removed from saved pets successfully.');
+                // Refresh the saved pets list after removal
+                getSaved();
+                // Remove the toast message after successful removal
+                toast.remove();
+            } else {
+                throw new Error('Failed to remove pet from saved pets.');
+            }
+        })
+        .catch(error => console.error('Error removing pet from saved pets:', error));
+    });
+
+    // Add event listener for the "No" button
+    toast.querySelector('.no').addEventListener('click', () => {
+        // Remove the toast message if the user chooses not to remove the pet
+        toast.remove();
+    });
+}
+
+function setActiveButton(buttonId) {
+    const buttons = document.querySelectorAll('.button-group button');
+    buttons.forEach(button => {
+        button.classList.remove('active');
+    });
+    const activeButton = document.getElementById(buttonId);
+    activeButton.classList.add('active');
+}
+
+</script>
+
+<!-- Javascript for logout button -->
+<script>
+    document.getElementById("logoutBtn").addEventListener("click", function() {
+      // Retrieve username from local storage
+      const username = localStorage.getItem('username');
+  
+      if (username) {
+          fetch(`http://localhost:3000/logout?username=${username}`, {
+              method: 'POST'
+          })
+          .then(response => response.text())
+          .then(message => {
+              console.log(message); // Log the message
+              if (message === "Logout successful") {
+                  // Remove token and username from localStorage
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('username');
+                  // Redirect to sign-in page after successful logout
+                  window.location.href = "signin.html";
+              } else {
+                  alert("Logout failed. Please try again.");
+              }
+          })
+          .catch(error => console.error('Error:', error));
+      } else {
+          alert("No user is logged in.");
+      }
+  });
+</script>
+
+ <!-- JavaScript to upload profile picture -->
+ <script>
+    document.addEventListener('DOMContentLoaded', function() {
+     const urlParams = new URLSearchParams(window.location.search);
+     const usernameParam = urlParams.get('username');
+     if (usernameParam) {
+         displayImage(usernameParam);
+     } else {
+         console.error('Username parameter not found.');
+         window.location.href = "signin.html";
+     }
+ 
+     // Show options when the user icon is clicked
+     const profilePhoto = document.querySelector('.profile-photo');
+     const editOptions = document.getElementById('editOptions');
+ 
+     profilePhoto.addEventListener('click', function(event) {
+         if (editOptions.style.display === 'none' || !editOptions.style.display) {
+             editOptions.style.display = 'block';
+         } else {
+             editOptions.style.display = 'none';
+         }
+         event.stopPropagation();
+     });
+ 
+     // Hide options when clicking outside
+     document.addEventListener('click', function(event) {
+         const profilePhoto = document.querySelector('.profile-photo');
+         if (!profilePhoto.contains(event.target)) {
+             editOptions.style.display = 'none';
+         }
+     });
+ });
+ 
+ function displayImage(username) {
+     fetch(`http://localhost:3000/user?username=${encodeURIComponent(username)}`)
+         .then(response => {
+             if (!response.ok) {
+                 throw new Error('Network response was not ok ' + response.statusText);
+             }
+             return response.json();
+         })
+         .then(user => {
+             const profileImageDisplay = document.getElementById('profileImageDisplay');
+             const defaultUserIcon = document.getElementById('defaultUserIcon');
+             const deleteUpload = document.getElementById('deleteUpload');
+             const usernameDisplay = document.getElementById('username');
+ 
+             if (user.profile_image) {
+                 profileImageDisplay.src = `http://localhost:3000/${user.profile_image}`;
+                 profileImageDisplay.style.display = 'block';
+                 defaultUserIcon.style.display = 'none';
+             } else {
+                 profileImageDisplay.style.display = 'none';
+                 defaultUserIcon.style.display = 'block';
+                 deleteUpload.style.display = 'none';
+             }
+ 
+             // Display the full name and registration date
+             usernameDisplay.innerHTML = `${user.firstname} ${user.lastname}`;
+             const profileInfo = document.getElementById('profileInfo');
+             const dateJoined = new Date(user.datejoined);
+             const options = { year: 'numeric', month: 'long'};
+             profileInfo.innerHTML = `Member since: ${dateJoined.toLocaleDateString('en-US', options)}`;
+         })
+         .catch(error => console.error('Error fetching user data:', error));
+ }
+ 
+ function triggerUpload() {
+     document.getElementById('profileImage').click();
+ }
+ 
+ function uploadProfileImage(input) {
+     const file = input.files[0];
+     if (file) {
+         const formData = new FormData();
+         formData.append('image', file);
+         const urlParams = new URLSearchParams(window.location.search);
+         const username = urlParams.get('username');
+         fetch(`http://localhost:3000/uploadProfileImage?username=${encodeURIComponent(username)}`, {
+             method: 'POST',
+             body: formData
+         })
+         .then(response => {
+             if (response.ok) {
+                 console.log('Profile image uploaded successfully.');
+                 alert('Profile image uploaded successfully.');
+                 displayImage(username);
+             } else {
+                 console.error('Failed to upload profile image.');
+             }
+         })
+         .catch(error => console.error('Error uploading profile image:', error));
+     } else {
+         console.error('No file selected.');
+     }
+ }
+ 
+ function deleteProfileImage() {
+     const urlParams = new URLSearchParams(window.location.search);
+     const username = urlParams.get('username');
+     fetch(`http://localhost:3000/deleteProfileImage?username=${encodeURIComponent(username)}`, {
+         method: 'DELETE'
+     })
+     .then(response => {
+         if (response.ok) {
+             console.log('Profile image deleted successfully.');
+             alert('Profile image deleted successfully.');
+             displayImage(username);
+         } else {
+             console.error('Failed to delete profile image.');
+         }
+     })
+     .catch(error => console.error('Error deleting profile image:', error));
+ }
+ 
+ document.addEventListener('DOMContentLoaded', function() {
+     // Show the modal when the Edit button is clicked
+     document.getElementById('editProfileBtn').addEventListener('click', function() {
+         openModal();
+     });
+ 
+     // Handle the form submission
+     document.getElementById('editProfileForm').addEventListener('submit', function(event) {
+         event.preventDefault();
+         updateProfile();
+     });
+ });
+ 
+ function openModal() {
+     // Fetch existing user data to pre-fill the form
+     const urlParams = new URLSearchParams(window.location.search);
+     const username = urlParams.get('username');
+     fetch(`http://localhost:3000/user?username=${encodeURIComponent(username)}`)
+         .then(response => response.json())
+         .then(user => {
+             // Pre-fill the form with user data
+             document.getElementById('editFirstname').value = user.firstname;
+             document.getElementById('editLastname').value = user.lastname;
+             document.getElementById('editLocation').value = user.location || '';
+ 
+             // Show the modal
+             document.getElementById('editProfileModal').style.display = 'block';
+         })
+         .catch(error => console.error('Error fetching user data for modal:', error));
+ }
+ 
+ function closeModal() {
+     document.getElementById('editProfileModal').style.display = 'none';
+ }
+ 
+ function updateProfile() {
+     const formData = new FormData(document.getElementById('editProfileForm'));
+     const urlParams = new URLSearchParams(window.location.search);
+     const username = urlParams.get('username');
+ 
+     fetch(`http://localhost:3000/updateProfile?username=${encodeURIComponent(username)}`, {
+         method: 'POST',
+         body: JSON.stringify({
+             firstname: formData.get('firstname'),
+             lastname: formData.get('lastname'),
+             location: formData.get('location')
+         }),
+         headers: {
+             'Content-Type': 'application/json',
+         },
+     })
+     .then(response => {
+         if (response.ok) {
+             alert('Profile updated successfully.');
+             closeModal();
+             displayImage(username); // Refresh the profile display
+         } else {
+             alert('Failed to update profile.');
+         }
+     })
+     .catch(error => console.error('Error updating profile:', error));
+ }
+ </script>
+
+ <!-- JavaScript to pass the token -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    var token = localStorage.getItem('token');
+    if (!token) {
+        // Handle case where token is missing (e.g., redirect to login)
+        window.location.href = "signin.html";
+    } else {
+        console.log("Token found:", token);
+        // Use the token as needed
+    }
+});
+</script>
+
+ <!-- JavaScript to hide elements -->
+ <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const token = localStorage.getItem('token');
+    const username = new URLSearchParams(window.location.search).get('username');
+    
+    if (!token || !username) {
+        // Token or username is missing
+        handleUserNotLoggedIn();
+    } else {
+        // Verify token and username with the server
+        fetch('http://localhost:3000/verify-token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ username })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.valid) {
+                // Token is valid, user is logged in
+                handleUserLoggedIn(data.user);
+            } else {
+                // Token is invalid or expired
+                handleUserNotLoggedIn();
+            }
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+            handleUserNotLoggedIn();
+        });
+    }
+
+    function handleUserLoggedIn(user) {
+        const savedButton = document.getElementById('savedButton');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const profileImage = document.getElementById('profileImage');
+        const editOptions = document.getElementById('triggerUpload');
+        const editProfileBtn = document.getElementById('editProfileBtn');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const coverCamera = document.getElementById('coverCamera');
+        
+        // Show elements and enable profileImage input field
+        savedButton.style.display = 'block';
+        logoutBtn.style.display = 'block';
+        profileImage.disabled = false;
+        editOptions.disabled = false;
+        editProfileBtn.style.display ='block';
+        settingsBtn.style.display = 'block';
+        coverCamera.style.display = 'block';
+    }
+
+    function handleUserNotLoggedIn() {
+        const savedButton = document.getElementById('savedButton');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const profileImage = document.getElementById('profileImage');
+        const editOptions = document.getElementById('triggerUpload');
+        const deleteUpload = document.getElementById('deleteUpload');
+        const editProfileBtn = document.getElementById('editProfileBtn');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const coverCamera = document.getElementById('coverCamera');
+
+        // Hide elements and disable profileImage input field
+        savedButton.style.display = 'none';
+        logoutBtn.style.display = 'none';
+        profileImage.disabled = true;
+        editOptions.style.display = 'none';
+        deleteUpload.style.display = 'none';
+        editProfileBtn.style.display = 'none';
+        settingsBtn.style.display = 'none';
+        coverCamera.style.display = 'none';
+    }
+});
+
+</script>
+
+ <!-- Javascript to handle token expiration -->
+<script>
+    // Function to check if the JWT token is expired
+    function isTokenExpired(token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+            const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    
+            // Check if the token is expired
+            return payload.exp < currentTime;
+        } catch (error) {
+            console.error('Error decoding token:', error);
+            return true; // Assume token is expired if there's an error
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        const token = localStorage.getItem('token');
+    
+        if (!token || isTokenExpired(token)) {
+            // Token is missing or expired, redirect to sign-in page
+            window.location.href = 'signin.html';
+        }
+    });
+    
+</script>
+
+<script>
+    document.getElementById("settingsBtn").addEventListener("click", function() {
+        // Retrieve the token from local storage
+        var token = localStorage.getItem('token');
+        
+        // Get the username from local storage
+        var username = localStorage.getItem('username');
+        
+        // Redirect to the settings page with username and token as query parameters
+        window.location.href = `/public/settings.html?username=${encodeURIComponent(username)}&token=${encodeURIComponent(token)}`;
+    });
+</script>
+
+<script>
+    function closeModal(modalType, petId) {
+    const modal = document.getElementById(`${modalType}-${petId}`);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Optionally, close the modal when clicking outside of the modal content
+window.onclick = function(event) {
+    const modals = document.getElementsByClassName("modal");
+    for (let i = 0; i < modals.length; i++) {
+        if (event.target === modals[i]) {
+            modals[i].style.display = 'none';
+        }
+    }
+};
+</script>
+
+<script>
+    function toggleDropdown() {
+        const dropdown = document.getElementById('dropdownMenu');
+        dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' : 'none';
+
+        // Check if cover image exists and hide/remove "Remove" button if necessary
+        checkCoverImage();
+    }
+
+    function checkCoverImage() {
+        const coverImageDisplay = document.getElementById('coverImageDisplay');
+        const removeCoverButton = document.getElementById('removeCoverButton');
+        
+        if (coverImageDisplay.src === "" || coverImageDisplay.style.display === "none") {
+            removeCoverButton.style.display = 'none'; // Hide the "Remove" button
+        } else {
+            removeCoverButton.style.display = 'block'; // Show the "Remove" button
+        }
+    }
+
+    function removeCoverImage() {
+        const coverImageDisplay = document.getElementById('coverImageDisplay');
+        coverImageDisplay.src = ""; // Clear the image
+        coverImageDisplay.style.display = "none"; // Hide the image display
+        showToast('Cover image removed.', 'success');
+
+        const username = localStorage.getItem('username'); // Get username from local storage
+
+        fetch(`http://localhost:3000/removeCoverImage?username=${encodeURIComponent(username)}`, {
+            method: 'POST'
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Cover image removed successfully.');
+            } else {
+                console.error('Failed to remove cover image.');
+                showToast('Failed to remove cover image.', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error removing cover image:', error);
+            showToast('Error removing cover image.', 'error');
+        });
+    }
+
+    function triggerCoverUpload() {
+        document.getElementById('coverImage').click();
+    }
+    
+    function uploadCoverImage(input) {
+        const file = input.files[0];
+        if (file) {
+            const maxFileSize = 5 * 1024 * 1024; // 5 MB
+            if (file.size > maxFileSize) {
+                showToast('File size should not exceed 5 MB.', 'error');
+                return;
+            }
+
+            const validImageTypes = ['image/jpeg', 'image/png'];
+            if (!validImageTypes.includes(file.type)) {
+                showToast('Please upload a valid image (JPEG or PNG).', 'error');
+                return;
+            }
+
+            const img = new Image();
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                img.src = e.target.result;
+                img.onload = function() {
+                    if (img.width > img.height) {
+                        const formData = new FormData();
+                        formData.append('coverImage', file);
+                        const username = localStorage.getItem('username'); // Get username from local storage
+        
+                        fetch(`http://localhost:3000/uploadCoverImage?username=${encodeURIComponent(username)}`, {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                console.log('Cover image uploaded successfully.');
+                                showToast('Cover image uploaded successfully.', 'success');
+                                displayCoverImage(username);
+                            } else {
+                                console.error('Failed to upload cover image.');
+                                showToast('Failed to upload cover image.', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error uploading cover image:', error);
+                            showToast('Error uploading cover image.', 'error');
+                        });
+                    } else {
+                        console.error('Please upload an image in landscape orientation.');
+                        showToast('Please upload an image in landscape orientation.', 'error');
+                    }
+                };
+            };
+
+            reader.readAsDataURL(file);
+        } else {
+            console.error('No file selected.');
+            showToast('No file selected.', 'error');
+        }
+    }
+
+    // Function to show toast messages
+    function showToast(message, type) {
+        const toastId = `toast-${Date.now()}`; // Unique ID for each toast
+        const toastContainer = document.getElementById('toastContainer'); // Assume you have a toast container
+
+        const toast = document.createElement('div');
+        toast.id = toastId;
+        toast.className = `toast ${type}`; // Add classes for styling
+        toast.innerText = message;
+
+        // Append the toast to the container
+        toastContainer.appendChild(toast);
+
+        // Remove the toast after a delay
+        setTimeout(() => {
+            toastContainer.removeChild(toast);
+        }, 3000); // Change the duration as needed
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('dropdownMenu');
+        const cameraIcon = document.getElementById('coverCamera');
+        if (dropdown.style.display === 'block' && !dropdown.contains(event.target) && event.target !== cameraIcon) {
+            dropdown.style.display = 'none';
+        }
+    });
+
+    // Initial check when the page loads
+    document.addEventListener('DOMContentLoaded', checkCoverImage);
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('username');
+        
+        // Fetch and display the cover image on page load
+        displayCoverImage(username);
+
+        // Check and display any stored toast message
+        const storedToast = localStorage.getItem('toastMessage');
+        const toastType = localStorage.getItem('toastType');
+        if (storedToast) {
+            showToast(storedToast, toastType);
+            // Clear the stored toast message
+            localStorage.removeItem('toastMessage');
+            localStorage.removeItem('toastType');
+        }
+    });
+
+    function displayCoverImage(username) {
+        fetch(`http://localhost:3000/getCoverImage?username=${encodeURIComponent(username)}`)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    console.error('Failed to fetch cover image.');
+                }
+            })
+            .then(data => {
+                if (data && data.coverImage) {
+                    const coverImageDisplay = document.getElementById('coverImageDisplay');
+                    coverImageDisplay.src =  `http://localhost:3000/${data.coverImage}`; // Set the src to the cover image path
+                    coverImageDisplay.style.display = 'block'; // Show the cover image
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching cover image:', error);
+            });
+    }
+
+    function showToast(message, type) {
+        const toastId = `toasts-${Date.now()}`; // Unique ID for each toast
+        const toastContainer = document.getElementById('toastContainer'); // Assume you have a toast container
+
+        const toast = document.createElement('div');
+        toast.id = toastId;
+        toast.className = `toasts ${type}`; // Add classes for styling
+        toast.innerText = message;
+
+        // Append the toast to the container
+        toastContainer.appendChild(toast);
+
+        // Remove the toast after a delay
+        setTimeout(() => {
+            toastContainer.removeChild(toast);
+        }, 3000); // Change the duration as needed
+    }
+
+    function setToast(message, type) {
+        // Store the toast message and type in localStorage
+        localStorage.setItem('toastMessage', message);
+        localStorage.setItem('toastType', type);
+    }
+
+    function removeCoverImage() {
+        const coverImageDisplay = document.getElementById('coverImageDisplay');
+        coverImageDisplay.src = ""; // Clear the image
+        coverImageDisplay.style.display = "none"; // Hide the image display
+        showToast('Cover image removed.', 'success'); // Show success toast
+        setToast('Cover image removed.', 'success'); // Store the message
+
+        const username = localStorage.getItem('username'); // Get username from local storage
+
+        fetch(`http://localhost:3000/removeCoverImage?username=${encodeURIComponent(username)}`, {
+            method: 'POST'
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Cover image removed successfully.');
+            } else {
+                console.error('Failed to remove cover image.');
+                showToast('Failed to remove cover image.', 'error');
+                setToast('Failed to remove cover image.', 'error'); // Store the message
+            }
+        })
+        .catch(error => {
+            console.error('Error removing cover image:', error);
+            showToast('Error removing cover image.', 'error');
+            setToast('Error removing cover image.', 'error'); // Store the message
+        });
+    }
+
+    function uploadCoverImage(input) {
+        const file = input.files[0];
+        if (file) {
+            const maxFileSize = 5 * 1024 * 1024; // 5 MB
+            if (file.size > maxFileSize) {
+                showToast('File size should not exceed 5 MB.', 'error');
+                setToast('File size should not exceed 5 MB.', 'error'); // Store the message
+                return;
+            }
+
+            const validImageTypes = ['image/jpeg', 'image/png'];
+            if (!validImageTypes.includes(file.type)) {
+                showToast('Please upload a valid image (JPEG or PNG).', 'error');
+                setToast('Please upload a valid image (JPEG or PNG).', 'error'); // Store the message
+                return;
+            }
+
+            const img = new Image();
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                img.src = e.target.result;
+                img.onload = function() {
+                    if (img.width > img.height) {
+                        const formData = new FormData();
+                        formData.append('coverImage', file);
+                        const username = localStorage.getItem('username'); // Get username from local storage
+        
+                        fetch(`http://localhost:3000/uploadCoverImage?username=${encodeURIComponent(username)}`, {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                console.log('Cover image uploaded successfully.');
+                                showToast('Cover image uploaded successfully.', 'success'); // Show success toast
+                                setToast('Cover image uploaded successfully.', 'success'); // Store the message
+                                displayCoverImage(username);
+                            } else {
+                                console.error('Failed to upload cover image.');
+                                showToast('Failed to upload cover image.', 'error');
+                                setToast('Failed to upload cover image.', 'error'); // Store the message
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error uploading cover image:', error);
+                            showToast('Error uploading cover image.', 'error');
+                            setToast('Error uploading cover image.', 'error'); // Store the message
+                        });
+                    } else {
+                        console.error('Please upload an image in landscape orientation.');
+                        showToast('Please upload an image in landscape orientation.', 'error');
+                        setToast('Please upload an image in landscape orientation.', 'error'); // Store the message
+                    }
+                };
+            };
+
+            reader.readAsDataURL(file);
+        } else {
+            console.error('No file selected.');
+            showToast('No file selected.', 'error');
+            setToast('No file selected.', 'error'); // Store the message
+        }
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('dropdownMenu');
+        const cameraIcon = document.getElementById('coverCamera');
+        if (dropdown.style.display === 'block' && !dropdown.contains(event.target) && event.target !== cameraIcon) {
+            dropdown.style.display = 'none';
+        }
+    });
+</script>
+
+</body>
+</html>

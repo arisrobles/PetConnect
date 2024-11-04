@@ -1,0 +1,50 @@
+<!-- support.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/assets/logos/logo_browser.png" type="image/x-icon">
+    <title>Support</title>
+</head>
+<style>
+    
+</style>
+<body>
+    <main id="support-content">
+        <!-- Content will be loaded here -->
+    </main>
+    <footer>
+        <!-- Your footer content -->
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    fetch('http://localhost:3000/api/content/support')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('support-content').innerHTML = data.content;
+        })
+        .catch(error => console.error('Error loading content:', error));
+});
+
+    </script>
+
+<!-- JavaScript to pass the token and username -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var token = localStorage.getItem('token');
+        var username = localStorage.getItem('username'); // Get username from local storage
+
+        if (!token) {
+            // Handle case where token is missing (e.g., redirect to login)
+        } else {
+            console.log("Token found:", token);
+            console.log("User:", username); // Use username from local storage
+            // Use the token and username as needed
+        }
+    });
+</script>
+
+</body>
+</html>

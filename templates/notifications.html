@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .notification-item {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer; /* Indicate that the item is clickable */
+        }
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Notifications</h2>
+    <div id="notificationList" class="mt-4">
+        <!-- Notifications will be dynamically inserted here -->
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchNotifications();
+    });
+
+    // Function to fetch notifications for the logged-in user
+    function fetchNotifications() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('username');
+        
+        if (!username) {
+            console.log('No username found in URL parameters.');
+            document.getElementById('notificationList').innerHTML = '<p>No username provided.</p>';
+            return;
+        }
+
+        console.log("Username found:", username); // Log the found username
+
+        fetch(`http://localhost:3000/notifications?owner_username=${username}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(notifications => {
+                const notificationList = document.getElementById('notificationList');
+                notificationList.innerHTML = ''; // Clear existing notifications
+
+                if (notifications.length === 0) {
+                    notificationList.innerHTML = '<p>No notifications.</p>';
+                    return;
+                }
+
+                notifications.forEach(notification => {
+                    const notificationItem = document.createElement('div');
+                    notificationItem.classList.add('notification-item');
+                    notificationItem.innerHTML = `
+                        <strong>${notification.message}</strong><br>
+                        <small>${formatRelativeDate(notification.dateCreated)}</small>
+                    `;
+
+                    // Add a click event listener to redirect to pet details page
+                    notificationItem.addEventListener('click', function() {
+                        const petId = notification.petId; // Ensure your notification includes the pet ID
+                        const source = notification.source; // Ensure your notification includes the source
+                        window.location.href = `petDetails.html?id=${petId}&source=${source}`;
+                    });
+
+                    notificationList.appendChild(notificationItem);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching notifications:', error);
+                document.getElementById('notificationList').innerHTML = '<p>Error fetching notifications.</p>';
+            });
+    }
+
+    // Function to format the date (you can customize this)
+    function formatRelativeDate(dateString) {
+        const date = new Date(dateString);
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+        return date.toLocaleDateString(undefined, options);
+    }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

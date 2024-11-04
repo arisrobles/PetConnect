@@ -1,0 +1,467 @@
+html, body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    width: 100%; /* Ensure body width fits the viewport */
+}
+
+* {
+    box-sizing: border-box; /* Ensure padding and borders don't exceed the container width */
+}
+
+
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    text-align: center;
+    margin-top: -0px;
+}
+.header {
+    margin-bottom: 30px;
+    position: relative; /* Added for positioning context */
+}
+
+.cover-photo {
+    width: 100%; /* Full width */
+    height: 30vh; /* Height set to 30% of viewport height for responsiveness */
+    max-height: 300px; /* Maximum height to maintain design consistency on larger screens */
+    background-color: #ccc; /* Fallback color */
+    overflow: hidden; /* Hide overflow */
+    position: relative; /* Context for positioning */
+}
+
+.cover-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the container */
+    object-position: center; /* Centers the image within the container */
+}
+
+.cover-photo .fas.fa-camera {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    color: white;
+    z-index: 1; /* Position above the cover image */
+}
+
+.profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: -60px auto 10px; /* Center and overlap with cover photo */
+    background-color: #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    z-index: 2; /* Ensure profile image is above the cover photo */
+}
+
+.profile-photo img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-photo i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 50px;
+    color: #fff;
+    z-index: 3; /* Ensure icon is above everything */
+}
+
+.edit-options {
+    display: none;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: transparent;
+    border: none;
+    padding: 10px;
+    z-index: 4; /* Ensure options are above the profile image */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.edit-options button {
+    display: block;
+    margin: 0px 5px;
+}
+
+input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.username {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.profile-info {
+    font-size: 16px;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+}
+
+.button-group button {
+    padding: 12px 24px; /* Slightly reduce padding */
+    margin: 10px 5px; /* Adjust margins to provide more space between buttons */
+    border: none;
+    border-radius: 5px;
+    font-size: 16px; /* Adjusted font size for better readability */
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.button-group button.active {
+    background-color: orangered;
+    color: #fff;
+}
+
+.button-group button:hover {
+    color: orange;
+}
+
+.button-group button i {
+    margin-right: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .button-group button {
+        padding: 10px 20px; /* Reduce padding on medium screens */
+        font-size: 15px; /* Decrease font size slightly */
+    }
+}
+
+@media (max-width: 768px) {
+    .button-group button {
+        padding: 8px 16px; /* Further reduce padding for small tablets */
+        font-size: 14px; /* Reduce font size */
+    }
+}
+
+@media (max-width: 576px) {
+    .button-group {
+        flex-direction: column; /* Stack buttons vertically on mobile */
+    }
+
+    .button-group button {
+        width: 100%; /* Make buttons full width on mobile */
+        padding: 10px; /* Simplified padding */
+        font-size: 14px;
+        margin: 5px 0; /* Adjust margin for vertical alignment */
+    }
+}
+/* Main Container */
+.pet-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px; /* Reduced gap for smaller spacing */
+    width: 100%;
+    max-width: 1200px; /* Decreased max width for better fit */
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Individual Pet Cards */
+.pet {
+    position: relative;
+    width: calc(25% - 15px); /* Increased card width */
+    max-width: 200px; /* Increased max width for cards */
+    height: auto;
+    background-color: #f0f2f5;
+    border-radius: 8px;
+    padding: 10px; 
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+/* Pet Card Content */
+.pet h2 {
+    font-size: 16px; /* Reduced font size */
+    margin: 0 0 5px;
+    text-align: left;
+}
+
+.pet p {
+    margin: 1px 0;
+    font-size: 14px; /* Decreased font size for paragraphs */
+    text-align: left;
+}
+
+.pet img {
+    width: 100%;
+    height: 140px; /* Default image height */
+    border-radius: 8px;
+    object-fit: cover;
+    transition: transform 0.3s ease-in-out;
+}
+
+.pet img:hover {
+    transform: scale(1.1);
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 992px) {
+    .pet {
+        width: calc(33.33% - 15px); /* 3 cards per row on tablets */
+        max-width: 180px; /* Increased max width for better view */
+    }
+    .pet img {
+        height: 160px; /* Increased image height on tablets */
+    }
+}
+
+@media (max-width: 768px) {
+    .pet {
+        width: calc(50% - 15px); /* 2 cards per row on small tablets */
+        max-width: 160px;
+    }
+    .pet img {
+        height: 180px; /* Increased image height for smaller tablets */
+    }
+}
+
+@media (max-width: 576px) {
+    .pet {
+        width: calc(100% - 15px); /* 1 card per row on mobile */
+        max-width: 85%; /* Full width on mobile */
+    }
+    .pet img {
+        height: 200px; /* Larger image height on mobile */
+    }
+}
+
+/* Added styles for the logout button */
+#logoutBtn {
+    padding: 15px 30px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #ff5f5f; /* Red color */
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#logoutBtn:hover {
+    background-color: #ff3b3b; /* Darker red on hover */
+}
+/* Media queries for responsive design */
+@media screen and (max-width: 600px) {
+    .profile-photo {
+        width: 120px;
+        height: 120px;
+    }
+    .pet {
+        width: calc(100% - 20px);
+    }
+}
+/* CSS for the three dots menu */
+.menu {
+position: absolute;
+top: 10px; /* Adjust top position as needed */
+right: 10px; /* Adjust right position as needed */
+cursor: pointer;
+}
+
+/* CSS for the menu content */
+.menu-content {
+display: none;
+position: absolute;
+min-width: 120px;
+box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+z-index: 1;
+right: 0; /* Align the menu to the right side */
+top: 100%; /* Position below the icon */
+background-color: #f1f1f1;
+}
+
+.menu-content button {
+    width: 100%;
+    padding: 5px 10px; /* Reduces top and bottom padding */
+    text-align: left;
+    border: none;
+    background: none;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.menu-content button:not(:last-child) {
+    border-bottom: 1px solid #e0e0e0; /* Optional: Adds a thin divider between buttons */
+}
+
+.menu-content button:hover {
+background-color: #f1f1f1;
+}
+
+/* Show menu content when menu icon is hovered */
+.menu:hover .menu-content {
+display: block;
+}
+/* CSS for the toast message */
+.toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    width: 80%; /* Makes the toast width responsive */
+    max-width: 400px; /* Maximum width for larger screens */
+    text-align: center; /* Center-align the text for smaller screens */
+}
+
+/* Paragraph inside the toast */
+.toast p {
+    margin: 0;
+    font-size: 16px; /* Adjust the font size */
+}
+
+/* Button inside the toast */
+.toast button {
+    margin-top: 10px;
+    padding: 8px 15px; /* Increased padding for better touch interaction */
+    border: none;
+    background-color: #fff;
+    color: #333;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px; /* Responsive font size for smaller screens */
+}
+
+.toast button:hover {
+    background-color: #eee;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 600px) {
+    .toast {
+        width: 90%; /* Wider width for smaller screens */
+        padding: 15px; /* Adjust padding to fit smaller screens */
+    }
+
+    .toast p {
+        font-size: 14px; /* Smaller font size for better readability on mobile */
+    }
+
+    .toast button {
+        padding: 7px 12px; /* Adjust button size for mobile */
+        font-size: 13px;
+    }
+}
+
+/* Style for the dropdown */
+.select-wrapper select {
+padding: 8px;
+border: 1px solid #ccc;
+border-radius: 4px;
+background-color: #fff;
+font-size: 14px;
+width: 150px; /* Adjust width as needed */
+}
+
+/* Style when dropdown is hovered */
+.select-wrapper select:hover {
+background-color: #f4f4f4;
+}
+
+/* Style when dropdown is focused */
+.select-wrapper select:focus {
+outline: none;
+box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+}
+
+.toast-container {
+    position: fixed;
+    background: white;
+    color: black;
+    border: 1px solid black;
+    padding: 20px;
+    z-index: 10000;
+    border-radius: 5px;
+    max-width: 80%; /* Limits the width to 80% of the screen */
+    left: 50%;
+    top: 20px;
+    transform: translateX(-50%);
+  }
+  
+  .toast-message {
+    font-size: 16px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  
+  .toast-error {
+    background: red !important;
+    color: white !important;
+  }
+  
+  .toast-container button {
+    margin: 5px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px; /* Slightly smaller buttons for smaller screens */
+  }
+  
+  .toast-container button:first-child {
+    background: green;
+    color: white;
+  }
+  
+  .toast-container button:last-child {
+    background: red;
+    color: white;
+  }
+  
+  /* Media query for smaller screens */
+  @media screen and (max-width: 600px) {
+    .toast-container {
+      padding: 10px;
+      max-width: 90%; /* Increase width on smaller screens */
+    }
+  
+    .toast-message {
+      font-size: 14px; /* Reduce font size */
+    }
+  
+    .toast-container button {
+      padding: 8px 15px; /* Smaller padding for buttons */
+      font-size: 12px;
+    }
+  }
+  

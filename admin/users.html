@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users - PetConnect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="icon" href="/assets/logos/logo_browser.png" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+/* Base Styles */
+nav {
+    background-color: #333;
+    color: #fff;
+    position: sticky; /* Make the navbar stick to the top */
+    top: 0; /* Stick to the top */
+    width: 100%; /* Full width */
+    z-index: 1000; /* Ensure it stays above other content */
+}
+
+nav .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+}
+
+nav h2 {
+    margin: 0;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin-left: 20px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+nav ul li i {
+    font-size: 18px;
+}
+
+.menu-toggle {
+    display: none;
+    cursor: pointer;
+    font-size: 24px;
+    margin-left: auto; /* Move hamburger to the right */
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    nav .container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    nav ul {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        padding-left: 0;
+        margin: 0;
+    }
+    
+    nav ul.active {
+        display: flex;
+    }
+    
+    nav ul li {
+        margin-left: 0;
+        margin-bottom: 10px;
+        width: 100%;
+    }
+    
+    .menu-toggle {
+        display: block;
+        margin-left: auto; /* Ensure hamburger stays on the right */
+    }
+    
+    #notificationOverlay {
+        display: inline;
+    }
+}
+
+@media (max-width: 480px) {
+    nav ul li {
+        font-size: 14px;
+    }
+    
+    nav h2 img {
+        width: 120px; /* Adjust logo size for smaller screens */
+    }
+}
+
+
+        .container ul li:hover, .container ul li.active {
+            color: #30d300;
+        }
+
+        h2 img {
+            width: 150px;
+            height: auto;
+            margin: 0;
+            margin-top: 15px;
+        }
+        .notifications-dropdown {
+    position: fixed;
+    top: 110px;
+    right: 5%; /* Right position for larger screens */
+    width: 300px; /* Fixed width for larger screens */
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: none; /* Initially hidden */
+    height: 70%; /* Adjust as needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+    z-index: 2000; /* Ensure it appears above other content */
+}
+
+.notifications-dropdown ul {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+}
+
+.notifications-dropdown li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    font-family: 'Comic Sans MS', cursive;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.notifications-dropdown li:last-child {
+    border-bottom: none;
+}
+
+.notifications-dropdown li:hover {
+    background-color: #f5f5f5;
+}
+
+.notifications-dropdown li.new-notification {
+    background-color: #eaf6ff; /* Light blue background for new notifications */
+}
+
+/* Media query for smaller screens */
+@media (max-width: 600px) {
+    .notifications-dropdown {
+        right: 0; /* Align to the left edge of the screen */
+        width: 100%; /* Full width on smaller screens */
+        height: 80%; /* Adjust height as needed */
+        border-radius: 0; /* Remove border radius for full width */
+        box-shadow: none; /* Optionally remove shadow for simplicity */
+    }
+}
+        .dialog-box {
+    position: fixed;
+    top: 56%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 2px solid black;
+    padding: 20px;
+    width: 700px; /* Fixed width */
+    height: 580px; /* Fixed height */
+    overflow: auto; /* Enable scrolling if content exceeds the box size */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    z-index: 2000; /* Ensure it appears above other content */
+}
+
+        .dialog-box h3 {
+            margin-top: 0;
+        }
+
+        .dialog-box img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px; /* Adjust as needed */
+}
+
+.button-container button {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.button-container .confirm-btn {
+    background-color: #007BFF;
+    color: white;
+}
+
+.button-container .confirm-btn:hover {
+    background-color: #0056b3;
+}
+
+.button-container button:not(.confirm-btn) {
+    background-color: #ccc;
+}
+
+.button-container button:not(.confirm-btn):hover {
+    background-color: #999;
+}
+
+.toast-container {
+    position: fixed;
+    background: white;
+    color: black;
+    border: 1px solid black;
+    padding: 20px;
+    z-index: 10000;
+    border-radius: 5px;
+    width: 300px; /* Default width */
+}
+
+.toast-message {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.toast-container button {
+    margin: 5px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.toast-container button:first-child {
+    background: green;
+    color: white;
+}
+
+.toast-container button:last-child {
+    background: red;
+    color: white;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+    .toast-container {
+        width: 90%; /* Make it responsive */
+        left: 50%; /* Center horizontally */
+        transform: translateX(-50%); /* Center alignment */
+        padding: 15px; /* Adjust padding */
+    }
+
+    .toast-message {
+        font-size: 14px; /* Smaller font size for better fit */
+    }
+
+    .toast-container button {
+        padding: 8px 15px; /* Adjust button padding for smaller screens */
+    }
+}
+
+/* Existing styles */
+.manage-users {
+    text-align: center;
+    padding: 50px;
+}
+
+.manage-users h1 {
+    font-weight: bold;
+    color: black;
+    font-size: 40px;
+}
+
+.manage-users table {
+    width: 100%;
+    max-width: 1000px;
+    margin: 20px auto;
+    border-collapse: collapse;
+}
+
+.manage-users th, .manage-users td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    font-family: 'Comic Sans MS', cursive;
+    color: #333;
+}
+
+.manage-users th {
+    background-color: #f2f2f2;
+}
+
+.manage-users tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.manage-users img {
+    width: 50px; /* Set width for profile images */
+    height: 50px; /* Set height for profile images */
+    border-radius: 50%; /* Make images circular */
+    object-fit: cover; /* Maintain aspect ratio */
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+    .manage-users {
+        padding: 20px;
+    }
+
+    .manage-users h1 {
+        font-size: 32px;
+    }
+
+    .manage-users table {
+        font-size: 14px;
+    }
+
+    .manage-users th, .manage-users td {
+        padding: 8px;
+    }
+
+    /* Hide unnecessary columns on small screens */
+    .manage-users th:nth-child(1),
+    .manage-users td:nth-child(1), /* Hide ID column */
+    .manage-users th:nth-child(5),
+    .manage-users td:nth-child(5) { /* Hide Role column */
+        display: none;
+    }
+}
+
+/* Media query for very small screens (like mobile) */
+@media (max-width: 480px) {
+    .manage-users table {
+        font-size: 12px;
+    }
+
+    .manage-users h1 {
+        font-size: 28px;
+    }
+
+    .manage-users th, .manage-users td {
+        padding: 5px;
+    }
+
+    /* Stack table rows vertically on mobile */
+    .manage-users table thead {
+        display: none; /* Hide table header */
+    }
+
+    .manage-users tbody tr {
+        display: block;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #ddd;
+    }
+
+    .manage-users tbody td {
+        display: block;
+        text-align: right;
+        position: relative;
+        padding-left: 50%;
+    }
+
+    .manage-users tbody td:before {
+        content: attr(data-label); /* Add label before each data cell */
+        position: absolute;
+        left: 0;
+        width: 50%;
+        padding-left: 15px;
+        font-weight: bold;
+        text-align: left;
+        color: #333;
+    }
+
+    .manage-users img {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+        @media only screen and (max-width: 768px) {
+            .content h1 {
+                font-size: 40px;
+            }
+            .content h2 {
+                font-size: 30px;
+            }
+            #postArea {
+                padding: 10px 20px;
+                font-size: 16px;
+                width: 80%;
+                height: auto;
+            }
+            .notifications-dropdown {
+                top: 20%;
+            }
+            .dialog-box {
+                width: 400px; /* Fixed width */
+                height: 500px; /* Fixed height */
+            }
+        }
+        
+    </style>
+</head>
+<body>
+        <nav>
+            <div class="container">
+                <h2><img src="/assets/logos/PetConnect_Logo.png" alt="PetConnect Logo"></h2>
+                <div class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <ul id="navMenu">
+                    <li id="dashboardBtn"><i class="fas fa-tachometer-alt" style="margin-right: 5px;"></i> DASHBOARD</li>
+                    <li id="manageUsersBtn"><i class="fas fa-users" style="margin-right: 5px;"></i> MANAGE USERS</li>
+                    <li id="managePetsBtn"><i class="fas fa-paw" style="margin-right: 5px;"></i> MANAGE PETS</li>
+                    <li id="notifBtn">
+                        <i class="fas fa-bell" style="margin-right: 5px; position: relative;">
+                            <span id="notificationOverlay" style="position: absolute; top: -5px; right: -5px; background-color: red; color: white; font-size: 10px; border-radius: 50%; padding: 3px 5px; display: none;"></span>
+                        </i>
+                        NOTIFICATION
+                    </li>                                   
+                    <li id="logoutBtn"><i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> LOGOUT</li>
+                </ul>                
+            </div>
+        </nav>
+        
+<!-- Bootstrap Container -->
+<div class="container manage-users">
+    <h1>Manage Users</h1>
+    <div class="table-responsive">
+        <table id="userList" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Profile Image</th> 
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Location</th>
+                    <th>Actions</th> 
+                </tr>
+            </thead>
+            <tbody id="usersTableBody">
+                <!-- Rows will be added here dynamically -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    <div class="notifications-dropdown" id="notificationsDropdown">
+        <ul id="notificationList"></ul>
+    </div>
+    
+<!-- Javascript for Notifications -->
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script>
+        let notifiedPets = new Set();
+let notifiedLostPets = new Set();
+let notifiedFoundPets = new Set();
+let lastCheckedPets = new Set();
+let lastCheckedLostPets = new Set();
+let lastCheckedFoundPets = new Set();
+let lastNotificationCount = 0;
+let notificationCounter = 0;
+let activeDialog = null;
+
+function displayNotification(petName, petDetails) {
+    const notificationList = document.getElementById('notificationList');
+    const notificationItem = document.createElement('li');
+    notificationItem.textContent = `${petName} has been adopted.`;
+    notificationItem.classList.add('new-notification');
+    notificationList.appendChild(notificationItem);
+    notificationCounter++;
+    updateNotificationButton();
+
+    notificationItem.addEventListener('click', function() {
+        if (activeDialog) {
+            activeDialog.remove();
+        }
+        displayPetDetailsDialog(petDetails, 'pets');
+        notificationItem.classList.remove('new-notification');
+        updateNotificationButton();
+    });
+}
+
+function displayNotificationLost(petName, petDetails) {
+    const notificationList = document.getElementById('notificationList');
+    const notificationItem = document.createElement('li');
+    notificationItem.textContent = `${petName} has been returned to its owner.`;
+    notificationItem.classList.add('new-notification');
+    notificationList.appendChild(notificationItem);
+    notificationCounter++;
+    updateNotificationButton();
+
+    notificationItem.addEventListener('click', function() {
+        if (activeDialog) {
+            activeDialog.remove();
+        }
+        displayLostPetDetailsDialog(petDetails, 'lostPets');
+        notificationItem.classList.remove('new-notification');
+        updateNotificationButton();
+    });
+}
+
+function displayNotificationFound(petName, petDetails) {
+    const notificationList = document.getElementById('notificationList');
+    const notificationItem = document.createElement('li');
+    notificationItem.textContent = `A ${petDetails.breed} has been reunited to its owner.`;
+    notificationItem.classList.add('new-notification');
+    notificationList.appendChild(notificationItem);
+    notificationCounter++;
+    updateNotificationButton();
+
+    notificationItem.addEventListener('click', function() {
+        if (activeDialog) {
+            activeDialog.remove();
+        }
+        displayFoundPetDetailsDialog(petDetails, 'foundPets');
+        notificationItem.classList.remove('new-notification');
+        updateNotificationButton();
+    });
+}
+
+function displayPetDetailsDialog(petDetails, endpoint) {
+    const dialogBox = document.createElement('div');
+    dialogBox.classList.add('dialog-box');
+    dialogBox.innerHTML = `
+        <h3>Pet Details</h3>
+        <p>Name: ${petDetails.name}</p>
+        <p>Age: ${petDetails.age}</p>
+        <p>Breed: ${petDetails.breed}</p>
+        <p>Gender: ${petDetails.gender}</p>
+        <p>Status: ${petDetails.status}</p>
+        <p>Contact: ${petDetails.contact}</p>
+        <p>Location: ${petDetails.location}</p>
+        <p>Owner: ${petDetails.owner_username}</p>
+        <p>Adopter: ${petDetails.adopter_name}</p>
+        <img src="/${petDetails.image.split(',')[0]}" alt="${petDetails.name}">
+        <div class="button-container">
+            <button onclick="closeDialog()">Close</button>
+            <button class="confirm-btn" onclick="confirmAdoption(${petDetails.id}, '${endpoint}')">Confirm</button>
+        </div>
+    `;
+    document.body.appendChild(dialogBox);
+    activeDialog = dialogBox;
+}
+
+function displayLostPetDetailsDialog(petDetails, endpoint) {
+    const dialogBox = document.createElement('div');
+    dialogBox.classList.add('dialog-box');
+    dialogBox.innerHTML = `
+        <h3>Lost Pet Details</h3>
+        <p>Name: ${petDetails.name}</p>
+        <p>Age: ${petDetails.age}</p>
+        <p>Breed: ${petDetails.breed}</p>
+        <p>Gender: ${petDetails.gender}</p>
+        <p>Status: ${petDetails.status}</p>
+        <p>Contact: ${petDetails.contact}</p>
+        <p>Location: ${petDetails.location}</p>
+        <p>Owner: ${petDetails.owner_username}</p>
+        <p>Returner: ${petDetails.returner_name}</p>
+        <img src="/${petDetails.image.split(',')[0]}" alt="${petDetails.name}">
+        <div class="button-container">
+            <button onclick="closeDialog()">Close</button>
+            <button class="confirm-btn" onclick="confirmAdoption(${petDetails.id}, '${endpoint}')">Confirm</button>
+        </div>
+    `;
+    document.body.appendChild(dialogBox);
+    activeDialog = dialogBox;
+}
+
+function displayFoundPetDetailsDialog(petDetails, endpoint) {
+    const dialogBox = document.createElement('div');
+    dialogBox.classList.add('dialog-box');
+    dialogBox.innerHTML = `
+        <h3>Found Pet Details</h3>
+         <p>Breed: ${petDetails.breed}</p>
+        <p>Age: ${petDetails.age}</p>
+        <p>Gender: ${petDetails.gender}</p>
+        <p>Status: ${petDetails.status}</p>
+        <p>Contact: ${petDetails.contact}</p>
+        <p>Location: ${petDetails.location}</p>
+        <p>Posted by: ${petDetails.owner_username}</p>
+        <p>Owner: ${petDetails.owner_name}</p>
+        <img src="/${petDetails.image.split(',')[0]}" alt="${petDetails.name}">
+        <div class="button-container">
+            <button onclick="closeDialog()">Close</button>
+            <button class="confirm-btn" onclick="confirmAdoption(${petDetails.id}, '${endpoint}')">Confirm</button>
+        </div>
+    `;
+    document.body.appendChild(dialogBox);
+    activeDialog = dialogBox;
+}
+
+function closeDialog() {
+    if (activeDialog) {
+        activeDialog.remove();
+        activeDialog = null;
+    }
+}
+
+function confirmAdoption(petId, endpoint) {
+    const confirmationMessage = "Once confirmed this pet will be removed from the pet list. Are you sure you want to proceed?";
+    const toastContainer = document.createElement('div');
+    toastContainer.classList.add('toast-container');
+    const toastMessage = document.createElement('div');
+    toastMessage.classList.add('toast-message');
+    toastMessage.textContent = confirmationMessage;
+    toastContainer.appendChild(toastMessage);
+    document.body.appendChild(toastContainer);
+    toastContainer.style.top = '50%';
+    toastContainer.style.left = '50%';
+    toastContainer.style.transform = 'translate(-50%, -50%)';
+
+    const confirmButton = document.createElement('button');
+    confirmButton.textContent = 'Confirm';
+    confirmButton.addEventListener('click', function() {
+        document.body.removeChild(toastContainer);
+
+        const apiUrl = `http://localhost:3000/confirmAdoption/${endpoint}/${petId}`;
+
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ confirm: 'Yes' })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.message.includes('Adoption confirmed successfully')) {
+                closeDialog();
+                alert(data.message);
+            } else {
+                showAlertMessage("Failed to confirm adoption.", "error");
+            }
+        })
+        .catch(error => {
+            console.error('Error confirming adoption:', error);
+            alert(`An error occurred while confirming the adoption: ${error.message}`);
+        });
+    });
+
+    const cancelButton = document.createElement('button');
+    cancelButton.textContent = 'Cancel';
+    cancelButton.addEventListener('click', function() {
+        document.body.removeChild(toastContainer);
+    });
+
+    toastContainer.appendChild(confirmButton);
+    toastContainer.appendChild(cancelButton);
+}
+
+function updateNotificationButton() {
+    const notificationOverlay = document.getElementById('notificationOverlay');
+    const newNotifications = notificationCounter - lastNotificationCount;
+
+    if (newNotifications > 0) {
+        notificationOverlay.textContent = newNotifications;
+        notificationOverlay.style.display = 'block';
+    } else {
+        notificationOverlay.style.display = 'none';
+    }
+}
+
+function checkPetStatus() {
+    fetch('http://localhost:3000/pets')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok.');
+        }
+        return response.json();
+    })
+    .then(pets => {
+        pets.forEach(pet => {
+            if (pet.status === 'Adopted' && pet.Confirm === 'Yes') {
+                return;
+            }
+            if (pet.status === 'Adopted' && !notifiedPets.has(pet.id) && !lastCheckedPets.has(pet.id)) {
+                displayNotification(pet.name, pet);
+                notifiedPets.add(pet.id);
+            }
+        });
+        lastCheckedPets = new Set(pets.map(pet => pet.id));
+    })
+    .catch(error => console.error('Error fetching pets:', error));
+}
+
+function checkLostPetStatus() {
+    fetch('http://localhost:3000/lost-pets')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok.');
+        }
+        return response.json();
+    })
+    .then(pets => {
+        pets.forEach(pet => {
+            if (['Returned'].includes(pet.status) && !pet.Confirm) {
+                if (!notifiedLostPets.has(pet.id) && !lastCheckedLostPets.has(pet.id)) {
+                    displayNotificationLost(pet.name, pet);
+                    notifiedLostPets.add(pet.id);
+                }
+            }
+        });
+        lastCheckedLostPets = new Set(pets.map(pet => pet.id));
+    })
+    .catch(error => console.error('Error fetching lost pets:', error));
+}
+
+function checkFoundPetStatus() {
+    fetch('http://localhost:3000/found-pets')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok.');
+        }
+        return response.json();
+    })
+    .then(pets => {
+        pets.forEach(pet => {
+            if (pet.status === 'Reunited' && !pet.Confirm) {
+                if (!notifiedFoundPets.has(pet.id) && !lastCheckedFoundPets.has(pet.id)) {
+                    displayNotificationFound(pet.name, pet);
+                    notifiedFoundPets.add(pet.id);
+                }
+            }
+        });
+        lastCheckedFoundPets = new Set(pets.map(pet => pet.id));
+    })
+    .catch(error => console.error('Error fetching found pets:', error));
+}
+
+setInterval(checkPetStatus, 2000);
+setInterval(checkLostPetStatus, 2000);
+setInterval(checkFoundPetStatus, 2000);
+
+const notifBtn = document.getElementById('notifBtn');
+const notificationsDropdown = document.getElementById('notificationsDropdown');
+notifBtn.addEventListener('click', function() {
+    notificationsDropdown.style.display = notificationsDropdown.style.display === 'none' ? 'block' : 'none';
+    lastNotificationCount = notificationCounter;
+    notificationCounter = 0;
+    updateNotificationButton();
+});
+
+window.addEventListener('click', function(event) {
+    if (!notifBtn.contains(event.target) && !notificationsDropdown.contains(event.target)) {
+        notificationsDropdown.style.display = 'none';
+    }
+});
+
+// Add active class to the clicked nav item and redirect to the appropriate page
+document.querySelectorAll('.container ul li').forEach(function(navItem) {
+    navItem.addEventListener('click', function() {
+        // Remove active class from all nav items
+        document.querySelectorAll('.container ul li').forEach(function(item) {
+            item.classList.remove('active');
+        });
+
+        // Add active class to the clicked nav item
+        this.classList.add('active');
+
+        // Check which nav item was clicked and redirect accordingly
+        if (this.id === 'dashboardBtn') {
+            // Redirect to the manage users page
+            window.location.href = 'dashboard.html'; // Change the URL to the appropriate manage users page
+        } else if (this.id === 'managePetsBtn') {
+            // Redirect to the manage pets page
+            window.location.href = 'pets.html'; // Change the URL to the appropriate manage pets page
+        } // Add more conditions for other navigation items if needed
+    });
+});
+
+// Simulate a click event on the Dashboard button when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('manageUsersBtn').click();
+    });
+</script>
+
+ <!-- Javascript to display users -->
+<script>
+// Fetch users from the server and display them in the table
+fetch('http://localhost:3000/users')
+    .then(response => response.json())
+    .then(users => {
+        const usersTableBody = document.getElementById('usersTableBody');
+        if (!usersTableBody) {
+            console.error('Table body element not found');
+            return;
+        }
+        users.forEach(user => {
+            const userRow = document.createElement('tr');
+            userRow.innerHTML = `
+                <td>${user.id}</td>
+                <td><img src="/${user.profile_image || 'assets/logos/149071.png'}" alt="${user.firstname} ${user.lastname}'s profile image"></td>
+                <td>${user.firstname} ${user.lastname}</td>
+                <td>${user.email}</td>
+                <td>${user.role}</td>
+                <td>${user.location}</td>
+                <td>
+                    <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">Delete</button> <!-- Delete button -->
+                </td>
+            `;
+            usersTableBody.appendChild(userRow);
+        });
+    })
+    .catch(error => console.error('Error fetching users:', error));
+
+// Function to delete a user
+function deleteUser(userId) {
+    if (confirm('Are you sure you want to delete this user?')) {
+        fetch(`http://localhost:3000/users/${userId}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            if (response.ok) {
+                // Refresh the user list after deletion
+                fetch('http://localhost:3000/users')
+                    .then(response => response.json())
+                    .then(users => {
+                        displayUsers(users);
+                    });
+            } else {
+                alert('Failed to delete user.');
+            }
+        })
+        .catch(error => console.error('Error deleting user:', error));
+}
+
+// Function to display users (used after deletion)
+function displayUsers(users) {
+    const usersTableBody = document.getElementById('usersTableBody');
+    usersTableBody.innerHTML = ''; // Clear the existing rows
+    users.forEach(user => {
+        const userRow = document.createElement('tr');
+        userRow.innerHTML = `
+            <td>${user.id}</td>
+            <td><img src="/${user.profile_image || 'assets/logos/149071.png'}" alt="${user.firstname} ${user.lastname}'s profile image"></td>
+            <td>${user.firstname} ${user.lastname}</td>
+            <td>${user.email}</td>
+            <td>${user.role}</td>
+            <td>
+                <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">Delete</button>
+            </td>
+        `;
+        usersTableBody.appendChild(userRow);
+    });
+}
+}
+</script>
+
+<!-- Javascript for logout -->
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get reference to the logout button
+            var logoutBtn = document.getElementById('logoutBtn');
+    
+            // Add click event listener to the logout button
+            logoutBtn.addEventListener('click', function() {
+                // Perform logout actions here, such as clearing session data or cookies
+                
+                // Redirect to signin.html in the templates folder
+                window.location.href = '/templates/signin.html';
+            });
+        });
+</script>
+
+<!-- Responsive Nav Bar -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const navMenu = document.getElementById('navMenu');
+
+    menuToggle.addEventListener('click', function() {
+        navMenu.classList.toggle('active');
+    });
+});
+
+</script>
+</body>
+</html>

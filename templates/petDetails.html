@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> <!-- Add Font Awesome -->
+    <link rel="icon" href="/assets/logos/logo_browser.png" type="image/x-icon">
+    <style>
+        nav {
+            background-color: #343a40; /* Dark background for navbar */
+            color: #ffffff;
+            padding: 10px 0;
+            position: fixed; /* Make the navbar fixed */
+            top: 0; /* Align it to the top of the page */
+            width: 100%; /* Ensure it spans the full width of the page */
+            z-index: 1000; /* Ensure it stays on top of other content */
+        }
+        nav h2 {
+            margin-left: 4%;
+            margin-top: 5px;
+        }
+
+        nav img {
+            height: 50px;
+        }
+
+        .container {
+            margin-top: 50px; /* Existing margin-top */
+            padding-top: 80px; /* Adjust this value to ensure content is fully visible */
+        }
+
+        .pet-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .carousel-inner img {
+            width: 100%;
+            height: auto;
+        }
+        .pet-details {
+            margin-top: 20px;
+        }
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            background-color: #000;
+            border-radius: 50%;
+        }
+        .pet-details h3 {
+            font-size: 2rem;
+            margin-bottom: 10px; /* Reduced margin-bottom for better spacing */
+        }
+        .pet-details p {
+            font-size: 1rem; /* Adjusted font-size for consistency */
+            margin-bottom: 10px; /* Reduced margin-bottom for better spacing */
+        }
+        .pet-details p#petDatePosted {
+            font-size: 0.875rem; /* Smaller font-size for the date posted */
+            color: #606770; /* Subtle color similar to Facebook's style */
+            margin-bottom: 5px; /* Reduced margin for closer spacing */
+        }
+        .pet-details strong {
+            font-weight: 600;
+            color: #333;
+        }
+        .container .btn-primary {
+            margin-top: 20px;
+        }
+        .pet-details .interested-icon {
+            color: #ff0000; /* Red color */
+        }
+
+            /* Example CSS for status colors */
+        .text-success {
+            color: #28a745; /* Green */
+        }
+
+        .text-warning {
+            color: #ffc107; /* Yellow */
+        }
+
+        .text-danger {
+            color: #dc3545; /* Red */
+        }
+
+        .text-info {
+            color: #17a2b8; /* Light blue */
+        }
+
+        .text-primary {
+            color: #007bff; /* Blue */
+        }
+
+        .text-secondary {
+            color: #6c757d; /* Gray */
+        }
+
+        .text-dark {
+            color: #343a40; /* Dark gray */
+        }
+
+        .text-purple {
+            color: #6f42c1; /* Purple */
+        }
+
+        .text-gray {
+            color: #6c757d; /* Gray */
+        }
+
+        @media (min-width: 768px) {
+            .pet-details {
+                margin-top: 0;
+            }
+            .pet-details h3 {
+                font-size: 2.5rem;
+            }
+            .pet-details p {
+                font-size: 1.125rem;
+            }
+        }
+
+       /* Style for the 3-dot horizontal menu */
+        .dropdown-menu-horizontal {
+            flex-direction: row;
+            padding: 0;
+            border: 1px solid #ddd; /* Optional: Add border to the dropdown */
+            background-color: #f8f9fa; /* Background color for the dropdown menu */
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow */
+            border-radius: 0.25rem; /* Optional: Rounded corners */
+        }
+
+        .dropdown-menu-horizontal .dropdown-item {
+            padding: 0.5rem 1rem;
+            white-space: nowrap;
+            color: #343a40; /* Text color for dropdown items */
+            background-color: #f8f9fa; /* Match dropdown item background with menu */
+            transition: background-color 0.2s ease-in-out;
+            text-decoration: none; /* Remove underline */
+        }
+
+        .dropdown-menu-horizontal .dropdown-item:hover {
+            background-color: #e9ecef; /* Background color on hover */
+            text-decoration: none; /* Ensure underline doesn't appear on hover */
+        }
+
+        .dropdown-menu-horizontal .dropdown-item:not(:last-child) {
+            border-right: 1px solid #ddd;
+        }
+
+        .dropdown-toggle-horizontal {
+            font-size: 18px;
+            line-height: 1;
+            padding: 0;
+            color: #000; /* Color for the 3-dot button */
+            border: none;
+            background: none;
+            text-decoration: none; /* Remove underline from the toggle button */
+        }
+
+        /* Hide the dropdown arrow */
+        .dropdown-toggle-horizontal::after {
+            display: none;
+        }
+
+        a {
+        text-decoration: none;
+        color: #000;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <h2>
+            <img id="logoBtn" src="/assets/logos/PetConnect_Logo.png" alt="PetConnect Logo" style="max-height: 70px;">
+        </h2>       
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <!-- Image Carousel Column -->
+            <div class="col-md-6 d-flex justify-content-center align-items-center">
+                <div id="petImageCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner" id="carouselImages">
+                        <!-- Images will be dynamically added here -->
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#petImageCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#petImageCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Details Column -->
+            <div class="col-md-6 pet-details">
+                <h2 id="ownerName" class="d-none"></h2>
+                <p id="petDatePosted" class="d-none"><strong>Date Posted:</strong> <span></span></p><br>
+                <h3 id="petName"></h3>
+                <p id="petDescription" class="d-none"><strong></strong> <span></span></p><br>
+                <p id="petBreed" class="d-none"><strong>Breed:</strong> <span></span></p>
+                <p id="petAge" class="d-none"><strong>Age:</strong> <span></span></p>
+                <p id="petGender" class="d-none"><strong>Gender:</strong> <span></span></p>
+                <p id="petLocation" class="d-none"><strong>Location:</strong> <span></span></p>
+                <p id="petContact" class="d-none"><strong>Contact:</strong> <span></span></p>
+                <p id="petStatus" class="d-none"><strong>Status:</strong> <span></span></p>
+                <p id="petFav" class="d-none"><i class="fas fa-heart interested-icon"></i> <strong></strong> <span></span></p> <!-- Add icon here -->
+                <!--<a href="javascript:history.back()" class="btn btn-primary">Back</a> -->
+            </div>
+
+            <!-- Comment Section -->
+            <div class="container mt-4">
+                <div class="row">
+                    <!-- Comment Section Heading -->
+                    <div class="col-12 mb-3">
+                        <h4>Comments</h4>
+                    </div>
+                    
+                    <!-- Comment List -->
+                    <div id="commentList" class="col-12 mb-3">
+                        <!-- Comments will be dynamically added here -->
+                    </div>
+            
+                    <!-- Comment Input and Submit Button -->
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label for="commentInput" class="form-label">Leave a comment:</label>
+                            <textarea class="form-control" id="commentInput" rows="3" placeholder="Write your comment here..."></textarea>
+                        </div>
+                        <button id="submitComment" class="btn btn-primary w-100">Submit</button>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div><br> 
+
+<!-- Javascript to fetch pet, lost and found details -->
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const petId = urlParams.get('id');
+            const source = urlParams.get('source'); // Get source parameter
+    
+            if (!petId || !source) {
+                alert('Pet ID or source not found.');
+                window.location.href = 'home.html';
+                return;
+            }
+    
+            // Function to fetch pet details based on source
+            function fetchPetDetails() {
+                let endpoint;
+                switch (source) {
+                    case 'pets':
+                        endpoint = `http://localhost:3000/pet-details?id=${petId}`;
+                        break;
+                    case 'lost':
+                        endpoint = `http://localhost:3000/lost-pet-details?id=${petId}`;
+                        break;
+                    case 'found':
+                        endpoint = `http://localhost:3000/found-pet-details?id=${petId}`;
+                        break;
+                    case 'saved':
+                        endpoint = `http://localhost:3000/saved-pet-details?id=${petId}`;
+                        break;
+                    default:
+                        alert('Invalid source.');
+                        window.location.href = 'home.html';
+                        return Promise.resolve({}); // Return an empty object
+                }
+    
+                return fetch(endpoint)
+                    .then(response => response.json())
+                    .catch(error => {
+                        console.error('Error fetching pet details:', error);
+                        return {}; // Return an empty object on error
+                    });
+            }
+    
+            // Function to fetch user details based on username
+            function fetchUserDetails(username) {
+                const endpoint = `http://localhost:3000/user-details?username=${username}`;
+                return fetch(endpoint)
+                    .then(response => response.json())
+                    .catch(error => {
+                        console.error('Error fetching user details:', error);
+                        return {}; // Return an empty object on error
+                    });
+            }
+    
+            // Helper function to format date to relative time
+            function formatRelativeDate(dateString) {
+                const now = new Date();
+                const date = new Date(dateString);
+                const diffInSeconds = Math.floor((now - date) / 1000);
+                const diffInDays = Math.floor(diffInSeconds / 86400); // Days difference
+                const diffInMonths = Math.floor(diffInDays / 30); // Approximate months difference
+                const diffInYears = Math.floor(diffInDays / 365); // Approximate years difference
+    
+                if (diffInSeconds < 60) return 'Just now';
+                if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+                if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+                if (diffInDays < 7) return `${diffInDays} days ago`;
+                if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
+                if (diffInMonths < 12) return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                if (diffInYears >= 1) return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            }
+    
+           // Helper function to get the icon and color based on the status
+            function getStatusIcon(status, source) {
+                const icons = {
+                    'Available': 'fas fa-check-circle',
+                    'Pending Adoption': 'fas fa-exclamation-circle',
+                    'Adopted': 'fas fa-home',
+                    'Lost': 'fas fa-question-circle',
+                    'On Process': 'fas fa-spinner',
+                    'Returned': 'fas fa-arrow-circle-left',
+                    'Reunited': 'fas fa-handshake',
+                    'Adoptable': 'fas fa-paw',
+                    'Deceased': 'fas fa-skull-crossbones'
+                };
+
+                const colors = {
+                    'Available': 'text-success', // Green
+                    'Pending Adoption': 'text-warning', // Yellow
+                    'Adopted': 'text-purple', // Purple
+                    'Lost': 'text-gray', // Gray
+                    'On Process': 'text-primary', // Blue
+                    'Returned': 'text-primary', // Blue
+                    'Reunited': 'text-primary', // Blue
+                    'Adoptable': 'text-success', // Green
+                    'Deceased': 'text-dark' // Dark gray
+                };
+
+                const statusMapping = {
+                    'pets': {
+                        'Available': { icon: icons['Available'], color: colors['Available'] },
+                        'Pending Adoption': { icon: icons['Pending Adoption'], color: colors['Pending Adoption'] },
+                        'Adopted': { icon: icons['Adopted'], color: colors['Adopted'] }
+                    },
+                    'saved': {
+                        'Available': { icon: icons['Available'], color: colors['Available'] },
+                        'Pending Adoption': { icon: icons['Pending Adoption'], color: colors['Pending Adoption'] },
+                        'Adopted': { icon: icons['Adopted'], color: colors['Adopted'] }
+                    },
+                    'lost': {
+                        'Lost': { icon: icons['Lost'], color: colors['Lost'] },
+                        'On Process': { icon: icons['On Process'], color: colors['On Process'] },
+                        'Returned': { icon: icons['Returned'], color: colors['Returned'] }
+                    },
+                    'found': {
+                        'Lost': { icon: icons['Lost'], color: colors['Lost'] },
+                        'Reunited': { icon: icons['Reunited'], color: colors['Reunited'] },
+                        'Adoptable': { icon: icons['Adoptable'], color: colors['Adoptable'] },
+                        'Deceased': { icon: icons['Deceased'], color: colors['Deceased'] },
+                        'Adopted': { icon: icons['Adopted'], color: colors['Adopted'] }
+                    }
+                };
+
+                const statusInfo = statusMapping[source][status] || {};
+                return statusInfo;
+            }
+
+            // Fetch pet details and user details based on source
+            fetchPetDetails()
+                .then(pet => {
+                    if (pet.owner_username) {
+                        // Fetch user details based on the owner_username
+                        fetchUserDetails(pet.owner_username)
+                            .then(user => {
+                                if (user.firstname && user.lastname) {
+                                    document.getElementById('ownerName').innerHTML = `<a href="profile.html?username=${pet.owner_username}" style="text-decoration: none; color: inherit;">${user.firstname} ${user.lastname}</a>`;
+                                    document.getElementById('ownerName').classList.remove('d-none');
+                                } else {
+                                    document.getElementById('ownerName').classList.add('d-none');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error fetching owner details:', error);
+                                document.getElementById('ownerName').classList.add('d-none');
+                            });
+                    } else {
+                        document.getElementById('ownerName').classList.add('d-none');
+                    }
+    
+                    document.getElementById('petName').textContent = pet.name || '';
+                    document.getElementById('petBreed').querySelector('span').textContent = pet.breed || '';
+                    document.getElementById('petAge').querySelector('span').textContent = pet.age || '';
+                    document.getElementById('petGender').querySelector('span').textContent = pet.gender || '';
+                    document.getElementById('petDescription').querySelector('span').textContent = pet.description || '';
+                    document.getElementById('petLocation').querySelector('span').textContent = pet.location || '';
+                    document.getElementById('petContact').querySelector('span').textContent = pet.contact || '';
+    
+                    // Assign default status based on source if status is null or empty
+                    if (!pet.status) {
+                        if (source === 'pets' || source === 'saved') {
+                            pet.status = 'Available';
+                        } else if (source === 'lost' || source === 'found') {
+                            pet.status = 'Lost';
+                        }
+                    }
+    
+                    const statusInfo = getStatusIcon(pet.status, source);
+                    document.getElementById('petStatus').querySelector('span').innerHTML = `<i class="${statusInfo.icon} ${statusInfo.color}"></i> ${pet.status}`;
+    
+                    // Format and display datePosted
+                    if (pet.datePosted) {
+                        const formattedDate = formatRelativeDate(pet.datePosted);
+                        document.getElementById('petDatePosted').querySelector('span').textContent = formattedDate;
+                        document.getElementById('petDatePosted').classList.remove('d-none');
+                    } else {
+                        document.getElementById('petDatePosted').classList.add('d-none');
+                    }
+    
+                    // Calculate number of interested people only for pets source
+                    if (source === 'pets') {
+                        const interestedPeople = pet.favorites || '';
+                        const numberInterested = interestedPeople.split(',').filter(Boolean).length;
+                        document.getElementById('petFav').querySelector('span').textContent = `${numberInterested} people interested`;
+                        document.getElementById('petFav').classList.remove('d-none');
+                    } else {
+                        document.getElementById('petFav').classList.add('d-none');
+                    }
+    
+                    const detailsToShow = [
+                        'petBreed',
+                        'petAge',
+                        'petGender',
+                        'petDescription',
+                        'petLocation',
+                        'petContact',
+                        'petStatus',
+                        'petDatePosted' // Add datePosted to the list
+                    ];
+    
+                    detailsToShow.forEach(id => {
+                        if (!document.getElementById(id).querySelector('span').textContent.trim()) {
+                            document.getElementById(id).classList.add('d-none');
+                        } else {
+                            document.getElementById(id).classList.remove('d-none');
+                        }
+                    });
+    
+                    const images = (pet.image || '').split(',');
+                    const carouselImages = document.getElementById('carouselImages');
+    
+                    images.forEach((image, index) => {
+                        const carouselItem = document.createElement('div');
+                        carouselItem.classList.add('carousel-item');
+                        if (index === 0) carouselItem.classList.add('active');
+    
+                        carouselItem.innerHTML = `<img src="/${image}" class="d-block w-100 pet-image" alt="${pet.name}">`;
+                        carouselImages.appendChild(carouselItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error displaying pet details:', error);
+                    alert('Failed to load pet details.');
+                });
+        });
+</script>
+    
+<!-- JavaScript to pass the token and retrieve the username from localStorage -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Retrieve token and username from localStorage
+        const token = localStorage.getItem('token');
+        const username = localStorage.getItem('username');
+
+        // Check if the token and username exist
+        if (!token) {
+            // Redirect to the signin page if the token is missing
+            window.location.href = "signin.html";
+        } else if (!username) {
+            // Handle the case where the username is missing in localStorage
+            console.error("Username not found in localStorage");
+            // Optional: Redirect to an error page or ask the user to sign in again
+        } else {
+            console.log("Token found:", token);
+            console.log("Username found local storage found:", username);
+            // Use the username and token as needed in your fetch requests
+        }
+    });
+</script>
+
+<!-- JavaScript for comments and replies -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const petId = urlParams.get('id');
+        const source = urlParams.get('source');
+        const token = localStorage.getItem('token');
+        var username = localStorage.getItem('username'); // Retrieve the username from local storage
+
+        console.log("Username found:", username); // Log the username      
+
+        // Helper function to format date to relative time
+        function formatRelativeDate(dateString) {
+            const now = new Date();
+            const date = new Date(dateString);
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            const diffInDays = Math.floor(diffInSeconds / 86400); // Days difference
+            const diffInMonths = Math.floor(diffInDays / 30); // Approximate months difference
+            const diffInYears = Math.floor(diffInDays / 365); // Approximate years difference
+
+            if (diffInSeconds < 60) return 'Just now';
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+            if (diffInDays < 7) return `${diffInDays} days ago`;
+            if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
+            if (diffInMonths < 12) return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            if (diffInYears >= 1) return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // Fetch and display existing comments and their replies
+        function fetchComments() {
+            fetch(`http://localhost:3000/comments?petId=${petId}&source=${source}`)
+                .then(response => response.json())
+                .then(comments => {
+                    const commentList = document.getElementById('commentList');
+                    commentList.innerHTML = ''; // Clear existing comments
+                    comments.forEach(comment => {
+                        const commentItem = document.createElement('div');
+                        commentItem.classList.add('comment-item', 'mb-3', 'border', 'p-3');
+                        const dropdownContent = comment.username === username ? 
+                            `<li><a class="dropdown-item delete-comment" href="#" data-comment-id="${comment.id}">Delete</a></li>` : '';
+
+                        commentItem.innerHTML = `
+                            <div class="dropdown float-end">
+                                <button class="btn btn-link btn-sm dropdown-toggle dropdown-toggle-horizontal" type="button" id="dropdownMenuButton-${comment.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    &#x2026;
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-horizontal" aria-labelledby="dropdownMenuButton-${comment.id}">
+                                    ${dropdownContent}
+                                </ul>
+                            </div>
+                            <strong><a href="profile.html?username=${encodeURIComponent(comment.username)}">${comment.username}</a></strong> (${formatRelativeDate(comment.datePosted)}):<br>
+                            <p>${comment.content}</p>
+                            <button class="btn btn-link btn-sm reply-btn" data-comment-id="${comment.id}">Reply</button>
+                            <div class="reply-form d-none" id="reply-form-${comment.id}">
+                                <textarea class="form-control mb-2" rows="2" placeholder="Write your reply..."></textarea>
+                                <button class="btn btn-primary btn-sm submit-reply" data-comment-id="${comment.id}">Submit Reply</button>
+                            </div>
+                            <div class="replies" style="margin-left: 2%;" id="replies-${comment.id}">
+                                <!-- Replies will be dynamically added here -->
+                            </div>
+                        `;
+
+                        // Hide the dropdown if there are no applicable options
+                        if (!dropdownContent) {
+                            commentItem.querySelector('.dropdown').style.display = 'none';
+                        }
+
+                        commentList.appendChild(commentItem);
+
+                        // Event listener for reply button
+                        const replyBtn = commentItem.querySelector('.reply-btn');
+                        replyBtn.addEventListener('click', function () {
+                            const replyForm = document.getElementById(`reply-form-${comment.id}`);
+                            replyForm.classList.toggle('d-none');
+                        });
+
+                        // Fetch and display replies for this comment
+                        fetchReplies(comment.id);
+                    });
+                })
+                .catch(error => console.error('Error fetching comments:', error));
+        }
+
+        // Fetch and display replies for a specific comment
+        function fetchReplies(commentId) {
+            fetch(`http://localhost:3000/replies?commentId=${commentId}`)
+                .then(response => response.json())
+                .then(replies => {
+                    const repliesContainer = document.getElementById(`replies-${commentId}`);
+                    repliesContainer.innerHTML = '';
+
+                    if (replies.length > 0) {
+                        replies.forEach((reply, index) => {
+                            const replyItem = document.createElement('div');
+                            replyItem.classList.add('reply-item', 'mb-1', 'ml-4');
+                            const replyDropdownContent = reply.username === username ? 
+                                `<li><a class="dropdown-item delete-reply" href="#" data-reply-id="${reply.replyId}">Delete</a></li>` : '';
+
+                            replyItem.innerHTML = `
+                                <div class="dropdown float-end">
+                                    <button class="btn btn-link btn-sm dropdown-toggle dropdown-toggle-horizontal" type="button" id="dropdownMenuButton-${reply.replyId}" data-bs-toggle="dropdown" aria-expanded="false">
+                                        &#x2026;
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-horizontal" aria-labelledby="dropdownMenuButton-${reply.replyId}">
+                                        ${replyDropdownContent}
+                                    </ul>
+                                </div>
+                                <strong><a href="profile.html?username=${encodeURIComponent(reply.username)}">${reply.username}</a></strong> (${formatRelativeDate(reply.datePosted)}):<br>
+                                <p>${reply.content}</p>
+                            `;
+
+                            // Hide the dropdown if there are no applicable options
+                            if (!replyDropdownContent) {
+                                replyItem.querySelector('.dropdown').style.display = 'none';
+                            }
+
+                            // Hide all replies except the first one
+                            if (index >= 1) {
+                                replyItem.style.display = 'none';
+                            }
+
+                            repliesContainer.appendChild(replyItem);
+                        });
+
+                        // If there are more than one reply, add a "Show More" button
+                        if (replies.length > 1) {
+                            const showMoreBtn = document.createElement('button');
+                            showMoreBtn.classList.add('btn', 'btn-link', 'btn-sm', 'show-more-btn');
+                            showMoreBtn.textContent = `Show ${replies.length - 1} more replies`;
+                            showMoreBtn.addEventListener('click', function () {
+                                // Show all hidden replies
+                                const hiddenReplies = repliesContainer.querySelectorAll('.reply-item');
+                                hiddenReplies.forEach(reply => {
+                                    reply.style.display = 'block';
+                                });
+
+                                // Hide the "Show More" button after expanding replies
+                                showMoreBtn.style.display = 'none';
+                            });
+
+                            repliesContainer.appendChild(showMoreBtn);
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching replies:', error));
+        }
+
+        // Submit a new comment
+        document.getElementById('submitComment').addEventListener('click', function () {
+            const commentInput = document.getElementById('commentInput').value.trim();
+            if (commentInput === '') {
+                alert('Please enter a comment.');
+                return;
+            }
+
+            const newComment = {
+                petId: petId,
+                source: source,
+                username: username, // Use the retrieved username from local storage
+                content: commentInput,
+                datePosted: new Date().toISOString()
+            };
+
+            fetch('http://localhost:3000/comments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newComment)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    fetchComments(); // Refresh comments
+                    document.getElementById('commentInput').value = ''; // Clear the input field
+                } else {
+                    alert('Error submitting comment.');
+                }
+            })
+            .catch(error => console.error('Error submitting comment:', error));
+        });
+
+        // Submit a reply to a specific comment
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('submit-reply')) {
+                const commentId = event.target.getAttribute('data-comment-id');
+                const replyInput = document.querySelector(`#reply-form-${commentId} textarea`).value.trim();
+                if (replyInput === '') {
+                    alert('Please enter a reply.');
+                    return;
+                }
+
+                const newReply = {
+                    commentId: commentId,
+                    username: username, // Use the retrieved username from local storage
+                    content: replyInput,
+                    datePosted: new Date().toISOString()
+                };
+
+                fetch('http://localhost:3000/replies', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newReply)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        fetchReplies(commentId); // Refresh replies for the specific comment
+                        document.querySelector(`#reply-form-${commentId} textarea`).value = ''; // Clear the reply input
+                    } else {
+                        alert('Error submitting reply.');
+                    }
+                })
+                .catch(error => console.error('Error submitting reply:', error));
+            }
+        });
+
+        fetchComments(); // Initial fetch of comments when the page loads
+    });
+</script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const petId = new URLSearchParams(window.location.search).get('id');
+        const token = localStorage.getItem('token');
+        const username = localStorage.getItem('username'); // Read username from local storage
+
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('delete-comment')) {
+                const commentId = event.target.getAttribute('data-comment-id');
+                fetch(`http://localhost:3000/comments/${commentId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` // If you need authorization
+                    },
+                    body: JSON.stringify({ username: username }) // Send username in the body
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        fetchComments(); // Refresh comments
+                    } else {
+                        alert('Error deleting comment: ' + data.message);
+                    }
+                })
+                .catch(error => console.error('Error deleting comment:', error));
+            } else if (event.target.classList.contains('delete-reply')) {
+                const replyId = event.target.getAttribute('data-reply-id');
+                fetch(`http://localhost:3000/replies/${replyId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` // If you need authorization
+                    },
+                    body: JSON.stringify({ username: username }) // Send username in the body
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        fetchComments(); // Refresh comments and replies
+                    } else {
+                        alert('Error deleting reply: ' + data.message);
+                    }
+                })
+                .catch(error => console.error('Error deleting reply:', error));
+            }
+        });
+    });
+</script>
+
+ <!-- Javascript to handle token expiration -->
+<script>
+    // Function to check if the JWT token is expired
+    function isTokenExpired(token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+            const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    
+            // Check if the token is expired
+            return payload.exp < currentTime;
+        } catch (error) {
+            console.error('Error decoding token:', error);
+            return true; // Assume token is expired if there's an error
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        const token = localStorage.getItem('token');
+    
+        if (!token || isTokenExpired(token)) {
+            // Token is missing or expired, redirect to sign-in page
+            window.location.href = 'signin.html';
+        }
+    });
+    
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the username from local storage
+        const username = localStorage.getItem('username'); // Retrieve username from local storage
+
+        // Add event listener to the logo for navigation
+        const logoBtn = document.getElementById('logoBtn');
+        
+        logoBtn.addEventListener('click', function() {
+            const token = localStorage.getItem('token');
+            // Navigate back to home page with username and token as query parameters
+            window.location.href = `home.html?username=${username}&token=${token}`;
+        });
+    });
+</script>
+
+</body>
+</html>
