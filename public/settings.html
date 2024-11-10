@@ -8,179 +8,199 @@
     <link rel="icon" href="/assets/logos/logo_browser.png" type="image/x-icon">
     <title>Account Settings</title>
     <style>
-        .delete-account-button {
-            background-color: red;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 16px;
-            border-radius: 5px;
-        }
-        .delete-account-button:hover {
-            background-color: darkred;
-        }
-        .user-info h2 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .user-info p {
-            margin: 5px 0;
-        }
-        section {
-            padding: 20px;
-            margin: 0 10%;
-            border-bottom: 1px solid #ddd;
-        }
-        h3 {
-            font-size: 1.2em;
-            margin: 10px 0;
-        }
+/* General Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif; /* Default font for the body */
+}
 
-        /* Modal styling */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            width: 400px;
-            text-align: left;
-        }
-        .close {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            position: absolute;
-            right: 10px;
-            top: 5px;
-            cursor: pointer;
-        }
-        .radio-button-group {
-            margin-bottom: 20px;
-        }
-        h2 {
-            color: #4CAF50;
-            font-size: 1.5em;
-            margin-top: 0;
-        }
+/* Button Styles */
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
 
-        p {
-            margin: 0 0 10px;
-        }
-        .radio-button-group p {
-            font-size: 14px;
-            color: #555;
-        }
-        /* Modal styling */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed;
-            z-index: 1000; /* High z-index to ensure it appears above other content */
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Dark background with opacity */
-            justify-content: center;
-            align-items: center;
-        }
+/* Delete Account Button */
+.delete-account-button {
+    background-color: red;
+    color: white;
+}
 
-        .modal-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px; /* Rounded corners for a softer look */
-            width: 90%;
-            max-width: 500px; /* Limiting maximum width for better readability */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
-        }
+.delete-account-button:hover {
+    background-color: darkred;
+}
 
-        .close {
-            color: #888;
-            float: right;
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+/* User Info Styles */
+.user-info h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #4CAF50;
+}
 
-        .close:hover {
-            color: #000;
-        }
+.user-info p {
+    margin: 5px 0;
+}
 
-        h3 {
-            margin-top: 0;
-            font-size: 1.5em;
-            color: #333; /* Dark gray for formal appearance */
-        }
+/* Section Styles */
+section {
+    padding: 20px;
+    margin: 0 10%;
+    border-bottom: 1px solid #ddd;
+}
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+/* Heading Styles */
+h2 {
+    font-size: 1.5em;
+    margin-top: 0;
+}
 
-        .form-group label {
-            display: block;
-            font-weight: 500; /* Semi-bold for emphasis */
-            margin-bottom: 5px;
-            color: #555; /* Medium gray for better contrast */
-        }
+h3 {
+    margin: 10px 0;
+    font-size: 1.2em;
+    color: #333; /* Dark gray for formal appearance */
+}
 
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc; /* Light gray border */
-            border-radius: 4px; /* Rounded corners */
-            box-sizing: border-box; /* Includes padding and border in the element’s total width and height */
-            font-size: 16px; /* Larger text for readability */
-        }
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000; /* High z-index to ensure it appears above other content */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    background-color: rgba(0, 0, 0, 0.5); /* Dark background with opacity */
+    justify-content: center;
+    align-items: center;
+}
 
-        .form-group select {
-            /* Ensure the dropdown arrow is styled consistently */
-            background-color: #fff; /* White background for consistency */
-        }
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px; /* Rounded corners for a softer look */
+    width: 90%;
+    max-width: 500px; /* Limiting maximum width for better readability */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+}
 
-        .button-group {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
+/* Close Button */
+.close {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    cursor: pointer;
+}
 
-        .button-group button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease; /* Smooth transition for hover effects */
-        }
+.close:hover {
+    color: #000;
+}
 
-        .button-group button[type="submit"] {
-            background-color: #4CAF50; /* Green for submit button */
-            color: #fff;
-        }
+/* Form Styles */
+.form-group {
+    margin-bottom: 15px;
+}
 
-        .button-group button[type="submit"]:hover {
-            background-color: #45a049; /* Darker green on hover */
-        }
+.form-group label {
+    display: block;
+    font-weight: 500; /* Semi-bold for emphasis */
+    margin-bottom: 5px;
+    color: #555; /* Medium gray for better contrast */
+}
 
-        .button-group button[type="button"] {
-            background-color: #f44336; /* Red for cancel button */
-            color: #fff;
-        }
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 4px; /* Rounded corners */
+    box-sizing: border-box; /* Includes padding and border in the element’s total width and height */
+    font-size: 16px; /* Larger text for readability */
+}
 
-        .button-group button[type="button"]:hover {
-            background-color: #e53935; /* Darker red on hover */
-        }
+/* Error State */
+.error {
+    border-color: #dc3545; /* Red border for errors */
+}
+
+/* Placeholder Styling */
+input::placeholder {
+    color: #aaa; /* Light color for placeholder */
+    font-style: italic; /* Italic style for placeholder */
+}
+
+/* Button Group Styles */
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.button-group button[type="submit"] {
+    background-color: #4CAF50; /* Green for submit button */
+    color: #fff;
+}
+
+.button-group button[type="submit"]:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+.button-group button[type="button"] {
+    background-color: #f44336; /* Red for cancel button */
+    color: #fff;
+}
+
+.button-group button[type="button"]:hover {
+    background-color: #e53935; /* Darker red on hover */
+}
+
+/* Toast Notification */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.5s, bottom 0.5s;
+}
+
+.toast.show {
+    opacity: 1;
+    bottom: 30px; /* Show above the bottom of the viewport */
+}
+
+/* General Input Field Styles */
+#username-input {
+    width: 70%; /* Full width */
+    padding: 10px; /* Space inside the input */
+    margin: 10px 0; /* Space outside the input */
+    border: 2px solid #ccc; /* Border color */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 1em; /* Font size */
+    transition: border-color 0.3s; /* Smooth transition for border color */
+}
+
+#username-input:focus {
+    border-color: #007bff; /* Change border color on focus */
+    outline: none; /* Remove default outline */
+}
+
+/* Error Message */
+#error-message {
+    color: red; /* Red color for errors */
+    display: none; /* Hidden by default */
+    margin-top: 10px; /* Margin above */
+}
     </style>
 </head>
 <body>
@@ -209,34 +229,36 @@
         <p id="open-modal" style="cursor: pointer; color: blue;">Manage your data, deactivate your account, delete your account, and more.</p>
     </section>
 
-    <!-- First Modal -->
-    <div id="manageAccountModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Access and Control</h3>
-            <div class="radio-button-group">
-                <label><input type="radio" name="action" value="deactivate"> Deactivate your Account
-                    <p>You can still go back whenever you want.</p></label>
-                <label><input type="radio" name="action" value="delete"> Delete your Account
-                    <p>All information ascociated into your account will be permanently remove.</p></label>
-               
-            </div>
-            <button id="continue-button">Continue</button>
-            <button id="cancel-button">Cancel</button>
+<!-- First Modal -->
+<div id="manageAccountModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Access and Control</h3>
+        <div class="radio-button-group">
+            <label><input type="radio" name="action" value="deactivate"> Deactivate your Account
+                <p>You can still go back whenever you want.</p></label>
+            <label><input type="radio" name="action" value="delete"> Delete your Account
+                <p>All information associated with your account will be permanently removed.</p></label>
         </div>
+        <button id="continue-button">Continue</button>
+        <button id="cancel-button">Cancel</button>
     </div>
+</div>
 
-    <!-- Second Modal for Account Deletion Confirmation -->
-    <div id="deleteAccountModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Delete your Account</h3>
-            <p>When you delete your PetConnect account, you won't be able to retrieve the content you've shared on the platform.</p>
-            <p><strong>Note:</strong> Deleting your account is a permanent action and cannot be undone. All your data will be permanently removed from our system.</p>
-            <button class="delete-account-button" id="delete-account-button">Delete Account</button>
-            <button id="cancel-delete-button">Cancel</button>
-        </div>
+<!-- Second Modal for Account Deletion Confirmation -->
+<div id="deleteAccountModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Delete your Account</h3>
+        <p>When you delete your PetConnect account, you won't be able to retrieve the content you've shared on the platform.</p>
+        <p><strong>Note:</strong> Deleting your account is a permanent action and cannot be undone. All your data will be permanently removed from our system.</p>
+        <label for="username-input">Please enter your username to confirm:</label>
+        <input type="text" id="username-input" placeholder="Enter your username" required>
+        <div id="error-message" style="color: red; display: none; margin-top: 5px;"></div> <!-- Error message container -->
+        <button class="delete-account-button" id="delete-account-button">Delete Account</button>
+        <button id="cancel-delete-button">Cancel</button>
     </div>
+</div>
 
 <!-- Password Update Modal -->
 <div id="updatePasswordModal" class="modal">
@@ -247,14 +269,17 @@
             <div class="form-group">
                 <label for="old-password">Old Password</label>
                 <input type="password" id="old-password" name="old-password" placeholder="Enter your old password" required>
+                <span class="error-message" id="old-password-error"  style="color: red;"></span>
             </div>
             <div class="form-group">
                 <label for="new-password">New Password</label>
                 <input type="password" id="new-password" name="new-password" placeholder="Enter a new password" required>
+                <span class="error-message" id="new-password-error"  style="color: red;"></span>
             </div>
             <div class="form-group">
                 <label for="confirm-new-password">Confirm New Password</label>
                 <input type="password" id="confirm-new-password" name="confirm-new-password" placeholder="Confirm your new password" required>
+                <span class="error-message" id="confirm-password-error" style="color: red;"></span>
             </div>
             <div class="button-group">
                 <button type="submit">Update Password</button>
@@ -273,7 +298,8 @@
             <div class="form-group">
                 <label for="new-username">Username</label>
                 <input type="text" id="new-username" name="new-username" required>
-            </div>
+                <p id="username-availability-message" style="color: red; display: none;">Username already exists</p>
+            </div>            
             <div class="form-group">
                 <label for="first-name">First Name</label>
                 <input type="text" id="first-name" name="first-name" required>
@@ -306,6 +332,22 @@
             </div>
         </form>
     </div>
+</div>
+
+<!-- Confirmation Modal for Account Deletion -->
+<div id="confirmationModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="close-confirmation">&times;</span>
+        <h3>Confirm Account Deletion</h3>
+        <p>Are you sure you wish to permanently delete your account? This action cannot be undone.</p>
+        <button id="confirm-delete-button">Yes, Delete My Account</button>
+        <button id="cancel-confirm-button">Cancel</button>
+    </div>
+</div>
+
+<!-- Toast Message -->
+<div id="toast" class="toast hidden">
+    <p id="toast-message"></p>
 </div>
 
 <!-- Javascript for Updating Settings -->
@@ -344,6 +386,7 @@
                     <p><strong>Last Name:</strong> ${data.lastname}</p>
                     <p><strong>Email:</strong> ${data.email}</p>
                     <p><strong>Username:</strong> ${data.username}</p>
+                    <p><strong>Address:</strong> ${data.location}</p>
                     <p><strong>Role:</strong> ${data.role}</p>
                 `;
             })
@@ -353,6 +396,8 @@
             const updateInfoModal = document.getElementById('updateInfoModal');
             const cancelInfoBtn = document.getElementById('cancel-info-btn');
             const updateInfoForm = document.getElementById('update-info-form');
+            const toast = document.getElementById('toast'); // Reference to the toast element
+            const toastMessage = document.getElementById('toast-message'); // Reference to the toast message text
 
             updateInfoBtn.addEventListener('click', () => {
                 fetch(`http://localhost:3000/api/users/${username}`) // Use username from local storage
@@ -414,14 +459,18 @@
                         alert(data.error);
                     } else {
                         if (newUsername !== username) {
-                            alert('Information updated successfully. You will be redirected to the sign-in page.');
+                            // Show toast message for successful update
+                            showToast('Information updated successfully. You will be redirected to the sign-in page.');
                             // Clear token and username
                             localStorage.removeItem('token');
                             localStorage.removeItem('username');
-                            // Redirect to sign-in page
-                            window.location.href = "/templates/signin.html";
+                            // Redirect to sign-in page after a short delay
+                            setTimeout(() => {
+                                window.location.href = "/templates/signin.html";
+                            }, 3000); // Adjust delay as needed
                         } else {
-                            alert('Information updated successfully.');
+                            // Show toast message for successful update
+                            showToast('Information updated successfully.');
                         }
                     }
                 })
@@ -430,6 +479,59 @@
                     alert('An error occurred while updating your information. Please try again.');
                 });
             });
+
+            const newUsernameInput = document.getElementById('new-username');
+            const usernameAvailabilityMessage = document.getElementById('username-availability-message');
+
+            newUsernameInput.addEventListener('input', () => {
+                const newUsername = newUsernameInput.value.trim();
+
+                if (newUsername) {
+                    fetch(`http://localhost:3000/check-username?username=${encodeURIComponent(newUsername)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.exists) {
+                                usernameAvailabilityMessage.style.display = 'block';
+                                usernameAvailabilityMessage.textContent = 'Username already exists';
+                            } else {
+                                usernameAvailabilityMessage.style.display = 'none';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error checking username availability:', error);
+                            usernameAvailabilityMessage.style.display = 'block';
+                            usernameAvailabilityMessage.textContent = 'Error checking username availability. Please try again.';
+                        });
+                } else {
+                    usernameAvailabilityMessage.style.display = 'none';
+                }
+            });
+
+            // Function to show toast message
+            function showToast(message) {
+                toastMessage.textContent = message; // Set toast message text
+                toast.classList.remove('hidden'); // Show the toast
+                toast.classList.add('show'); // Add class to show animation
+                localStorage.setItem('toastMessage', message); // Store message in local storage
+
+                // Hide the toast after 3 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show'); // Hide animation
+                    toast.classList.add('hidden'); // Add hidden class to remove from view
+                    localStorage.removeItem('toastMessage'); // Clear the message from local storage
+                }, 3000); // Adjust duration as needed
+            }
+
+            // Function to check for and display toast message on page load
+            function checkToastMessage() {
+                const message = localStorage.getItem('toastMessage');
+                if (message) {
+                    showToast(message); // Show the stored message
+                }
+            }
+
+            // Check for toast message when the page loads
+            window.onload = checkToastMessage;
 
             // Modal functionality for other operations
             const manageModal = document.getElementById("manageAccountModal");
@@ -474,103 +576,181 @@
             const deleteModal = document.getElementById("deleteAccountModal");
             const deleteAccountBtn = document.getElementById("delete-account-button");
             const cancelDeleteBtn = document.getElementById("cancel-delete-button");
-    
+            const errorMessage = document.getElementById("error-message"); // Reference to the error message container
+            const confirmationModal = document.getElementById("confirmationModal");
+            const confirmDeleteButton = document.getElementById("confirm-delete-button");
+            const cancelConfirmButton = document.getElementById("cancel-confirm-button");
+            const closeConfirmation = document.getElementById("close-confirmation");
+
             deleteAccountBtn.addEventListener('click', () => {
-                if (confirm('Are you sure you wish to permanently delete your account? This action cannot be undone.')) {
-                    fetch('http://localhost:3000/api/users/delete', {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ username: username }) // Use username from local storage
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            localStorage.removeItem('token');
-                            localStorage.removeItem('username');
-                            
-                            alert('Your account has been successfully deleted.');
-                            window.location.href = "/templates/signin.html";
-                        } else {
-                            return response.json().then(error => Promise.reject(error));
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error deleting account:', error);
-                        alert('An error occurred while attempting to delete your account. Please try again.');
-                    });
+                const usernameInput = document.getElementById("username-input").value;
+                const storedUsername = localStorage.getItem('username');
+
+                // Clear previous error message
+                errorMessage.style.display = 'none'; // Hide the error message initially
+                errorMessage.textContent = ''; // Clear the message text
+
+                // Check if the entered username matches the stored username
+                if (usernameInput === storedUsername) {
+                    // Show the confirmation modal
+                    confirmationModal.style.display = "block";
+                } else {
+                    // Show error message if usernames do not match
+                    errorMessage.textContent = 'The username entered does not match your account. Please try again.'; // Set the error message
+                    errorMessage.style.display = 'block'; // Display the error message
                 }
             });
-    
-            cancelDeleteBtn.addEventListener('click', () => {
-                deleteModal.style.display = "none";
-            });
-    
-            // Password Update Modal functionality
-            const updatePasswordBtn = document.getElementById('update-password-btn');
-            const updatePasswordModal = document.getElementById('updatePasswordModal');
-            const cancelUpdateBtn = document.getElementById('cancel-update-btn');
-            const updatePasswordForm = document.getElementById('update-password-form');
-    
-            updatePasswordBtn.addEventListener('click', () => {
-                updatePasswordModal.style.display = "flex";
-            });
-    
-            closeModalBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    updatePasswordModal.style.display = "none";
-                });
-            });
-    
-            window.addEventListener('click', (event) => {
-                if (event.target === updatePasswordModal) {
-                    updatePasswordModal.style.display = "none";
-                }
-            });
-    
-            cancelUpdateBtn.addEventListener('click', () => {
-                updatePasswordModal.style.display = "none";
-            });
-    
-            updatePasswordForm.addEventListener('submit', (event) => {
-                event.preventDefault();
-    
-                const oldPassword = document.getElementById('old-password').value;
-                const newPassword = document.getElementById('new-password').value;
-                const confirmNewPassword = document.getElementById('confirm-new-password').value;
-    
-                if (newPassword !== confirmNewPassword) {
-                    alert('New passwords do not match');
-                    return;
-                }
-    
-                fetch('http://localhost:3000/api/users/update-password', {
-                    method: 'POST',
+
+            // Confirm deletion
+            confirmDeleteButton.addEventListener('click', () => {
+                fetch('http://localhost:3000/api/users/delete', {
+                    method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        oldPassword: oldPassword,
-                        newPassword: newPassword,
-                        username: username // Use username from local storage
-                    })
+                    body: JSON.stringify({ username: localStorage.getItem('username') }) // Use the stored username
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert(data.error);
+                .then(response => {
+                    if (response.ok) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('username');
+                        
+                        alert('Your account has been successfully deleted.');
+                        window.location.href = "/templates/signin.html";
                     } else {
-                        alert('Password updated successfully.');
-                        updatePasswordModal.style.display = "none";
+                        return response.json().then(error => Promise.reject(error));
                     }
                 })
                 .catch(error => {
-                    console.error('Error updating password:', error);
-                    alert('An error occurred while updating your password. Please try again.');
+                    console.error('Error deleting account:', error);
+                    alert('An error occurred while attempting to delete your account. Please try again.');
                 });
+                confirmationModal.style.display = "none"; // Close the confirmation modal
             });
+
+            // Cancel deletion
+            cancelConfirmButton.addEventListener('click', () => {
+                confirmationModal.style.display = "none"; // Close the confirmation modal
+            });
+
+            closeConfirmation.addEventListener('click', () => {
+                confirmationModal.style.display = "none"; // Close the confirmation modal
+            });
+
+            // Close the delete account modal
+            cancelDeleteBtn.addEventListener('click', () => {
+                deleteModal.style.display = "none";
+            });
+
+         // Password Update Modal functionality
+        const updatePasswordBtn = document.getElementById('update-password-btn');
+        const updatePasswordModal = document.getElementById('updatePasswordModal');
+        const cancelUpdateBtn = document.getElementById('cancel-update-btn');
+        const updatePasswordForm = document.getElementById('update-password-form');
+
+        // Error message elements
+        const oldPasswordError = document.getElementById('old-password-error');
+        const newPasswordError = document.getElementById('new-password-error');
+        const confirmPasswordError = document.getElementById('confirm-password-error');
+
+        updatePasswordBtn.addEventListener('click', () => {
+            updatePasswordModal.style.display = "flex";
+        });
+
+        closeModalBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                updatePasswordModal.style.display = "none";
+            });
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === updatePasswordModal) {
+                updatePasswordModal.style.display = "none";
+            }
+        });
+
+        cancelUpdateBtn.addEventListener('click', () => {
+            updatePasswordModal.style.display = "none";
+        });
+
+        updatePasswordForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            // Clear previous error messages
+            oldPasswordError.textContent = '';
+            newPasswordError.textContent = '';
+            confirmPasswordError.textContent = '';
+
+            const oldPassword = document.getElementById('old-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmNewPassword = document.getElementById('confirm-new-password').value;
+
+            // Check if new password matches the old password
+            if (newPassword === oldPassword) {
+                newPasswordError.textContent = 'New password cannot be the same as the old password.';
+                return;
+            }
+
+            // Check if new password and confirm new password match
+            if (newPassword !== confirmNewPassword) {
+                confirmPasswordError.textContent = 'New passwords do not match.';
+                return;
+            }
+
+            fetch('http://localhost:3000/api/users/update-password', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    oldPassword: oldPassword,
+                    newPassword: newPassword,
+                    username: username // Use username from local storage
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    oldPasswordError.textContent = data.error; // Show error if old password is incorrect
+                } else {
+                    showToast('Password updated successfully.'); // Show success in toast
+                    updatePasswordModal.style.display = "none";
+                }
+            })
+            .catch(error => {
+                console.error('Error updating password:', error);
+                showToast('An error occurred while updating your password. Please try again.');
+            });
+        });
+
+        // Function to show toast message
+        function showToast(message) {
+            toastMessage.textContent = message; // Set toast message text
+            toast.classList.remove('hidden'); // Show the toast
+            toast.classList.add('show'); // Add class to show animation
+            localStorage.setItem('toastMessage', message); // Store message in local storage
+
+            // Hide the toast after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show'); // Hide animation
+                toast.classList.add('hidden'); // Add hidden class to remove from view
+                localStorage.removeItem('toastMessage'); // Clear the message from local storage
+            }, 3000); // Adjust duration as needed
+        }
+
+        // Function to check for and display toast message on page load
+        function checkToastMessage() {
+            const message = localStorage.getItem('toastMessage');
+            if (message) {
+                showToast(message); // Show the stored message
+            }
+        }
+
+        // Check for toast message when the page loads
+        window.onload = checkToastMessage;
+
         }
     });
 </script>

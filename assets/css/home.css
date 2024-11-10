@@ -449,10 +449,6 @@ button:disabled {
     background-color: green;
     color: white;
 }
-
-.adopt-button:hover, .description-button:hover {
-    background-color: orangered;
-}
 #descriptionUser {
     font-size: 1.1em; /* Adjust the size as needed */
     margin-bottom: 5px; /* Add some space between username and description */

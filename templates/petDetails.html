@@ -178,10 +178,8 @@
 <body>
 
     <!-- Navigation Bar -->
-    <nav>
-        <h2>
-            <img id="logoBtn" src="/assets/logos/PetConnect_Logo.png" alt="PetConnect Logo" style="max-height: 70px;">
-        </h2>       
+    <nav style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
+        <img id="logoBtn" src="/assets/logos/PetConnect_Logo.png" alt="PetConnect Logo" style="height: 50px;">
     </nav>
 
     <div class="container">
@@ -322,7 +320,6 @@
             function getStatusIcon(status, source) {
                 const icons = {
                     'Available': 'fas fa-check-circle',
-                    'Pending Adoption': 'fas fa-exclamation-circle',
                     'Adopted': 'fas fa-home',
                     'Lost': 'fas fa-question-circle',
                     'On Process': 'fas fa-spinner',
@@ -334,10 +331,9 @@
 
                 const colors = {
                     'Available': 'text-success', // Green
-                    'Pending Adoption': 'text-warning', // Yellow
+                    'On Process': 'text-warning', // Yellow
                     'Adopted': 'text-purple', // Purple
                     'Lost': 'text-gray', // Gray
-                    'On Process': 'text-primary', // Blue
                     'Returned': 'text-primary', // Blue
                     'Reunited': 'text-primary', // Blue
                     'Adoptable': 'text-success', // Green
@@ -347,12 +343,12 @@
                 const statusMapping = {
                     'pets': {
                         'Available': { icon: icons['Available'], color: colors['Available'] },
-                        'Pending Adoption': { icon: icons['Pending Adoption'], color: colors['Pending Adoption'] },
+                        'On Process': { icon: icons['On Process'], color: colors['On Process'] },
                         'Adopted': { icon: icons['Adopted'], color: colors['Adopted'] }
                     },
                     'saved': {
                         'Available': { icon: icons['Available'], color: colors['Available'] },
-                        'Pending Adoption': { icon: icons['Pending Adoption'], color: colors['Pending Adoption'] },
+                        'On Process': { icon: icons['On Process'], color: colors['On Process'] },
                         'Adopted': { icon: icons['Adopted'], color: colors['Adopted'] }
                     },
                     'lost': {
@@ -373,7 +369,7 @@
                 return statusInfo;
             }
 
-            // Fetch pet details and user details based on source
+           // Fetch pet details and user details based on source
             fetchPetDetails()
                 .then(pet => {
                     if (pet.owner_username) {
@@ -394,7 +390,7 @@
                     } else {
                         document.getElementById('ownerName').classList.add('d-none');
                     }
-    
+
                     document.getElementById('petName').textContent = pet.name || '';
                     document.getElementById('petBreed').querySelector('span').textContent = pet.breed || '';
                     document.getElementById('petAge').querySelector('span').textContent = pet.age || '';
@@ -402,7 +398,7 @@
                     document.getElementById('petDescription').querySelector('span').textContent = pet.description || '';
                     document.getElementById('petLocation').querySelector('span').textContent = pet.location || '';
                     document.getElementById('petContact').querySelector('span').textContent = pet.contact || '';
-    
+
                     // Assign default status based on source if status is null or empty
                     if (!pet.status) {
                         if (source === 'pets' || source === 'saved') {
@@ -411,10 +407,18 @@
                             pet.status = 'Lost';
                         }
                     }
-    
+
                     const statusInfo = getStatusIcon(pet.status, source);
-                    document.getElementById('petStatus').querySelector('span').innerHTML = `<i class="${statusInfo.icon} ${statusInfo.color}"></i> ${pet.status}`;
-    
+                    let statusContent = `<i class="${statusInfo.icon} ${statusInfo.color}"></i> ${pet.status}`;
+
+                    // Display adoption process stage next to status if the status is "On Process"
+                    if (pet.status === 'On Process') {
+                        const adoptionProcessStage = pet.adoption_process_stage || 'Initial Screening'; // Default if null
+                        statusContent += `<span class="process-stage" style="margin-left: 10px;">(${adoptionProcessStage})</span>`;
+                    }
+
+                    document.getElementById('petStatus').querySelector('span').innerHTML = statusContent;
+
                     // Format and display datePosted
                     if (pet.datePosted) {
                         const formattedDate = formatRelativeDate(pet.datePosted);
@@ -423,7 +427,7 @@
                     } else {
                         document.getElementById('petDatePosted').classList.add('d-none');
                     }
-    
+
                     // Calculate number of interested people only for pets source
                     if (source === 'pets') {
                         const interestedPeople = pet.favorites || '';
@@ -433,7 +437,7 @@
                     } else {
                         document.getElementById('petFav').classList.add('d-none');
                     }
-    
+
                     const detailsToShow = [
                         'petBreed',
                         'petAge',
@@ -444,7 +448,7 @@
                         'petStatus',
                         'petDatePosted' // Add datePosted to the list
                     ];
-    
+
                     detailsToShow.forEach(id => {
                         if (!document.getElementById(id).querySelector('span').textContent.trim()) {
                             document.getElementById(id).classList.add('d-none');
@@ -452,15 +456,15 @@
                             document.getElementById(id).classList.remove('d-none');
                         }
                     });
-    
+
                     const images = (pet.image || '').split(',');
                     const carouselImages = document.getElementById('carouselImages');
-    
+
                     images.forEach((image, index) => {
                         const carouselItem = document.createElement('div');
                         carouselItem.classList.add('carousel-item');
                         if (index === 0) carouselItem.classList.add('active');
-    
+
                         carouselItem.innerHTML = `<img src="/${image}" class="d-block w-100 pet-image" alt="${pet.name}">`;
                         carouselImages.appendChild(carouselItem);
                     });
@@ -469,6 +473,7 @@
                     console.error('Error displaying pet details:', error);
                     alert('Failed to load pet details.');
                 });
+
         });
 </script>
     

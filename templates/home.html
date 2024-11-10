@@ -8,6 +8,8 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <!-- Font Awesome CSS for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/Toastify.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/Toastify.min.js"></script>
     <link rel="icon" href="/assets/logos/logo_browser.png" type="image/x-icon">
     <link rel="stylesheet" href="/assets/css/home.css">
 </head>
@@ -111,9 +113,13 @@
                 <li id="aboutUsSection" data-section-id="aboutUsSection" class="dialog-button"><i class="fas fa-caret-down"></i> ABOUT US</li>
                 <li id="faqSection" data-section-id="faqSection" class="dialog-button"><i class="fas fa-caret-down"></i> FAQ</li>
                 <li id="contact-nav" data-section-id="footer"><i class="fas fa-envelope"></i> CONTACT</li>
-                <!--
-                <li id="notificationBtn"><i class="fas fa-bell"></i> NOTIFICATION</li>
-                -->
+                
+                <li id="notificationBtn" style="position: relative;">
+                    <i class="fas fa-bell"></i>
+                    NOTIFICATION 
+                    <span id="notificationCount" style="color: red; font-weight: bold; margin-left: 5px; position: absolute; top: -10px; right: -10px;">0</span>
+                </li>
+            
                 <li id="profileButton"><i class="fas fa-user"></i> PROFILE</li>
                 <li id="logoutBtn"><i class="fas fa-sign-out-alt"></i> LOGOUT</li>
                 <!-- Added Sign Up and Sign In buttons -->
@@ -842,7 +848,7 @@ function closeDialog() {
 
         // Create thank you message element
         const thankYouMessage = document.createElement('p');
-        thankYouMessage.textContent = 'Thank you for posting your pet! We appreciate your effort in helping them find a loving home.';
+        thankYouMessage.textContent = 'Your pet is under approval! We appreciate your effort in helping them find a loving home.';
         thankYouMessage.style.fontSize = '20px';
         thankYouMessage.style.color = 'black';
         thankYouMessage.style.marginTop = '220px'; // Adjust margin to create space below the GIF
@@ -1064,7 +1070,7 @@ function closeDialog() {
          });
      });
  </script>
- 
+
 
  <!-- Navigation Scroll View -->
 <script>
@@ -1206,83 +1212,137 @@ function closeDialog() {
 <!-- Javascript to handle adding/removing from favorites -->
 <script>
     // Function to toggle favorite
-    function toggleFavorite(icon, petName) {
-        const username = localStorage.getItem('username'); // Retrieve username from local storage
+function toggleFavorite(icon, petName) {
+    const username = localStorage.getItem('username'); // Retrieve username from local storage
 
-        // Check if the pet is already in favorites
-        if (icon.classList.contains('active')) {
-            // If it is, remove it from favorites
-            removeFavorite(icon, petName, username);
+    // Check if the pet is already in favorites
+    if (icon.classList.contains('active')) {
+        // If it is, remove it from favorites
+        removeFavorite(icon, petName, username);
+    } else {
+        // If it's not, add it to favorites
+        addFavorite(icon, petName, username);
+    }
+}
+
+// Function to add favorite
+function addFavorite(icon, petName, username) {
+    fetch(`http://localhost:3000/addFavorite`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            username: username,
+            petName: petName
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Pet added to favorites successfully.');
+            Toastify({
+                text: "Pet added to favorites successfully.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: 'right',
+                backgroundColor: "#28a745",
+                stopOnFocus: true
+            }).showToast();
+            icon.classList.add('active'); // Add active class
         } else {
-            // If it's not, add it to favorites
-            addFavorite(icon, petName, username);
+            response.text().then(errorMessage => {
+                if (errorMessage.includes('already in favorites')) {
+                    console.warn('Pet is already in favorites.');
+                    Toastify({
+                        text: "Pet is already in favorites.",
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: 'right',
+                        backgroundColor: "#ffc107",
+                        stopOnFocus: true
+                    }).showToast();
+                } else {
+                    console.error('Failed to add pet to favorites.');
+                    Toastify({
+                        text: "Failed to add pet to favorites.",
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: 'right',
+                        backgroundColor: "#dc3545",
+                        stopOnFocus: true
+                    }).showToast();
+                }
+            });
         }
-    }
+    })
+    .catch(error => {
+        console.error('Error adding pet to favorites:', error);
+        Toastify({
+            text: "Error adding pet to favorites. Please try again later.",
+            duration: 3000,
+            close: true,
+            gravity: "top",
+            position: 'right',
+            backgroundColor: "#dc3545",
+            stopOnFocus: true
+        }).showToast();
+    });
+}
 
-    // Function to add favorite
-    function addFavorite(icon, petName, username) {
-        fetch(`http://localhost:3000/addFavorite`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: username,
-                petName: petName
-            })
+// Function to remove favorite
+function removeFavorite(icon, petName, username) {
+    fetch(`http://localhost:3000/removeFavorite`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            username: username,
+            petName: petName
         })
-        .then(response => {
-            if (response.ok) {
-                console.log('Pet added to favorites successfully.');
-                alert('Pet added to favorites successfully.');
-                icon.classList.add('active'); // Add active class
-                // Optionally, you can update the UI to indicate that the pet was added to favorites
-            } else {
-                response.text().then(errorMessage => {
-                    if (errorMessage.includes('already in favorites')) {
-                        console.warn('Pet is already in favorites.');
-                        alert('Pet is already in favorites.');
-                    } else {
-                        console.error('Failed to add pet to favorites.');
-                        alert('Failed to add pet to favorites.');
-                    }
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error adding pet to favorites:', error);
-            alert('Error adding pet to favorites. Please try again later.');
-        });
-    }
-
-    // Function to remove favorite
-    function removeFavorite(icon, petName, username) {
-        fetch(`http://localhost:3000/removeFavorite`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: username,
-                petName: petName
-            })
-        })
-        .then(response => {
-            if (response.ok) {
-                console.log('Pet removed from favorites successfully.');
-                alert('Pet removed from favorites successfully.');
-                icon.classList.remove('active'); // Remove active class
-                // Optionally, you can update the UI to reflect the removal of the pet from favorites
-            } else {
-                console.error('Failed to remove pet from favorites.');
-                alert('Failed to remove pet from favorites.');
-            }
-        })
-        .catch(error => {
-            console.error('Error removing pet from favorites:', error);
-            alert('Error removing pet from favorites. Please try again later.');
-        });
-    }
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Pet removed from favorites successfully.');
+            Toastify({
+                text: "Pet removed from favorites successfully.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: 'right',
+                backgroundColor: "#28a745",
+                stopOnFocus: true
+            }).showToast();
+            icon.classList.remove('active'); // Remove active class
+        } else {
+            console.error('Failed to remove pet from favorites.');
+            Toastify({
+                text: "Failed to remove pet from favorites.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: 'right',
+                backgroundColor: "#dc3545",
+                stopOnFocus: true
+            }).showToast();
+        }
+    })
+    .catch(error => {
+        console.error('Error removing pet from favorites:', error);
+        Toastify({
+            text: "Error removing pet from favorites. Please try again later.",
+            duration: 3000,
+            close: true,
+            gravity: "top",
+            position: 'right',
+            backgroundColor: "#dc3545",
+            stopOnFocus: true
+        }).showToast();
+    });
+}
 </script>
 
  <!-- About us and Faq Buttons -->
@@ -1436,60 +1496,67 @@ function displayPets(pets) {
     }
 
     pets.forEach(pet => {
-        // Skip displaying pets with Confirm column set to "Yes"
-        if (pet.Confirm === 'Yes') {
-            return;
-        }
+    // Skip displaying pets with Confirm column set to "Yes" or approved column set to 0, null, or an empty string
+    if (pet.Confirm === 'Yes' || pet.approved === 0 || pet.approved === null || pet.approved === '') {
+        return;
+    }
 
-        const petElement = document.createElement('div');
-        petElement.classList.add('pet');
+                const petElement = document.createElement('div');
+                petElement.classList.add('pet');
 
-        // Determine the status icon based on pet status
-        let statusIcon, statusColor;
-        let statusText = pet.status || 'Available'; // Default status text to 'Available' if null
-        switch (statusText) {
-            case 'Available':
-                statusIcon = 'fas fa-check-circle';
-                statusColor = 'green';
-                break;
-            case 'Pending Adoption':
-                statusIcon = 'fas fa-exclamation-circle';
-                statusColor = 'orange';
-                break;
-            case 'Adopted':
-                statusIcon = 'fas fa-home';
-                statusColor = 'purple';
-                break;
-            default:
-                statusIcon = 'fas fa-check-circle'; // Default icon for null or unrecognized status
-                statusColor = 'green'; // Default color for null or unrecognized status
-                statusText = 'Available'; // Set default status text to 'Available'
-        }
+                // Determine the status icon based on pet status
+                let statusIcon, statusColor;
+                let statusText = pet.status || 'Available'; // Default status text to 'Available' if null
+                let adoptionProcessStage = pet.adoption_process_stage || 'Initial Screening'; // Default to 'Initial Screening' if null
 
-        // Add pet's information and image
-        petElement.innerHTML = `
-            <div class="pet" style="position: relative;">
-                <h2>${pet.name}</h2>
-                <p>Age: ${pet.age}</p>
-                <p>Breed: ${pet.breed}</p>
-                <p>Gender: ${pet.gender}</p><br>
-                <p>Status: <i class="${statusIcon}" style="color: ${statusColor};"></i> ${statusText}</p>
-                <div class="image-container">
-                    <a href="javascript:void(0);"> <!-- Prevent default link behavior -->
-                    <img class="main-image" id='image' src="/${pet.image.split(',')[0]}" alt="${pet.name}">
-                    </a>
-                    <div class="image-navigation">
-                        <span class="nav-arrow left-arrow">&lt;</span>
-                        <span class="nav-arrow right-arrow">&gt;</span>
+                switch (statusText) {
+                    case 'Available':
+                        statusIcon = 'fas fa-check-circle';
+                        statusColor = 'green';
+                        break;
+                    case 'On Process':
+                        statusIcon = 'fas fa-spinner';
+                        statusColor = 'orange'; // Use a color like orange to indicate in progress
+                        break;
+                    case 'Adopted':
+                        statusIcon = 'fas fa-home';
+                        statusColor = 'purple';
+                        break;
+                    default:
+                        statusIcon = 'fas fa-check-circle'; // Default icon for null or unrecognized status
+                        statusColor = 'green'; // Default color for null or unrecognized status
+                        statusText = 'Available'; // Set default status text to 'Available'
+                }
+
+                petElement.innerHTML = `
+                    <div class="pet" style="position: relative;">
+                        <h2>${pet.name}</h2>
+                        <p>Age: ${pet.age}</p>
+                        <p>Breed: ${pet.breed}</p>
+                        <p>Gender: ${pet.gender}</p><br>
+                        <p>Status: <i class="${statusIcon}" style="color: ${statusColor};"></i> ${statusText}
+                        <!-- If status is 'On Process', display the adoption process stage next to it -->
+                        ${statusText === 'On Process' ? `
+                            <span class="process-stage" style="margin-left: 5px;">(${adoptionProcessStage})</span>
+                        ` : ''}
+                        </p>
+                        
+                        <div class="image-container">
+                            <a href="javascript:void(0);"> <!-- Prevent default link behavior -->
+                            <img class="main-image" id='image' src="/${pet.image.split(',')[0]}" alt="${pet.name}">
+                            </a>
+                            <div class="image-navigation">
+                                <span class="nav-arrow left-arrow">&lt;</span>
+                                <span class="nav-arrow right-arrow">&gt;</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-heart heart-icon" onclick="toggleFavorite(this, '${pet.name}')" ${!token || !username ? 'style="display: none;"' : ''}></i>
+                        <div class="buttons">
+                            <button class="adopt-button" data-name="${pet.name}" data-contact="${pet.contact}" data-location="${pet.location}" ${statusText !== 'Available' ? 'disabled' : ''}>Adopt Me</button>
+                            <button class="description-button" data-user="${pet.owner_username}" data-description="${pet.description}">Description</button>
+                        </div>
                     </div>
-                </div>
-                <i class="fas fa-heart heart-icon" onclick="toggleFavorite(this, '${pet.name}')" ${!token || !username ? 'style="display: none;"' : ''}></i>
-                <div class="buttons">
-                    <button class="adopt-button" data-name="${pet.name}" data-contact="${pet.contact}" data-location="${pet.location}" ${statusText !== 'Available' ? 'disabled' : ''}>Adopt Me</button>
-                    <button class="description-button" data-user="${pet.owner_username}" data-description="${pet.description}">Description</button>
-                </div>
-            </div>
-        `;
+                `;
 
         petsContainer.appendChild(petElement);
 
@@ -1945,6 +2012,7 @@ function applyFilter() {
         var logoutBtn = document.getElementById('logoutBtn');
         var settingsBtn = document.getElementById('settingsBtn');
         var petForm = document.getElementById('dialogBox');
+        var notificationBtn = document.getElementById('notificationBtn');
         
         // Select Sign Up and Sign In buttons
         var signInBtn = document.getElementById('signInBtn');
@@ -1959,6 +2027,7 @@ function applyFilter() {
             // Show Sign Up and Sign In buttons
             signInBtn.style.display = 'block';
             signUpBtn.style.display = 'block';
+            notificationBtn.style.display = 'none';
         } else {
             // Hide Sign Up and Sign In buttons if logged in
             signInBtn.style.display = 'none';
@@ -1973,6 +2042,11 @@ function applyFilter() {
         // Navigate to Sign Up page on button click
         signUpBtn.addEventListener('click', function() {
             window.location.href = 'signUp.html'; // Change to your actual Sign Up page URL
+        });
+
+        // Navigate to Sign Up page on button click
+        notificationBtn.addEventListener('click', function() {
+        window.location.href = 'notifications.html'; // Change to your actual Sign Up page URL
         });
 
         // Show toast message function
@@ -2025,6 +2099,45 @@ function applyFilter() {
             }
         });
     });
+</script>
+
+<script>
+    // Function to get the logged-in username from local storage
+    const username = localStorage.getItem('username'); // Adjust according to your local storage setup
+
+    // Function to fetch notifications from the server and update the count
+    function fetchNotificationCount() {
+        fetch(`http://localhost:3000/notifications?username=${username}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(notifications => {
+                // Count unread notifications
+                const unreadCount = notifications.filter(notification => !notification.isRead).length;
+                updateNotificationCount(unreadCount); // Update notification count
+            })
+            .catch(error => {
+                console.error('Error fetching notifications:', error);
+            });
+    }
+
+    // Function to update the notification count in the UI
+    function updateNotificationCount(count) {
+        const notificationCountElement = document.getElementById('notificationCount');
+        
+        if (count > 0) {
+            notificationCountElement.textContent = count; // Set count
+            notificationCountElement.style.display = 'inline'; // Show count
+        } else {
+            notificationCountElement.style.display = 'none'; // Hide count
+        }
+    }
+
+    // Fetch notification count when the page loads
+    document.addEventListener('DOMContentLoaded', fetchNotificationCount);
 </script>
 
 </body>

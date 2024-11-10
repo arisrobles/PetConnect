@@ -220,7 +220,7 @@ html, body {
             background-color: #f8f8f8;
             padding: 30px;
             margin-top: 10px;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: auto;
             border-radius: 15px;
         }
@@ -453,10 +453,6 @@ button:disabled {
     color: white;
 }
 
-.adopt-button:hover,
-.description-button:hover {
-    background-color: orangered;
-}
 #descriptionUser {
     font-size: 1.1em; /* Adjust the size as needed */
     margin-bottom: 5px; /* Add some space between username and description */

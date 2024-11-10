@@ -134,10 +134,14 @@
         .forgot-password-container a:hover {
             color: burlywood;
         }
+        img {       
+            width: 60%;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <img src = '/assets/logos/PetConnect_Logo.png'/>
         <h2>Log into your account</h2>
         <form id="signinForm">
             <label for="username">Username</label>
@@ -149,11 +153,6 @@
                     <i id="passwordToggleIcon" class="fas fa-eye"></i>
                 </span>
             </div>
-            <label for="accountType">Account Type</label>
-            <select id="accountType" name="accountType" required>
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-            </select>
             <button type="submit">Sign In</button>
             <div class="signin-message" id="signinMessage"></div>
             <div class="forgot-password-container">
@@ -186,11 +185,9 @@
             event.preventDefault();
             var username = document.getElementById("username").value;
             var password = document.getElementById("password").value;
-            var accountType = document.getElementById("accountType").value;
     
-            var endpoint = accountType === "admin" ? "http://localhost:3000/admin/signin" : "http://localhost:3000/signin";
-    
-            fetch(endpoint, {
+            // Call the combined signin endpoint
+            fetch("http://localhost:3000/signin", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -206,14 +203,12 @@
                 signinMessage.textContent = data.message;
     
                 if (data.message === "Sign in successful!") {
-                    if (accountType !== "admin") {
-                        // Store the token and username in local storage only if not admin
-                        localStorage.setItem('token', data.token);
-                        localStorage.setItem('username', data.username); // Store the username
-                    }
+                    // Store the token and username in local storage
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('username', data.username); // Store the username
     
-                    var redirectPage = accountType === "admin" ? "/admin/dashboard.html" : "/templates/home.html";
-                    window.location.href = `${redirectPage}?username=${username}${accountType !== "admin" ? `&token=${data.token}` : ''}`;
+                    var redirectPage = data.role === "admin" ? "/admin/dashboard.html" : "/templates/home.html";
+                    window.location.href = `${redirectPage}?username=${username}&token=${data.token}`;
                 }
             })
             .catch(error => {
@@ -222,6 +217,7 @@
             });
         });
     </script>
+    
     
     
 </body>

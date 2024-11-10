@@ -870,18 +870,23 @@ function displayUsers(users) {
 
 <!-- Javascript for logout -->
 <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get reference to the logout button
-            var logoutBtn = document.getElementById('logoutBtn');
-    
-            // Add click event listener to the logout button
-            logoutBtn.addEventListener('click', function() {
-                // Perform logout actions here, such as clearing session data or cookies
-                
-                // Redirect to signin.html in the templates folder
-                window.location.href = '/templates/signin.html';
-            });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get reference to the logout button
+        var logoutBtn = document.getElementById('logoutBtn');
+
+        // Add click event listener to the logout button
+        logoutBtn.addEventListener('click', function() {
+            // Remove token and username from local storage
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+
+            // Optionally, you can also clear any other session data if needed
+            // sessionStorage.clear(); // Uncomment if you want to clear session storage
+
+            // Redirect to signin.html in the templates folder
+            window.location.href = '/templates/signin.html';
         });
+    });
 </script>
 
 <!-- Responsive Nav Bar -->
@@ -895,6 +900,23 @@ function displayUsers(users) {
     });
 });
 
+</script>
+
+<!-- JavaScript to pass the token and username -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var token = localStorage.getItem('token');
+        var username = localStorage.getItem('username'); // Get username from local storage
+        
+        if (!token) {
+            // Handle the case where the token is not found (e.g., redirect to sign-in)
+            window.location.href = '/templates/signin.html';
+        } else {
+            console.log("Token found:", token);
+            console.log("User:", username); // Use username from local storage
+            // Use the token and username as needed
+        }
+    });
 </script>
 </body>
 </html>

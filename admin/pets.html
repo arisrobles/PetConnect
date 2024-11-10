@@ -533,6 +533,45 @@ nav ul li i {
                 width: 23%;
             }
         }
+    
+/* Styles for search input */
+.searchStatus {
+    margin-left: 8%;
+}
+#searchStatus {
+    width: 100%;
+    max-width: 300px;
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin: 10px 0;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+    margin-left: 8%;
+}
+
+#searchStatus:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Label styling */
+label[for="searchStatus"] {
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Container for pet cards */
+#petList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 15px;
+}
     </style>
 </head>
 <body>
@@ -570,9 +609,14 @@ nav ul li i {
             <button id="filter-cat" onclick="filterPets('cat')">Cats</button>
             </div>
 
-        <div id="petList">
-            <!-- Pets will be dynamically added here -->
-        </div>    
+            <div>
+                <label class="searchStatus" for="searchStatus">Search by Status:</label>
+                <input type="text" id="searchStatus" placeholder="Type 'Approved' or 'Approve' to filter" oninput="searchPetsByStatus()">
+            </div>
+            <div id="petList">
+                <!-- Pets will be dynamically added here -->
+            </div>
+              
     </div>
 
     <!-- Toast message div -->
@@ -916,62 +960,148 @@ document.querySelectorAll('.container ul li').forEach(function(navItem) {
 document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('managePetsBtn').click();
     });
-    </script>
+</script>
 
 <!-- Javascript to display Pets -->
 <script>
     let petIdToDelete = null;
     let categoryToDelete = null;
 
-    // Function to fetch and display pets based on category and type
-    function displayPetsByCategory(category, type = 'all') {
-        let endpoint;
-        if (category === 'adopt') {
-            endpoint = 'http://localhost:3000/pets';
-        } else if (category === 'lost') {
-            endpoint = 'http://localhost:3000/lost-pets';
-        } else if (category === 'found') {
-            endpoint = 'http://localhost:3000/found-pets';
+        // Function to fetch and display pets based on category, type, and status
+        function displayPetsByCategory(category, type = 'all', statusFilter = '') {
+            let endpoint;
+            if (category === 'adopt') {
+                endpoint = 'http://localhost:3000/pets';
+            } else if (category === 'lost') {
+                endpoint = 'http://localhost:3000/lost-pets';
+            } else if (category === 'found') {
+                endpoint = 'http://localhost:3000/found-pets';
+            }
+
+            fetch(endpoint)
+            .then(response => response.json())
+            .then(pets => {
+                const petListContainer = document.getElementById('petList');
+                petListContainer.innerHTML = '';
+
+                // Filter pets by type
+                const filteredPets = type === 'all' ? pets : pets.filter(pet => pet.type === type);
+
+                // Further filter by approval status if a status filter is provided
+                const visiblePets = filteredPets.filter(pet => 
+                    pet.approved !== 0 &&
+                    (statusFilter === '' || 
+                    (statusFilter === 'Approved' && pet.approved === 1) || 
+                    (statusFilter === 'Approve' && pet.approved !== 1))
+                );
+
+                visiblePets.forEach(pet => {
+                    const petDiv = document.createElement('div');
+                    petDiv.classList.add('pet-card');
+                    
+                    const petStatus = pet.approved === 1 ? 'Approved' : pet.status ? pet.status : 'Available';
+                    petDiv.innerHTML = `
+                        <div class="pet-card-header">
+                            <h2>${pet.name}</h2>
+                            <div class="dropdown">
+                                <button class="dropbtn">...</button>
+                                <div class="dropdown-content">
+                                    <button onclick="showToast('${category}', ${pet.id})">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p>Age: ${pet.age}</p>
+                        <p>Breed: ${pet.breed}</p>
+                        <p>Gender: ${pet.gender}</p>
+                        <p>Status: ${petStatus}</p>
+                        <p>Contact: ${pet.contact}</p>
+                        <p>Location: ${pet.location}</p>
+                        <p>Owner: ${pet.owner_username}</p>
+                        <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
+                        
+                        <div class="pet-actions">
+                                    ${pet.approved === 1 
+                                        ? '<button class="approved-btn" disabled style="background-color: green; color: white;">Approved</button>'
+                                        : `<button onclick="approvePet(${pet.id}, '${category}')" class="approve-btn">Approve</button>`
+                                    }
+                                    ${pet.approved !== 1 
+                                        ? `<button onclick="ignorePet(${pet.id}, '${category}')" class="ignore-btn">Ignore</button>`
+                                        : ''
+                                    }
+                                </div>
+                    `;
+                    petListContainer.appendChild(petDiv);
+                });
+            })
+            .catch(error => console.error('Error fetching pets:', error));
         }
 
-        fetch(endpoint)
-        .then(response => response.json())
-        .then(pets => {
-            const petListContainer = document.getElementById('petList');
-            petListContainer.innerHTML = '';
+        // Function to filter pets based on search input
+        function searchPetsByStatus() {
+            const searchInput = document.getElementById('searchStatus').value.trim();
+            const categorySelect = document.getElementById('categorySelect');
+            const selectedCategory = categorySelect.value;
+            displayPetsByCategory(selectedCategory, 'all', searchInput);
+        }
 
-            const filteredPets = type === 'all' ? pets : pets.filter(pet => pet.type === type);
-
-            filteredPets.forEach(pet => {
-    const petDiv = document.createElement('div');
-    petDiv.classList.add('pet-card');
-    // Check for null status and set to "Available" if null
-    const petStatus = pet.status ? pet.status : 'Available';
-    petDiv.innerHTML = `
-        <div class="pet-card-header">
-            <h2>${pet.name}</h2>
-            <div class="dropdown">
-                <button class="dropbtn">...</button>
-                <div class="dropdown-content">
-                    <button onclick="showToast('${category}', ${pet.id})">Delete</button>
-                </div>
-            </div>
-        </div>
-        <p>Age: ${pet.age}</p>
-        <p>Breed: ${pet.breed}</p>
-        <p>Gender: ${pet.gender}</p>
-        <p>Status: ${petStatus}</p>
-        <p>Contact: ${pet.contact}</p>
-        <p>Location: ${pet.location}</p>
-        <p>Owner: ${pet.owner_username}</p>
-        <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
-    `;
-    petListContainer.appendChild(petDiv);
-});
-
-        })
-        .catch(error => console.error('Error fetching pets:', error));
+  // Function to approve a pet
+function approvePet(petId, category) {
+    let endpoint = `http://localhost:3000/pets/approve/${petId}`;
+    
+    // Determine the correct endpoint based on the category
+    if (category === 'lost') {
+        endpoint = `http://localhost:3000/lostPets/approve/${petId}`;
+    } else if (category === 'found') {
+        endpoint = `http://localhost:3000/foundPets/approve/${petId}`; // Add endpoint for found pets
     }
+
+    fetch(endpoint, {
+        method: 'PATCH', // Use PATCH to update a specific field (approved)
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ approved: 1 }) // Set approved to 1
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Pet approved');
+            displayPetsByCategory(category); // Refresh the pet list
+        } else {
+            console.error('Error approving pet:', response.statusText);
+        }
+    })
+    .catch(error => console.error('Error approving pet:', error));
+}
+
+// Function to ignore a pet (mark approved as 0)
+function ignorePet(petId, category) {
+    let endpoint = `http://localhost:3000/pets/approve/${petId}`;
+    
+    // Determine the correct endpoint based on the category
+    if (category === 'lost') {
+        endpoint = `http://localhost:3000/lostPets/approve/${petId}`;
+    } else if (category === 'found') {
+        endpoint = `http://localhost:3000/foundPets/approve/${petId}`; // Add endpoint for found pets
+    }
+
+    fetch(endpoint, {
+        method: 'PATCH', // Use PATCH to update a specific field (approved)
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ approved: 0 }) // Set approved to 0
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Pet ignored');
+            displayPetsByCategory(category); // Refresh the pet list
+        } else {
+            console.error('Error ignoring pet:', response.statusText);
+        }
+    })
+    .catch(error => console.error('Error ignoring pet:', error));
+}
+
 
     // Function to show the toast message
     function showToast(category, petId) {
@@ -1049,18 +1179,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Javascript for logout -->
 <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get reference to the logout button
-            var logoutBtn = document.getElementById('logoutBtn');
-    
-            // Add click event listener to the logout button
-            logoutBtn.addEventListener('click', function() {
-                // Perform logout actions here, such as clearing session data or cookies
-                
-                // Redirect to signin.html in the templates folder
-                window.location.href = '/templates/signin.html';
-            });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get reference to the logout button
+        var logoutBtn = document.getElementById('logoutBtn');
+
+        // Add click event listener to the logout button
+        logoutBtn.addEventListener('click', function() {
+            // Remove token and username from local storage
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+
+            // Optionally, you can also clear any other session data if needed
+            // sessionStorage.clear(); // Uncomment if you want to clear session storage
+
+            // Redirect to signin.html in the templates folder
+            window.location.href = '/templates/signin.html';
         });
+    });
 </script>
 
 <!-- Responsive Nav Bar -->
@@ -1074,6 +1209,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+</script>
+
+<!-- JavaScript to pass the token and username -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var token = localStorage.getItem('token');
+        var username = localStorage.getItem('username'); // Get username from local storage
+        
+        if (!token) {
+            // Handle the case where the token is not found (e.g., redirect to sign-in)
+            window.location.href = '/templates/signin.html';
+        } else {
+            console.log("Token found:", token);
+            console.log("User:", username); // Use username from local storage
+            // Use the token and username as needed
+        }
+    });
 </script>
 
 </body>

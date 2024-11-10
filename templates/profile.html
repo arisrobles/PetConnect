@@ -8,6 +8,56 @@
     <link rel="icon" href="/assets/logos/logo_browser.png" type="image/x-icon">
     <link rel="stylesheet" href="/assets/css/profile.css">
     <style>
+/* Styling the plus icon */
+.plus-icon {
+    font-size: 24px;
+    color: #007bff;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+/* Make sure to hide the file input */
+#editPetImages {
+    display: none;
+}
+
+/* Style for the delete button */
+.delete-image {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 3px 6px;
+    cursor: pointer;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    border-radius: 50%;
+    font-size: 12px;
+    line-height: 1;
+    z-index: 1;
+}
+
+/* Style for the image container */
+.image-wrapper {
+    position: relative;
+    display: inline-block;
+    margin: 5px;
+    width: 100px;
+    height: 100px;
+}
+
+.image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* Hide delete button for new images */
+.delete-image.new-image {
+    display: none;
+}
+
       /* Modal styles */
 .modal {
     display: none; /* Hidden by default */
@@ -169,7 +219,7 @@ button[type="submit"]:hover {
 <body>
     <div class="container">
         <!-- Settings Button -->
-        <button id="settingsBtn" style="background: none; border: none; color: rgb(81, 81, 81); cursor: pointer; position: absolute; top: 10px; right: 10px; font-size: 24px;">
+        <button id="settingsBtn" style="background: none; border: none; color: #f4f4f4; cursor: pointer; position: absolute; top: 10px; right: 10px; font-size: 24px;">
             <i class="fas fa-cog"></i>
         </button>
         <div class="header">
@@ -247,71 +297,94 @@ button[type="submit"]:hover {
        <!-- Logout button -->
        <li id="logoutBtn"><i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i> LOGOUT</li>
        
-       <!-- Modal for Editing a Pet -->
-        <div id="editPetModal" class="modal">
-            <div class="modal-content">
-            <span class="close" onclick="closeEditModal()">&times;</span>
-            <h2>Edit Pet</h2>
-            <form id="editPetForm">
-                <input type="hidden" id="editPetId" />
-                <label for="editPetName">Name:</label>
-                <input type="text" id="editPetName" required>
-                <label for="editPetBreed">Breed:</label>
-                <input type="text" id="editPetBreed">
-                <label for="editPetDescription">Description:</label>
-                <textarea id="editPetDescription"></textarea>
-                <label for="editPetLocation">Location:</label>
-                <input type="text" id="editPetLocation">
-                <label for="editPetContact">Contact:</label>
-                <input type="text" id="editPetContact">
-                <!-- Add other fields as necessary -->
-                <button type="submit">Save Changes</button>
-            </form>
-            </div>
-        </div>
+<!-- Modal for Editing a Pet -->
+<div id="editPetModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeEditModal()">&times;</span>
+        <h2>Edit Pet</h2>
+        <form id="editPetForm" enctype="multipart/form-data">
+            <input type="hidden" id="editPetId" />
+            <label for="editPetName">Name:</label>
+            <input type="text" id="editPetName" required>
+            <label for="editPetBreed">Breed:</label>
+            <input type="text" id="editPetBreed">
+            <label for="editPetDescription">Description:</label>
+            <textarea id="editPetDescription"></textarea>
+            <label for="editPetLocation">Location:</label>
+            <input type="text" id="editPetLocation">
+            <label for="editPetContact">Contact:</label>
+            <input type="text" id="editPetContact">
 
-        <!-- Modal for Editing a Lost Pet -->
-        <div id="editLostPetModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeEditLostModal()">&times;</span>
-                <h2>Edit Lost Pet</h2>
-                <form id="editLostPetForm">
-                    <input type="hidden" id="editLostPetId" />
-                    <label for="editLostPetName">Name:</label>
-                    <input type="text" id="editLostPetName" required>
-                    <label for="editLostPetBreed">Breed:</label>
-                    <input type="text" id="editLostPetBreed">
-                    <label for="editLostPetDescription">Description:</label>
-                    <textarea id="editLostPetDescription"></textarea>
-                    <label for="editLostPetLocation">Location:</label>
-                    <input type="text" id="editLostPetLocation">
-                    <label for="editLostPetContact">Contact:</label>
-                    <input type="text" id="editLostPetContact">
-                    <!-- Add other fields as necessary -->
-                    <button type="submit">Save Changes</button>
-                </form>
-            </div>
-        </div>
-        <!-- Modal for Editing a Found Pet -->
-        <div id="editFoundPetModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeEditFoundModal()">&times;</span>
-                <h2>Edit Found Pet</h2>
-                <form id="editFoundPetForm">
-                    <input type="hidden" id="editFoundPetId" />
-                    <label for="editFoundPetBreed">Breed:</label>
-                    <input type="text" id="editFoundPetBreed">
-                    <label for="editFoundPetDescription">Description:</label>
-                    <textarea id="editFoundPetDescription"></textarea>
-                    <label for="editFoundPetLocation">Location:</label>
-                    <input type="text" id="editFoundPetLocation">
-                    <label for="editFoundPetContact">Contact:</label>
-                    <input type="text" id="editFoundPetContact">
-                    <!-- Add other fields as necessary -->
-                    <button type="submit">Save Changes</button>
-                </form>
-            </div>
-        </div>
+            <div id="existingImages" class="existing-images-container"></div>
+
+            <label for="editPetImages" class="upload-button">
+                <span class="plus-icon">+</span> Upload New Images
+            </label>
+            <input type="file" id="editPetImages" name="images" accept="image/*" multiple style="display: none;">
+
+            <button type="submit">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal for Editing a Lost Pet -->
+<div id="editLostPetModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeEditLostModal()">&times;</span>
+        <h2>Edit Lost Pet</h2>
+        <form id="editLostPetForm" enctype="multipart/form-data">
+            <input type="hidden" id="editLostPetId" />
+            <label for="editLostPetName">Name:</label>
+            <input type="text" id="editLostPetName" required>
+            <label for="editLostPetBreed">Breed:</label>
+            <input type="text" id="editLostPetBreed">
+            <label for="editLostPetDescription">Description:</label>
+            <textarea id="editLostPetDescription"></textarea>
+            <label for="editLostPetLocation">Location:</label>
+            <input type="text" id="editLostPetLocation">
+            <label for="editLostPetContact">Contact:</label>
+            <input type="text" id="editLostPetContact">
+
+            <div id="existingLostImages" class="existing-images-container"></div>
+
+            <label for="editLostPetImages" class="upload-button">
+                <span class="plus-icon">+</span> Upload New Images
+            </label>
+            <input type="file" id="editLostPetImages" name="images" accept="image/*" multiple style="display: none;">
+
+            <button type="submit">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal for Editing a Found Pet -->
+<div id="editFoundPetModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeEditFoundModal()">&times;</span>
+        <h2>Edit Found Pet</h2>
+        <form id="editFoundPetForm" enctype="multipart/form-data">
+            <input type="hidden" id="editFoundPetId" />
+            <label for="editFoundPetBreed">Breed:</label>
+            <input type="text" id="editFoundPetBreed" required>
+            <label for="editFoundPetDescription">Description:</label>
+            <textarea id="editFoundPetDescription"></textarea>
+            <label for="editFoundPetLocation">Location:</label>
+            <input type="text" id="editFoundPetLocation">
+            <label for="editFoundPetContact">Contact:</label>
+            <input type="text" id="editFoundPetContact">
+
+            <!-- Existing Images Container -->
+            <div id="existingFoundImages" class="existing-images-container"></div>
+
+            <label for="editFoundPetImages" class="upload-button">
+                <span class="plus-icon">+</span> Upload New Images
+            </label>
+            <input type="file" id="editFoundPetImages" name="images" accept="image/*" multiple style="display: none;">
+
+            <button type="submit">Save Changes</button>
+        </form>
+    </div>
+</div>
 
 <!-- Adoption Modal -->
 <div id="adoption-modal" class="modal" style="display:none;">
@@ -455,9 +528,13 @@ function getPets() {
                 petsContainer.innerHTML = '';
                 const userPets = pets.filter(pet => pet.owner_username === username);
                 userPets.forEach(pet => {
+                      // Skip displaying pets with approved column set to 0, null, or an empty string
+                        if (pet.approved === 0 || pet.approved === null || pet.approved === '') {
+                            return;
+                        }
                     const petElement = document.createElement('div');
                     petElement.classList.add('pet');
-                    const statusOptions = ['Available', 'Pending Adoption', 'Adopted'];
+                    const statusOptions = ['Available', 'On Process', 'Adopted'];
 
                     // If status is null, default it to 'Available'
                     const status = pet.status ? pet.status : 'Available';
@@ -466,42 +543,62 @@ function getPets() {
                     const isConfirmYes = pet.Confirm === 'Yes';
                     const disableSelect = isConfirmYes || !isLoggedIn ? 'disabled' : '';
 
-                    petElement.innerHTML = `
-                        <div class="menu" ${isLoggedIn ? '' : 'style="display: none;"'}>
-                            <i class="fas fa-ellipsis-v" onclick="toggleMenu(event)"></i>
-                            <div class="menu-content">
-                                <button onclick="editPet(${pet.id})">Edit</button>
-                                <button onclick="deletePet(${pet.id})">Delete</button>
-                                ${status === 'Adopted' ? `
-                                    <button onclick="showAdopterDetails(${pet.id})">Adopter</button>
-                                ` : ''}
-                            </div>
-                        </div>
-                        <h2>${pet.name}</h2>
-                        <p>Breed: ${pet.breed}</p>
-                        <div class="select-wrapper">
-                            <select onchange="updateStatus(${pet.id}, this.value)" ${disableSelect}>
-                                ${statusOptions.map(option => `
-                                    <option value="${option}" ${status === option ? 'selected' : ''}>${option}</option>
-                                `).join('')}
-                            </select>
-                        </div>
-                        <br>
-                        <a href="petDetails.html?id=${pet.id}&source=pets&token=${token}&username=${usernameParam}">
-                            <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
-                        </a>
-                        <div id="adopterModal-${pet.id}" class="modal" style="display: none;">
-                            <div class="modal-content">
-                                <span onclick="closeModal('adopterModal', ${pet.id})" class="close-btn">&times;</span>
-                                <h3>Adopter Details</h3>
-                                <p id="adopterDetails-${pet.id}">Loading...</p>
-                            </div>
-                        </div>
-                    `;
-                    petsContainer.appendChild(petElement);
-                });
-            })
-            .catch(error => console.error('Error fetching pets:', error));
+
+        // Fetch the current process stage (if any) from the backend
+        const adoptionProcessStage = pet.adoption_process_stage || 'Initial Screening'; // Default if not set
+
+        petElement.innerHTML = `
+            <div class="menu" ${isLoggedIn ? '' : 'style="display: none;"'}>
+                <i class="fas fa-ellipsis-v" onclick="toggleMenu(event)"></i>
+                <div class="menu-content">
+                    <button onclick="editPet(${pet.id})">Edit</button>
+                    <button onclick="deletePet(${pet.id})">Delete</button>
+                    ${status === 'Adopted' ? `
+                        <button onclick="showAdopterDetails(${pet.id})">Adopter</button>
+                    ` : ''}
+                </div>
+            </div>
+            <h2>${pet.name}</h2>
+            <p>Breed: ${pet.breed}</p>
+
+            <!-- Status Dropdown -->
+            <div class="select-wrapper">
+                <select onchange="updateStatus(${pet.id}, this.value)" ${disableSelect}>
+                    ${statusOptions.map(option => `
+                        <option value="${option}" ${status === option ? 'selected' : ''}>${option}</option>
+                    `).join('')}
+                </select>
+            </div>
+
+            <!-- Process Stage Dropdown (Below Status Dropdown) -->
+            ${status === 'On Process' ? `
+                <div class="process-options">
+                    <label for="adoptionProcess"></label>
+                    <select id="adoptionProcess-${pet.id}" onchange="handleProcessStage(${pet.id}, this.value)" ${disableSelect}>
+                        <option value="Initial Screening" ${adoptionProcessStage === 'Initial Screening' ? 'selected' : ''}>Initial Screening</option>
+                        <option value="Interview Scheduled" ${adoptionProcessStage === 'Interview Scheduled' ? 'selected' : ''}>Interview Scheduled</option>
+                        <option value="Home Visit" ${adoptionProcessStage === 'Home Visit' ? 'selected' : ''}>Home Visit</option>
+                        <option value="Final Approval" ${adoptionProcessStage === 'Final Approval' ? 'selected' : ''}>Final Approval</option>
+                    </select>
+                </div>
+            ` : ''}
+                <br>
+            <a href="petDetails.html?id=${pet.id}&source=pets&token=${token}&username=${usernameParam}">
+                <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
+            </a>
+            <div id="adopterModal-${pet.id}" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span onclick="closeModal('adopterModal', ${pet.id})" class="close-btn">&times;</span>
+                    <h3>Adopter Details</h3>
+                    <p id="adopterDetails-${pet.id}">Loading...</p>
+                </div>
+            </div>
+        `;
+
+                petsContainer.appendChild(petElement);
+            });
+        })
+        .catch(error => console.error('Error fetching pets:', error));
         })
         .catch(error => {
             console.error('There was a problem with the token verification:', error);
@@ -511,6 +608,23 @@ function getPets() {
         console.error('Token is missing.');
         window.location.href = "signin.html";
     }
+}
+function handleProcessStage(petId, stage) {
+    // Assuming we want to send this data to the server or update locally
+    console.log(`Stage for pet ${petId} updated to: ${stage}`);
+
+    // You can also send the selected stage to the server, e.g.:
+    fetch(`http://localhost:3000/updatePetProcessStage?petId=${petId}&stage=${stage}`, {
+        method: 'PUT',
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log(`Process stage for pet ${petId} updated successfully.`);
+        } else {
+            throw new Error(`Failed to update process stage for pet ${petId}.`);
+        }
+    })
+    .catch(error => console.error('Error updating pet process stage:', error));
 }
 
 function showAdopterDetails(petId) {
@@ -538,58 +652,150 @@ function closeModal(petId) {
     document.getElementById(`adopterModal-${petId}`).style.display = 'none';
 }
 
-    function editPet(petId) {
-        // Fetch the pet data by ID (or use the already fetched data)
-        fetch(`http://localhost:3000/pet/${petId}`)
-        .then(response => response.json())
-        .then(pet => {
-            document.getElementById('editPetId').value = pet.id;
-            document.getElementById('editPetName').value = pet.name;
-            document.getElementById('editPetBreed').value = pet.breed;
-            document.getElementById('editPetDescription').value = pet.description;
-            document.getElementById('editPetLocation').value = pet.location;
-            document.getElementById('editPetContact').value = pet.contact;
-            // Open the modal
-            document.getElementById('editPetModal').style.display = 'block';
-        })
-        .catch(error => console.error('Error fetching pet details:', error));
-    }
+// Function to edit the pet
+function editPet(petId) {
+    fetch(`http://localhost:3000/pet/${petId}`)
+    .then(response => response.json())
+    .then(pet => {
+        document.getElementById('editPetId').value = pet.id;
+        document.getElementById('editPetName').value = pet.name;
+        document.getElementById('editPetBreed').value = pet.breed;
+        document.getElementById('editPetDescription').value = pet.description;
+        document.getElementById('editPetLocation').value = pet.location;
+        document.getElementById('editPetContact').value = pet.contact;
 
-    function closeEditModal() {
-        document.getElementById('editPetModal').style.display = 'none';
-    }
-    document.getElementById('editPetForm').addEventListener('submit', function(event) {
-        event.preventDefault();
+        const imageContainer = document.getElementById('existingImages');
+        imageContainer.innerHTML = ''; // Clear the existing images
+
+        pet.image.split(',').forEach((imagePath, index) => {
+            const imgWrapper = document.createElement('div');
+            imgWrapper.classList.add('image-wrapper');
+
+            const imgElement = document.createElement('img');
+            imgElement.src = `/${imagePath}`;
+            imgElement.alt = 'Pet image';
+
+            const deleteButton = document.createElement('button');
+            deleteButton.innerHTML = 'X';
+            deleteButton.classList.add('delete-image');
+
+            deleteButton.onclick = function(event) {
+                event.preventDefault();
+                imgWrapper.style.display = 'none'; // Hide the image in the UI
+                imgWrapper.classList.add('marked-for-deletion'); // Mark it for deletion
+            };
+
+            imgWrapper.appendChild(imgElement);
+            imgWrapper.appendChild(deleteButton);
+            imgWrapper.dataset.imagePath = imagePath;
+            imageContainer.appendChild(imgWrapper);
+        });
+
+        // Open the modal
+        document.getElementById('editPetModal').style.display = 'block';
+    })
+    .catch(error => console.error('Error fetching pet details:', error));
+}
+
+// Function to handle file input change and display selected images
+document.getElementById('editPetImages').addEventListener('change', function(event) {
+    const imageContainer = document.getElementById('existingImages');
+    const files = event.target.files;  // Get the selected files
+    const existingImages = imageContainer.querySelectorAll('img');  // Check if there are already existing images
+    
+    // Iterate through the selected files and display them
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         
-        const petId = document.getElementById('editPetId').value;
-        const updatedPetData = {
-            name: document.getElementById('editPetName').value,
-            breed: document.getElementById('editPetBreed').value,
-            description: document.getElementById('editPetDescription').value,
-            location: document.getElementById('editPetLocation').value,
-            contact: document.getElementById('editPetContact').value,
-            // Add any other fields to update
+        // Create a new image element
+        const imgElement = document.createElement('img');
+        imgElement.src = URL.createObjectURL(file);  // Create an object URL for the image
+        imgElement.alt = 'New Pet image';
+        
+        // Create a wrapper for the image
+        const imgWrapper = document.createElement('div');
+        imgWrapper.classList.add('image-wrapper');
+        
+        // Add the delete button for the new image
+        const deleteButton = document.createElement('button');
+        deleteButton.innerHTML = 'X';
+        deleteButton.classList.add('delete-image');
+        
+        deleteButton.onclick = function(event) {
+            event.preventDefault();
+            imgWrapper.style.display = 'none'; // Hide the image in the UI
+            imgWrapper.classList.add('marked-for-deletion'); // Mark it for deletion
         };
 
-        fetch(`http://localhost:3000/pets/${petId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updatedPetData)
-        })
-        .then(response => {
-            if (response.ok) {
-                console.log('Pet updated successfully.');
-                // Close the modal and refresh the pet list
-                closeEditModal();
-                getPets();
-            } else {
-                throw new Error('Failed to update pet.');
-            }
-        })
-        .catch(error => console.error('Error updating pet:', error));
-    });
+        // Append image and delete button to the wrapper
+        imgWrapper.appendChild(imgElement);
+        imgWrapper.appendChild(deleteButton);
+        
+        // Append the wrapper to the image container
+        imageContainer.appendChild(imgWrapper);
+    }
+});
+
+// Event listener to handle form submission
+document.getElementById('editPetForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const petId = document.getElementById('editPetId').value;
+    const updatedPetData = {
+        name: document.getElementById('editPetName').value,
+        breed: document.getElementById('editPetBreed').value,
+        description: document.getElementById('editPetDescription').value,
+        location: document.getElementById('editPetLocation').value,
+        contact: document.getElementById('editPetContact').value,
+    };
+
+    const formData = new FormData();
+    formData.append('name', updatedPetData.name);
+    formData.append('breed', updatedPetData.breed);
+    formData.append('description', updatedPetData.description);
+    formData.append('location', updatedPetData.location);
+    formData.append('contact', updatedPetData.contact);
+
+    // Get images marked for deletion (those hidden in the UI)
+    const deletedImages = Array.from(document.querySelectorAll('.marked-for-deletion'))
+                               .map(div => div.dataset.imagePath);
+    formData.append('deletedImages', JSON.stringify(deletedImages));
+
+    // Get existing images (those not marked for deletion)
+    const existingImages = Array.from(document.querySelectorAll('.image-wrapper'))
+                                .filter(wrapper => !wrapper.classList.contains('marked-for-deletion'))
+                                .map(imgWrapper => imgWrapper.dataset.imagePath);
+
+    // Append existing images to form data, filtered to remove any empty paths
+    formData.append('existingImages', existingImages.filter(Boolean).join(','));  // Filters out any empty strings
+
+    // Append new images
+    const imageFiles = document.getElementById('editPetImages').files;
+    for (let i = 0; i < imageFiles.length; i++) {
+        formData.append('images', imageFiles[i]);
+    }
+
+    // Send the PUT request
+    fetch(`http://localhost:3000/pets/${petId}`, {
+        method: 'PUT',
+        body: formData,
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Pet updated successfully.');
+            closeEditModal();
+            getPets(); // Refresh the list of pets
+        } else {
+            throw new Error('Failed to update pet.');
+        }
+    })
+    .catch(error => console.error('Error updating pet:', error));
+});
+
+// Function to close the modal
+function closeEditModal() {
+    document.getElementById('editPetModal').style.display = 'none';
+}
 
     function updateStatus(petId, newStatus) {
     if (newStatus === 'Adopted') {
@@ -830,6 +1036,10 @@ function getLost() {
                 lostPetsContainer.innerHTML = ''; // Clear the container before adding new content
                 const userLostPets = pets.filter(pet => pet.owner_username === username);
                 userLostPets.forEach(pet => {
+                // Skip displaying pets with approved column set to 0, null, or an empty string
+                if (pet.approved === 0 || pet.approved === null || pet.approved === '') {
+                            return;
+                        }
                     const petElement = document.createElement('div');
                     petElement.classList.add('pet');
                     const statusOptions = ['Lost', 'On Process', 'Returned'];
@@ -915,8 +1125,8 @@ function closeModal(petId) {
     document.getElementById(`returnerModal-${petId}`).style.display = 'none';
 }
 
+// Function to open the Edit Lost Pet modal and load pet details
 function editLostPet(petId) {
-    // Fetch the lost pet data by ID
     fetch(`http://localhost:3000/lost-pet/${petId}`)
     .then(response => response.json())
     .then(pet => {
@@ -926,19 +1136,73 @@ function editLostPet(petId) {
         document.getElementById('editLostPetDescription').value = pet.description;
         document.getElementById('editLostPetLocation').value = pet.location;
         document.getElementById('editLostPetContact').value = pet.contact;
-        // Open the modal
+
+        const imageContainer = document.getElementById('existingLostImages');
+        imageContainer.innerHTML = '';
+
+        pet.image.split(',').forEach((imagePath) => {
+            const imgWrapper = document.createElement('div');
+            imgWrapper.classList.add('image-wrapper');
+
+            const imgElement = document.createElement('img');
+            imgElement.src = `/${imagePath}`;
+            imgElement.alt = 'Lost Pet image';
+
+            const deleteButton = document.createElement('button');
+            deleteButton.innerHTML = 'X';
+            deleteButton.classList.add('delete-image');
+            deleteButton.onclick = function(event) {
+                event.preventDefault();
+                imgWrapper.style.display = 'none';
+                imgWrapper.classList.add('marked-for-deletion');
+            };
+
+            imgWrapper.appendChild(imgElement);
+            imgWrapper.appendChild(deleteButton);
+            imgWrapper.dataset.imagePath = imagePath;
+            imageContainer.appendChild(imgWrapper);
+        });
+
         document.getElementById('editLostPetModal').style.display = 'block';
     })
     .catch(error => console.error('Error fetching lost pet details:', error));
 }
 
-function closeEditLostModal() {
-    document.getElementById('editLostPetModal').style.display = 'none';
-}
+// Handle new image uploads
+document.getElementById('editLostPetImages').addEventListener('change', function(event) {
+    const imageContainer = document.getElementById('existingLostImages');
+    const files = event.target.files;
+    
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        const imgElement = document.createElement('img');
+        imgElement.src = URL.createObjectURL(file);
+        imgElement.alt = 'New Lost Pet image';
+        
+        const imgWrapper = document.createElement('div');
+        imgWrapper.classList.add('image-wrapper');
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.innerHTML = 'X';
+        deleteButton.classList.add('delete-image');
+        
+        deleteButton.onclick = function(event) {
+            event.preventDefault();
+            imgWrapper.style.display = 'none';
+            imgWrapper.classList.add('marked-for-deletion');
+        };
 
+        imgWrapper.appendChild(imgElement);
+        imgWrapper.appendChild(deleteButton);
+        imageContainer.appendChild(imgWrapper);
+    }
+});
+
+// Handle form submission
 document.getElementById('editLostPetForm').addEventListener('submit', function(event) {
     event.preventDefault();
-    
+
     const petId = document.getElementById('editLostPetId').value;
     const updatedLostPetData = {
         name: document.getElementById('editLostPetName').value,
@@ -946,20 +1210,36 @@ document.getElementById('editLostPetForm').addEventListener('submit', function(e
         description: document.getElementById('editLostPetDescription').value,
         location: document.getElementById('editLostPetLocation').value,
         contact: document.getElementById('editLostPetContact').value,
-        // Add any other fields to update
     };
+
+    const formData = new FormData();
+    formData.append('name', updatedLostPetData.name);
+    formData.append('breed', updatedLostPetData.breed);
+    formData.append('description', updatedLostPetData.description);
+    formData.append('location', updatedLostPetData.location);
+    formData.append('contact', updatedLostPetData.contact);
+
+    const deletedImages = Array.from(document.querySelectorAll('#existingLostImages .marked-for-deletion'))
+                               .map(div => div.dataset.imagePath);
+    formData.append('deletedImages', JSON.stringify(deletedImages));
+
+    const existingImages = Array.from(document.querySelectorAll('#existingLostImages .image-wrapper'))
+                                .filter(wrapper => !wrapper.classList.contains('marked-for-deletion'))
+                                .map(wrapper => wrapper.dataset.imagePath);
+    formData.append('existingImages', existingImages.filter(Boolean).join(','));
+
+    const imageFiles = document.getElementById('editLostPetImages').files;
+    for (let i = 0; i < imageFiles.length; i++) {
+        formData.append('images', imageFiles[i]);
+    }
 
     fetch(`http://localhost:3000/lost-pets/${petId}`, {
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updatedLostPetData)
+        body: formData,
     })
     .then(response => {
         if (response.ok) {
             console.log('Lost pet updated successfully.');
-            // Close the modal and refresh the lost pets list
             closeEditLostModal();
             getLost();
         } else {
@@ -968,6 +1248,10 @@ document.getElementById('editLostPetForm').addEventListener('submit', function(e
     })
     .catch(error => console.error('Error updating lost pet:', error));
 });
+
+function closeEditLostModal() {
+    document.getElementById('editLostPetModal').style.display = 'none';
+}
 
 function updateLostStatus(petId, newStatus) {
     if (newStatus === 'Returned') {
@@ -1226,6 +1510,10 @@ function getFound() {
                 foundPetsContainer.innerHTML = ''; // Clear the container before adding new content
                 const userFoundPets = pets.filter(pet => pet.owner_username === username);
                 userFoundPets.forEach(pet => {
+                // Skip displaying pets with approved column set to 0, null, or an empty string
+                if (pet.approved === 0 || pet.approved === null || pet.approved === '') {
+                            return;
+                        }
                     const petElement = document.createElement('div');
                     petElement.classList.add('pet');
                     const statusOptions = ['Lost', 'Adoptable', 'Reunited', 'Adopted', 'Deceased'];
@@ -1318,8 +1606,8 @@ function closeModal(petId) {
     document.getElementById(`ownerModal-${petId}`).style.display = 'none';
 }
 
+// Function to edit the found pet
 function editFoundPet(petId) {
-    // Fetch the lost pet data by ID
     fetch(`http://localhost:3000/found-pet/${petId}`)
     .then(response => response.json())
     .then(pet => {
@@ -1328,47 +1616,139 @@ function editFoundPet(petId) {
         document.getElementById('editFoundPetDescription').value = pet.description;
         document.getElementById('editFoundPetLocation').value = pet.location;
         document.getElementById('editFoundPetContact').value = pet.contact;
+
+        const imageContainer = document.getElementById('existingFoundImages');
+        imageContainer.innerHTML = ''; // Clear the existing images
+
+        // If images exist, display them
+        if (pet.image) {
+            pet.image.split(',').forEach((imagePath, index) => {
+                const imgWrapper = document.createElement('div');
+                imgWrapper.classList.add('image-wrapper');
+
+                const imgElement = document.createElement('img');
+                imgElement.src = `/${imagePath}`;
+                imgElement.alt = 'Found Pet image';
+
+                const deleteButton = document.createElement('button');
+                deleteButton.innerHTML = 'X';
+                deleteButton.classList.add('delete-image');
+
+                deleteButton.onclick = function(event) {
+                    event.preventDefault();
+                    imgWrapper.style.display = 'none'; // Hide the image in the UI
+                    imgWrapper.classList.add('marked-for-deletion'); // Mark it for deletion
+                };
+
+                imgWrapper.appendChild(imgElement);
+                imgWrapper.appendChild(deleteButton);
+                imgWrapper.dataset.imagePath = imagePath;
+                imageContainer.appendChild(imgWrapper);
+            });
+        }
+
         // Open the modal
         document.getElementById('editFoundPetModal').style.display = 'block';
     })
     .catch(error => console.error('Error fetching found pet details:', error));
 }
 
-function closeEditFoundModal() {
-    document.getElementById('editFoundPetModal').style.display = 'none';
-}
+// Function to handle file input change and display selected images for Found Pet
+document.getElementById('editFoundPetImages').addEventListener('change', function(event) {
+    const imageContainer = document.getElementById('existingFoundImages');
+    const files = event.target.files;  // Get the selected files
 
+    // Iterate through the selected files and display them
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        // Create a new image element
+        const imgElement = document.createElement('img');
+        imgElement.src = URL.createObjectURL(file);  // Create an object URL for the image
+        imgElement.alt = 'New Found Pet image';
+
+        // Create a wrapper for the image
+        const imgWrapper = document.createElement('div');
+        imgWrapper.classList.add('image-wrapper');
+
+        // Add the delete button for the new image
+        const deleteButton = document.createElement('button');
+        deleteButton.innerHTML = 'X';
+        deleteButton.classList.add('delete-image');
+
+        deleteButton.onclick = function(event) {
+            event.preventDefault();
+            imgWrapper.style.display = 'none'; // Hide the image in the UI
+            imgWrapper.classList.add('marked-for-deletion'); // Mark it for deletion
+        };
+
+        // Append image and delete button to the wrapper
+        imgWrapper.appendChild(imgElement);
+        imgWrapper.appendChild(deleteButton);
+
+        // Append the wrapper to the image container
+        imageContainer.appendChild(imgWrapper);
+    }
+});
+
+// Event listener to handle form submission for updating a found pet
 document.getElementById('editFoundPetForm').addEventListener('submit', function(event) {
     event.preventDefault();
-    
+
     const petId = document.getElementById('editFoundPetId').value;
     const updatedFoundPetData = {
         breed: document.getElementById('editFoundPetBreed').value,
         description: document.getElementById('editFoundPetDescription').value,
         location: document.getElementById('editFoundPetLocation').value,
         contact: document.getElementById('editFoundPetContact').value,
-        // Add any other fields to update
     };
 
+    const formData = new FormData();
+    formData.append('breed', updatedFoundPetData.breed);
+    formData.append('description', updatedFoundPetData.description);
+    formData.append('location', updatedFoundPetData.location);
+    formData.append('contact', updatedFoundPetData.contact);
+
+    // Get images marked for deletion (those hidden in the UI)
+    const deletedImages = Array.from(document.querySelectorAll('.marked-for-deletion'))
+                               .map(div => div.dataset.imagePath);
+    formData.append('deletedImages', JSON.stringify(deletedImages));
+
+    // Get existing images (those not marked for deletion)
+    const existingImages = Array.from(document.querySelectorAll('.image-wrapper'))
+                                .filter(wrapper => !wrapper.classList.contains('marked-for-deletion'))
+                                .map(imgWrapper => imgWrapper.dataset.imagePath);
+
+    // Append existing images to form data, filtered to remove any empty paths
+    formData.append('existingImages', existingImages.filter(Boolean).join(','));  // Filters out any empty strings
+
+    // Append new images
+    const imageFiles = document.getElementById('editFoundPetImages').files;
+    for (let i = 0; i < imageFiles.length; i++) {
+        formData.append('images', imageFiles[i]);
+    }
+
+    // Send the PUT request
     fetch(`http://localhost:3000/found-pets/${petId}`, {
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updatedFoundPetData)
+        body: formData,
     })
     .then(response => {
         if (response.ok) {
             console.log('Found pet updated successfully.');
-            // Close the modal and refresh the found pets list
             closeEditFoundModal();
-            getFound();
+            getFound(); // Refresh the list of found pets
         } else {
             throw new Error('Failed to update found pet.');
         }
     })
     .catch(error => console.error('Error updating found pet:', error));
 });
+
+
+function closeEditFoundModal() {
+    document.getElementById('editFoundPetModal').style.display = 'none';
+}
 
 function updateFoundStatus(petId, newStatus) {
     if (newStatus === 'Reunited') {
@@ -2462,5 +2842,13 @@ window.onclick = function(event) {
     });
 </script>
 
+<script>
+    const editProfileBtn = document.getElementById('editProfileBtn');
+
+    editProfileBtn.addEventListener('click', () => {
+    window.location.href = '/public/settings.html'; // Replace '/settings' with the actual URL of your settings page
+});
+
+</script>
 </body>
 </html>

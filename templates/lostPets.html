@@ -70,6 +70,11 @@
                     <li id="aboutUsSection" data-section-id="aboutUsSection" class="dialog-button"><i class="fas fa-caret-down"></i> ABOUT US</li>
                     <li id="faqSection" data-section-id="faqSection" class="dialog-button"><i class="fas fa-caret-down"></i> FAQ</li>
                     <li id="contact-nav" data-section-id="footer"><i class="fas fa-envelope"></i> CONTACT</li>
+                    <li id="notificationBtn" style="position: relative;">
+                        <i class="fas fa-bell"></i>
+                        NOTIFICATION 
+                        <span id="notificationCount" style="color: red; font-weight: bold; margin-left: 5px; position: absolute; top: -10px; right: -10px;">0</span>
+                    </li>
                     <!-- Profile Button in home.html -->
                     <li id="profileButton"><i class="fas fa-user"></i> PROFILE</li>
                     <li id="logoutBtn"><i class="fas fa-sign-out-alt"></i> LOGOUT</li>
@@ -761,7 +766,7 @@ populateBreeds();
     
             // Create thank you message element
             const thankYouMessage = document.createElement('p');
-            thankYouMessage.textContent = 'Thank you for reporting your lost pet! We hope they find their way back home soon.';
+            thankYouMessage.textContent = 'Your pet is under approval! We hope they find their way back home soon.';
             thankYouMessage.style.fontSize = '20px';
             thankYouMessage.style.color = 'black';
             thankYouMessage.style.marginTop = '220px'; // Adjust margin to create space below the GIF
@@ -1084,12 +1089,11 @@ function displayPets(pets) {
         petsContainer.appendChild(noPetsMessage);
         return; // Exit the function early if no pets are found
     }
-
     pets.forEach(pet => {
-        // Skip displaying pets with Confirm column set to "Yes"
-        if (pet.Confirm === 'Yes') {
-                 return;
-             }
+    // Skip displaying pets with Confirm column set to "Yes" or approved column set to 0, null, or an empty string
+    if (pet.Confirm === 'Yes' || pet.approved === 0 || pet.approved === null || pet.approved === '') {
+        return;
+    }
         const petElement = document.createElement('div');
         petElement.classList.add('pet');
 
@@ -1492,6 +1496,52 @@ function applyFilter() {
             window.location.href = `home.html?username=${username}&token=${token}`;
         });
     });
+
+        // Navigate to Sign Up page on button click
+        notificationBtn.addEventListener('click', function() {
+        window.location.href = 'notifications.html'; // Change to your actual Sign Up page URL
+        });
+
 </script>
+
+<script>
+    // Function to get the logged-in username from local storage
+    const username = localStorage.getItem('username'); // Adjust according to your local storage setup
+
+    // Function to fetch notifications from the server and update the count
+    function fetchNotificationCount() {
+        fetch(`http://localhost:3000/notifications?username=${username}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(notifications => {
+                // Count unread notifications
+                const unreadCount = notifications.filter(notification => !notification.isRead).length;
+                updateNotificationCount(unreadCount); // Update notification count
+            })
+            .catch(error => {
+                console.error('Error fetching notifications:', error);
+            });
+    }
+
+    // Function to update the notification count in the UI
+    function updateNotificationCount(count) {
+        const notificationCountElement = document.getElementById('notificationCount');
+        
+        if (count > 0) {
+            notificationCountElement.textContent = count; // Set count
+            notificationCountElement.style.display = 'inline'; // Show count
+        } else {
+            notificationCountElement.style.display = 'none'; // Hide count
+        }
+    }
+
+    // Fetch notification count when the page loads
+    document.addEventListener('DOMContentLoaded', fetchNotificationCount);
+</script>
+
 </body>
 </html>

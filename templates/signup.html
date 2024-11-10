@@ -226,11 +226,15 @@
         .form-group-modal {
             margin-bottom: 15px;
         }
+        img {       
+            width: 60%;
+        }
     </style>
     
 </head>
 <body>
     <div class="container">
+        <img src="/assets/logos/PetConnect_Logo.png"/>
         <h2>Register Account</h2>
         <form id="signupForm">
             <div class="form-group">
@@ -314,6 +318,14 @@
                     <option value="VeterinaryClinics">Veterinary Clinics</option>
                 </select>
             </div>
+
+            <div id="username-warning" style="color: red; display: none; text-align: center;">
+                Username must contain at least one letter, one number, and one special character, and be at least 3 characters long.
+            </div>
+
+            <div id="username-exists-message" style="color: red; display: none; text-align: center;">
+                Username already taken. Please choose another one.
+            </div>            
 
              <!-- Terms and Conditions checkbox -->
              <div class="terms-container">
@@ -493,18 +505,26 @@
 function validateUsername() {
     var username = document.getElementById("username").value;
     var usernameFeedback = document.getElementById("username-feedback");
+    var usernameWarning = document.getElementById("username-warning");
+    var usernameExistsMessage = document.getElementById("username-exists-message");
 
     // Check if the username input is empty
     if (username.trim() === "") {
         usernameFeedback.innerHTML = ""; // Clear the feedback icon
+        usernameWarning.style.display = "none"; // Hide the warning message
+        usernameExistsMessage.style.display = "none"; // Hide the exists message
         return; // Exit the function
     }
 
     // Check if username meets the specified condition
-    var usernameRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{3,}$/; // Letters, numbers, and special characters, at least one of each, 3 characters long
+    var usernameRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{3,}$/;
     if (!usernameRegex.test(username)) {
+        usernameWarning.style.display = "block"; // Show the warning message
         usernameFeedback.innerHTML = '<i class="fas fa-exclamation-circle" style="color: red;"></i>';
+        usernameExistsMessage.style.display = "none"; // Hide the exists message
         return; // Exit the function
+    } else {
+        usernameWarning.style.display = "none"; // Hide the warning message if requirements are met
     }
 
     // Send request to check if username exists
@@ -512,22 +532,22 @@ function validateUsername() {
         .then(response => response.json())
         .then(data => {
             if (data.exists) {
-                // Username already exists
                 usernameFeedback.innerHTML = '<i class="fas fa-exclamation-circle" style="color: red;"></i>';
+                usernameExistsMessage.style.display = "block"; // Show exists message
             } else {
-                // Username is available
                 usernameFeedback.innerHTML = '<i class="fas fa-check-circle" style="color: green;"></i>';
+                usernameExistsMessage.style.display = "none"; // Hide exists message
             }
         })
         .catch(error => {
             console.error('Error checking username:', error);
             usernameFeedback.innerHTML = '<i class="fas fa-exclamation-circle" style="color: red;"></i>';
+            usernameExistsMessage.style.display = "none"; // Hide exists message on error
         });
 }
 
 // Add event listener for real-time validation
 document.getElementById("username").addEventListener("input", validateUsername);
-
     </script>
 </body>
 </html>

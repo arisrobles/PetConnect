@@ -3,52 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/assets/logos/logo_browser.png" type="image/x-icon">
     <title>Notifications</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
         }
-        .notification-item {
-            padding: 10px;
-            border: 1px solid #ddd;
+
+        nav {
+            background-color: #343a40; /* Dark background for navbar */
+            color: #ffffff;
+            padding: 10px 0;
+            position: fixed; /* Make the navbar fixed */
+            top: 0; /* Align it to the top of the page */
+            width: 100%; /* Ensure it spans the full width of the page */
+            z-index: 1000; /* Ensure it stays on top of other content */
+        }
+        nav h2 {
+            margin-left: 4%;
+            margin-top: 5px;
+        }
+        .container {
+            max-width: 850px;
+            margin: 20px auto;
+            background: #fff;
             border-radius: 5px;
-            margin-bottom: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 50px; /* Existing margin-top */
+            padding-top: 80px; /* Adjust this value to ensure content is fully visible */
+        }
+        h2 {
+            margin: 0 0 20px;
+            text-align: center;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            position: relative;
             cursor: pointer; /* Indicate that the item is clickable */
         }
-        .notification-item:hover {
-            background-color: #f8f9fa;
+        li.unread {
+            background: #e9ecef; /* Style for unread notifications */
+        }
+        li.read {
+            background: #d1e7dd; /* Style for read notifications */
+            color: #6c757d; /* Slightly dimmed text color for read notifications */
+        }
+        .timestamp {
+            font-size: 0.8em;
+            color: #888;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+        .no-notifications {
+            text-align: center;
+            color: #888;
         }
     </style>
 </head>
 <body>
+    <!-- Navigation Bar -->
+    <nav style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
+        <img id="logoBtn" src="/assets/logos/PetConnect_Logo.png" alt="PetConnect Logo" style="height: 50px;">
+    </nav>
 
 <div class="container">
     <h2>Notifications</h2>
-    <div id="notificationList" class="mt-4">
-        <!-- Notifications will be dynamically inserted here -->
+    <ul id="notificationList"></ul>
+    <div id="noNotifications" class="no-notifications" style="display: none;">
+        No new notifications.
     </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        fetchNotifications();
-    });
+    // Function to get the logged-in username from local storage
+    const username = localStorage.getItem('username');
 
-    // Function to fetch notifications for the logged-in user
+    // Function to fetch notifications from the server
     function fetchNotifications() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const username = urlParams.get('username');
-        
-        if (!username) {
-            console.log('No username found in URL parameters.');
-            document.getElementById('notificationList').innerHTML = '<p>No username provided.</p>';
-            return;
-        }
-
-        console.log("Username found:", username); // Log the found username
-
-        fetch(`http://localhost:3000/notifications?owner_username=${username}`)
+        fetch(`http://localhost:3000/notifications?username=${username}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -56,48 +99,85 @@
                 return response.json();
             })
             .then(notifications => {
-                const notificationList = document.getElementById('notificationList');
-                notificationList.innerHTML = ''; // Clear existing notifications
-
-                if (notifications.length === 0) {
-                    notificationList.innerHTML = '<p>No notifications.</p>';
-                    return;
-                }
-
-                notifications.forEach(notification => {
-                    const notificationItem = document.createElement('div');
-                    notificationItem.classList.add('notification-item');
-                    notificationItem.innerHTML = `
-                        <strong>${notification.message}</strong><br>
-                        <small>${formatRelativeDate(notification.dateCreated)}</small>
-                    `;
-
-                    // Add a click event listener to redirect to pet details page
-                    notificationItem.addEventListener('click', function() {
-                        const petId = notification.petId; // Ensure your notification includes the pet ID
-                        const source = notification.source; // Ensure your notification includes the source
-                        window.location.href = `petDetails.html?id=${petId}&source=${source}`;
-                    });
-
-                    notificationList.appendChild(notificationItem);
-                });
+                displayNotifications(notifications);
             })
             .catch(error => {
                 console.error('Error fetching notifications:', error);
-                document.getElementById('notificationList').innerHTML = '<p>Error fetching notifications.</p>';
+                document.getElementById('notificationList').innerHTML = '<li>Error loading notifications.</li>';
             });
     }
 
-    // Function to format the date (you can customize this)
-    function formatRelativeDate(dateString) {
-        const date = new Date(dateString);
-        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
-        return date.toLocaleDateString(undefined, options);
+    // Function to display notifications in the UI
+    function displayNotifications(notifications) {
+        const notificationList = document.getElementById('notificationList');
+        notificationList.innerHTML = ''; // Clear previous notifications
+
+        if (notifications.length === 0) {
+            document.getElementById('noNotifications').style.display = 'block';
+        } else {
+            document.getElementById('noNotifications').style.display = 'none';
+            notifications.forEach(notification => {
+                const listItem = document.createElement('li');
+                
+                // Add appropriate class based on read status
+                listItem.className = notification.isRead ? 'read' : 'unread';
+                listItem.textContent = notification.message;
+
+                // Create timestamp
+                const timestamp = document.createElement('span');
+                timestamp.className = 'timestamp';
+                timestamp.textContent = new Date(notification.datePosted).toLocaleString();
+                listItem.appendChild(timestamp);
+
+                // Add click event to mark as read and navigate
+                listItem.onclick = () => {
+                    markNotificationAsRead(notification.id); // Mark notification as read
+                    window.location.href = `petDetails.html?id=${notification.petId}&source=${notification.petType}`; // Navigate to pet details
+                };
+
+                notificationList.appendChild(listItem);
+            });
+        }
     }
+
+    // Function to mark notification as read
+    function markNotificationAsRead(notificationId) {
+        fetch(`http://localhost:3000/notifications/${notificationId}/markAsRead`, {
+            method: 'POST'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to mark notification as read');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Notification marked as read:', data);
+        })
+        .catch(error => {
+            console.error('Error marking notification as read:', error);
+        });
+    }
+
+    // Fetch notifications when the page loads
+    document.addEventListener('DOMContentLoaded', fetchNotifications);
 </script>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the username from local storage
+        const username = localStorage.getItem('username'); // Retrieve username from local storage
+
+        // Add event listener to the logo for navigation
+        const logoBtn = document.getElementById('logoBtn');
+        
+        logoBtn.addEventListener('click', function() {
+            const token = localStorage.getItem('token');
+            // Navigate back to home page with username and token as query parameters
+            window.location.href = `home.html?username=${username}&token=${token}`;
+        });
+    });
+</script>
+
 </body>
 </html>

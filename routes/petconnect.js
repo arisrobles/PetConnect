@@ -251,39 +251,50 @@ app.get('/check-username', (req, res) => {
     });
 });
 
-// Sign in endpoint
+// Sign in endpoint for both users and admins
 app.post('/signin', (req, res) => {
     const { username, password } = req.body;
 
-    db.get('SELECT * FROM users WHERE username = ? AND password = ?', [username, password], (err, row) => {
+    // Check in both users and admin tables
+    db.get('SELECT * FROM users WHERE username = ? AND password = ?', [username, password], (err, userRow) => {
         if (err) {
             return res.status(500).json({ message: 'Internal Server Error' });
         }
-        if (!row) {
-            return res.status(401).json({ message: 'Invalid username or password.' });
-        }
-
-        // Check if email is verified
-        if (row.is_verified === 0) {
-            return res.status(403).json({ message: 'Email not verified. Please verify your email first.' });
-        }
-
-        // Create a JWT token
-        const token = jwt.sign({ username: row.username, id: row.id }, secretKey, { expiresIn: '30d' });
-
-        // Update isLoggedIn status in the database
-        db.run('UPDATE users SET isLoggedIn = ? WHERE username = ?', ['yes', username], (err) => {
-            if (err) {
-                console.error('Error updating isLoggedIn status:', err); // Log detailed error message
-                return res.status(500).json({ message: 'Error updating login status.' });
+        
+        if (userRow) {
+            // User found
+            if (userRow.is_verified === 0) {
+                return res.status(403).json({ message: 'Email not verified. Please verify your email first.' });
             }
 
-            // Send the JWT token and username to the frontend
-            res.json({ message: 'Sign in successful!', token, username: row.username });
-        });
+            // Create a JWT token
+            const token = jwt.sign({ username: userRow.username, id: userRow.id, role: 'user' }, secretKey, { expiresIn: '30d' });
+            db.run('UPDATE users SET isLoggedIn = ? WHERE username = ?', ['yes', username], (err) => {
+                if (err) {
+                    console.error('Error updating isLoggedIn status:', err);
+                    return res.status(500).json({ message: 'Error updating login status.' });
+                }
+                res.json({ message: 'Sign in successful!', token, username: userRow.username, role: 'user' });
+            });
+        } else {
+            // Check in admin table
+            db.get('SELECT * FROM admin WHERE username = ? AND password = ?', [username, password], (err, adminRow) => {
+                if (err) {
+                    console.error(err.message);
+                    return res.status(500).json({ message: 'Internal server error.' });
+                }
+
+                if (adminRow) {
+                    // Admin found
+                    const token = jwt.sign({ username: adminRow.username, id: adminRow.id, role: 'admin' }, secretKey, { expiresIn: '30d' });
+                    res.json({ message: 'Sign in successful!', token, username: adminRow.username, role: 'admin' });
+                } else {
+                    return res.status(401).json({ message: 'Invalid username or password.' });
+                }
+            });
+        }
     });
 });
-
 
 // Logout endpoint
 app.post('/logout', (req, res) => {
@@ -409,6 +420,21 @@ app.put('/updatePetStatus', (req, res) => {
     });
 });
 
+app.put('/updatePetProcessStage', (req, res) => {
+    const { petId, stage } = req.query;
+    let sql = `UPDATE pets SET adoption_process_stage = ? WHERE id = ?`;
+    let params = [stage, petId];
+
+    db.run(sql, params, function(err) {
+        if (err) {
+            console.error(`Error updating process stage for pet with ID ${petId}:`, err);
+            return res.status(500).send(`Failed to update adoption process for pet with ID ${petId}`);
+        }
+        res.status(200).send(`Adoption process stage of pet with ID ${petId} updated successfully.`);
+    });
+});
+
+
 // Endpoint to fetch a pet by petId
 app.get('/pet/:petId', (req, res) => {
     const petId = req.params.petId;
@@ -427,18 +453,25 @@ app.get('/pet/:petId', (req, res) => {
     });
 });
 
-app.put('/pets/:id', (req, res) => {
+app.put('/pets/:id', upload.array('images', 5), (req, res) => { 
     const petId = req.params.id;
     const updatedData = req.body;
+    const images = req.files ? req.files.map(file => file.path) : []; // New images uploaded
+    const existingImages = updatedData.existingImages ? updatedData.existingImages.split(',') : []; // Existing images
+    const deletedImages = updatedData.deletedImages ? JSON.parse(updatedData.deletedImages) : []; // Deleted images
 
-    // Update the pet in the database
+    // Remove the deleted images from the existing images array
+    const remainingExistingImages = existingImages.filter(image => !deletedImages.includes(image));
+
+    // Combine existing images (after deletion) with new images
+    const allImages = [...remainingExistingImages, ...images];
+
     const updateQuery = `
         UPDATE pets
-        SET name = ?, breed = ?, description = ?, location = ?, contact = ?
+        SET name = ?, breed = ?, description = ?, location = ?, contact = ?, image = ?
         WHERE id = ?
     `;
-
-    const values = [updatedData.name, updatedData.breed, updatedData.description, updatedData.location, updatedData.contact, petId];
+    const values = [updatedData.name, updatedData.breed, updatedData.description, updatedData.location, updatedData.contact, allImages.join(','), petId];
 
     db.run(updateQuery, values, function(err) {
         if (err) {
@@ -449,6 +482,7 @@ app.put('/pets/:id', (req, res) => {
         }
     });
 });
+
 
 app.put('/updateLostPetStatus', (req, res) => {
     const { petId, status, returnerName, contactNumber, address } = req.query;
@@ -492,25 +526,40 @@ app.get('/lost-pet/:petId', (req, res) => {
     });
 });
 
-app.put('/lost-pets/:id', (req, res) => {
+app.put('/lost-pets/:id', uploadlostPets.array('images', 5), (req, res) => {
     const petId = req.params.id;
     const updatedData = req.body;
+    const images = req.files ? req.files.map(file => file.path) : []; // New images uploaded
+    const existingImages = updatedData.existingImages ? updatedData.existingImages.split(',') : []; // Existing images
+    const deletedImages = updatedData.deletedImages ? JSON.parse(updatedData.deletedImages) : []; // Deleted images
 
-    // Update the pet in the database
+    // Remove the deleted images from the existing images array
+    const remainingExistingImages = existingImages.filter(image => !deletedImages.includes(image));
+
+    // Combine remaining existing images with new images
+    const allImages = [...remainingExistingImages, ...images];
+
     const updateQuery = `
         UPDATE lostPets
-        SET name = ?, breed = ?, description = ?, location = ?, contact = ?
+        SET name = ?, breed = ?, description = ?, location = ?, contact = ?, image = ?
         WHERE id = ?
     `;
-
-    const values = [updatedData.name, updatedData.breed, updatedData.description, updatedData.location, updatedData.contact, petId];
+    const values = [
+        updatedData.name,
+        updatedData.breed,
+        updatedData.description,
+        updatedData.location,
+        updatedData.contact,
+        allImages.join(','),
+        petId
+    ];
 
     db.run(updateQuery, values, function(err) {
         if (err) {
-            console.error('Error updating pet:', err);
-            res.status(500).send('Failed to update pet');
+            console.error('Error updating lost pet:', err);
+            res.status(500).send('Failed to update lost pet');
         } else {
-            res.status(200).send('Pet updated successfully');
+            res.status(200).send('Lost pet updated successfully');
         }
     });
 });
@@ -556,25 +605,39 @@ app.get('/found-pet/:petId', (req, res) => {
     });
 });
 
-app.put('/found-pets/:id', (req, res) => {
+app.put('/found-pets/:id', uploadfoundPets.array('images', 5), (req, res) => {
     const petId = req.params.id;
     const updatedData = req.body;
+    const images = req.files ? req.files.map(file => file.path) : []; // New images uploaded
+    const existingImages = updatedData.existingImages ? updatedData.existingImages.split(',') : []; // Existing images
+    const deletedImages = updatedData.deletedImages ? JSON.parse(updatedData.deletedImages) : []; // Deleted images
 
-    // Update the pet in the database
+    // Remove the deleted images from the existing images array
+    const remainingExistingImages = existingImages.filter(image => !deletedImages.includes(image));
+
+    // Combine the remaining existing images with new images
+    const allImages = [...remainingExistingImages, ...images];
+
     const updateQuery = `
         UPDATE foundPets
-        SET breed = ?, description = ?, location = ?, contact = ?
+        SET breed = ?, description = ?, location = ?, contact = ?, image = ?
         WHERE id = ?
     `;
-
-    const values = [updatedData.breed, updatedData.description, updatedData.location, updatedData.contact, petId];
+    const values = [
+        updatedData.breed,
+        updatedData.description,
+        updatedData.location,
+        updatedData.contact,
+        allImages.join(','),
+        petId
+    ];
 
     db.run(updateQuery, values, function(err) {
         if (err) {
-            console.error('Error updating pet:', err);
-            res.status(500).send('Failed to update pet');
+            console.error('Error updating found pet:', err);
+            res.status(500).send('Failed to update found pet');
         } else {
-            res.status(200).send('Pet updated successfully');
+            res.status(200).send('Found pet updated successfully');
         }
     });
 });
@@ -1188,18 +1251,70 @@ app.post('/add-found-pet', uploadfoundPets.array('images'), (req, res) => {
 app.post('/confirmAdoption/pets/:petId', (req, res) => {
     const petId = req.params.petId;
 
-    // Update the Confirm column for the specified pet ID in the 'pets' table
-    db.run('UPDATE pets SET Confirm = ? WHERE id = ?', ['Yes', petId], function(err) {
+    // First, find the pet to get its owner_username
+    db.get('SELECT owner_username FROM pets WHERE id = ?', [petId], (err, pet) => {
         if (err) {
-            console.error('Error confirming adoption for pet:', err);
-            return res.status(500).json({ error: 'Error confirming adoption' });
+            console.error('Error retrieving pet:', err);
+            return res.status(500).json({ error: 'Error retrieving pet' });
         }
-        if (this.changes === 0) {
+        if (!pet) {
             return res.status(404).json({ error: 'Pet not found' });
         }
 
-        // Send a JSON response indicating success
-        res.json({ message: 'Adoption confirmed successfully for pet' });
+        // Update the Confirm column for the specified pet ID in the 'pets' table
+        db.run('UPDATE pets SET Confirm = ? WHERE id = ?', ['Yes', petId], function(err) {
+            if (err) {
+                console.error('Error confirming adoption for pet:', err);
+                return res.status(500).json({ error: 'Error confirming adoption' });
+            }
+            if (this.changes === 0) {
+                return res.status(404).json({ error: 'Pet not found' });
+            }
+
+            // Create a notification for the pet's owner, including the type 'pets'
+            const notificationMessage = `Hi ${pet.owner_username}, your pet has been adopted successfully. Thank you for giving this pet a new home. `;
+            db.run('INSERT INTO notifications (username, message, petId, petType) VALUES (?, ?, ?, ?)', 
+                [pet.owner_username, notificationMessage, petId, 'pets'], (err) => {
+                if (err) {
+                    console.error('Error inserting notification:', err);
+                    return res.status(500).json({ error: 'Error creating notification' });
+                }
+                
+                // Send a JSON response indicating success
+                res.json({ message: 'Adoption confirmed successfully for pet' });
+            });
+        });
+    });
+});
+
+// Endpoint to fetch notifications for a specific user
+app.get('/notifications', (req, res) => {
+    const username = req.query.username;
+
+    db.all('SELECT * FROM notifications WHERE username = ? ORDER BY datePosted DESC', [username], (err, notifications) => {
+        if (err) {
+            console.error('Error fetching notifications:', err);
+            return res.status(500).json({ error: 'Error fetching notifications' });
+        }
+
+        res.json(notifications);
+    });
+});
+
+// Endpoint to mark a notification as read
+app.post('/notifications/:id/markAsRead', (req, res) => {
+    const notificationId = req.params.id;
+
+    db.run('UPDATE notifications SET isRead = ? WHERE id = ?', [true, notificationId], function(err) {
+        if (err) {
+            console.error('Error marking notification as read:', err);
+            return res.status(500).json({ error: 'Error marking notification as read' });
+        }
+        if (this.changes === 0) {
+            return res.status(404).json({ error: 'Notification not found' });
+        }
+
+        res.json({ message: 'Notification marked as read' });
     });
 });
 
@@ -1207,18 +1322,39 @@ app.post('/confirmAdoption/pets/:petId', (req, res) => {
 app.post('/confirmAdoption/lostPets/:petId', (req, res) => {
     const petId = req.params.petId;
 
-    // Update the Confirm column for the specified pet ID in the 'lostPets' table
-    db.run('UPDATE lostPets SET Confirm = ? WHERE id = ?', ['Yes', petId], function(err) {
+    // First, find the lost pet to get its owner_username
+    db.get('SELECT owner_username FROM lostPets WHERE id = ?', [petId], (err, lostPet) => {
         if (err) {
-            console.error('Error confirming adoption for lost pet:', err);
-            return res.status(500).json({ error: 'Error confirming adoption for lost pet' });
+            console.error('Error retrieving lost pet:', err);
+            return res.status(500).json({ error: 'Error retrieving lost pet' });
         }
-        if (this.changes === 0) {
+        if (!lostPet) {
             return res.status(404).json({ error: 'Lost pet not found' });
         }
 
-        // Send a JSON response indicating success
-        res.json({ message: 'Adoption confirmed successfully for lost pet' });
+        // Update the Confirm column for the specified pet ID in the 'lostPets' table
+        db.run('UPDATE lostPets SET Confirm = ? WHERE id = ?', ['Yes', petId], function(err) {
+            if (err) {
+                console.error('Error confirming adoption for lost pet:', err);
+                return res.status(500).json({ error: 'Error confirming adoption for lost pet' });
+            }
+            if (this.changes === 0) {
+                return res.status(404).json({ error: 'Lost pet not found' });
+            }
+
+            // Create a notification for the lost pet's owner
+            const notificationMessage = `Congratulations on safely returning your pet! Keep your pet safer!`;
+            db.run('INSERT INTO notifications (username, message, petId, petType) VALUES (?, ?, ?, ?)', 
+                [lostPet.owner_username, notificationMessage, petId, 'lost'], (err) => {
+                if (err) {
+                    console.error('Error inserting notification:', err);
+                    return res.status(500).json({ error: 'Error creating notification' });
+                }
+                
+                // Send a JSON response indicating success
+                res.json({ message: 'Adoption confirmed successfully for lost pet' });
+            });
+        });
     });
 });
 
@@ -1226,20 +1362,42 @@ app.post('/confirmAdoption/lostPets/:petId', (req, res) => {
 app.post('/confirmAdoption/foundPets/:petId', (req, res) => {
     const petId = req.params.petId;
 
-    // Update the Confirm column for the specified pet ID in the 'foundPets' table
-    db.run('UPDATE foundPets SET Confirm = ? WHERE id = ?', ['Yes', petId], function(err) {
+    // First, find the found pet to get its owner_username
+    db.get('SELECT owner_username FROM foundPets WHERE id = ?', [petId], (err, foundPet) => {
         if (err) {
-            console.error('Error confirming adoption for found pet:', err);
-            return res.status(500).json({ error: 'Error confirming adoption for found pet' });
+            console.error('Error retrieving found pet:', err);
+            return res.status(500).json({ error: 'Error retrieving found pet' });
         }
-        if (this.changes === 0) {
+        if (!foundPet) {
             return res.status(404).json({ error: 'Found pet not found' });
         }
 
-        // Send a JSON response indicating success
-        res.json({ message: 'Adoption confirmed successfully for found pet' });
+        // Update the Confirm column for the specified pet ID in the 'foundPets' table
+        db.run('UPDATE foundPets SET Confirm = ? WHERE id = ?', ['Yes', petId], function(err) {
+            if (err) {
+                console.error('Error confirming adoption for found pet:', err);
+                return res.status(500).json({ error: 'Error confirming adoption for found pet' });
+            }
+            if (this.changes === 0) {
+                return res.status(404).json({ error: 'Found pet not found' });
+            }
+
+            // Create a notification for the found pet's owner
+            const notificationMessage = `Your found pet has been reunited successfully. Thank you for your effort!`;
+            db.run('INSERT INTO notifications (username, message, petId, petType) VALUES (?, ?, ?, ?)', 
+                [foundPet.owner_username, notificationMessage, petId, 'found'], (err) => {
+                if (err) {
+                    console.error('Error inserting notification:', err);
+                    return res.status(500).json({ error: 'Error creating notification' });
+                }
+
+                // Send a JSON response indicating success
+                res.json({ message: 'Adoption confirmed successfully for found pet' });
+            });
+        });
     });
 });
+
 
 // Endpoint to fetch users
 app.get('/users', (req, res) => {
@@ -1750,6 +1908,15 @@ app.delete('/api/users/delete', (req, res) => {
                     });
                 }
 
+            // Delete replies associated with the comments of the user
+            db.run(`DELETE FROM notifications WHERE username = ?`, [username], function (err) {
+                if (err) {
+                    console.error('Error deleting notifications:', err.message);
+                    return db.run('ROLLBACK', () => {
+                        res.status(500).json({ error: 'Internal server error' });
+                    });
+                }
+
                 // Delete pets associated with the user
                 db.run(`DELETE FROM pets WHERE owner_username = ?`, [username], function (err) {
                     if (err) {
@@ -1807,6 +1974,7 @@ app.delete('/api/users/delete', (req, res) => {
         });
     });
 });
+});
 
 // DELETE endpoint to remove a user by ID
 app.delete('/users/:id', (req, res) => {
@@ -1842,7 +2010,7 @@ app.get('/api/users/info', (req, res) => {
     }
 
     // Query to get user information
-    const query = `SELECT firstname, lastname, email, username, role, password FROM users WHERE username = ?`;
+    const query = `SELECT firstname, lastname, email, username, location, role, password FROM users WHERE username = ?`;
 
     db.get(query, [username], (err, row) => {
         if (err) {
@@ -2054,6 +2222,162 @@ app.get('/getOwnerDetails', (req, res) => {
             return;
         }
         res.json(row || { ownerNameName: 'N/A', contactNumber: 'N/A', address: 'N/A', dateReunited: 'N/A' });
+    });
+});
+
+// Endpoint to approve or ignore a pet (based on approved column)
+app.patch('/pets/approve/:id', (req, res) => {
+    const petId = req.params.id;
+    const { approved } = req.body; // Expecting { approved: 1 or 0 }
+
+    if (approved === undefined) {
+        return res.status(400).send('Approved field is required');
+    }
+
+    // Step 1: Fetch the pet's owner username from the pets table
+    db.get('SELECT owner_username FROM pets WHERE id = ?', [petId], (err, pet) => {
+        if (err) {
+            console.error('Error fetching pet owner:', err);
+            return res.status(500).send('Error fetching pet owner');
+        }
+
+        if (!pet) {
+            return res.status(404).send('Pet not found');
+        }
+
+        const ownerUsername = pet.owner_username;  // Get the username of the pet's owner
+
+        // Step 2: Update the pet approval status
+        db.run('UPDATE pets SET approved = ? WHERE id = ?', [approved, petId], function (err) {
+            if (err) {
+                console.error('Error updating pet approval:', err);
+                return res.status(500).send('Error updating pet approval');
+            }
+
+            if (this.changes === 0) {
+                return res.status(404).send('Pet not found');
+            }
+
+            // Step 3: Create a notification for the pet owner
+            const message = approved === 1 ? 'Your pet has been approved for adoption.' : 'Your pet has been ignored.';
+            const petType = 'pets'; // Changed to 'pets' instead of using 'approved' or 'ignored'
+            const datePosted = new Date().toISOString(); // Get current timestamp
+
+            db.run('INSERT INTO notifications (username, message, petId, petType, datePosted) VALUES (?, ?, ?, ?, ?)', 
+                [ownerUsername, message, petId, petType, datePosted], function (err) {
+                    if (err) {
+                        console.error('Error inserting notification:', err);
+                        return res.status(500).send('Error sending notification');
+                    }
+
+                    // Respond to the client
+                    res.status(200).send('Pet approval status updated and notification sent');
+                });
+        });
+    });
+});
+
+// Endpoint to approve or ignore a lost pet (based on approved column)
+app.patch('/lostPets/approve/:id', (req, res) => {
+    const lostPetId = req.params.id;
+    const { approved } = req.body; // Expecting { approved: 1 or 0 }
+
+    if (approved === undefined) {
+        return res.status(400).send('Approved field is required');
+    }
+
+    // Step 1: Fetch the lost pet's owner username from the lostPets table
+    db.get('SELECT owner_username FROM lostPets WHERE id = ?', [lostPetId], (err, lostPet) => {
+        if (err) {
+            console.error('Error fetching lost pet owner:', err);
+            return res.status(500).send('Error fetching lost pet owner');
+        }
+
+        if (!lostPet) {
+            return res.status(404).send('Lost pet not found');
+        }
+
+        const ownerUsername = lostPet.owner_username;  // Get the username of the lost pet's owner
+
+        // Step 2: Update the lost pet approval status
+        db.run('UPDATE lostPets SET approved = ? WHERE id = ?', [approved, lostPetId], function (err) {
+            if (err) {
+                console.error('Error updating lost pet approval:', err);
+                return res.status(500).send('Error updating lost pet approval');
+            }
+
+            if (this.changes === 0) {
+                return res.status(404).send('Lost pet not found');
+            }
+
+            // Step 3: Create a notification for the lost pet owner
+            const message = approved === 1 ? 'Your lost pet has been approved.' : 'Your lost pet has been ignored.';
+            const petType = 'lost'; // Changed to 'lostPets' instead of using 'approved' or 'ignored'
+            const datePosted = new Date().toISOString(); // Get current timestamp
+
+            db.run('INSERT INTO notifications (username, message, petId, petType, datePosted) VALUES (?, ?, ?, ?, ?)', 
+                [ownerUsername, message, lostPetId, petType, datePosted], function (err) {
+                    if (err) {
+                        console.error('Error inserting notification:', err);
+                        return res.status(500).send('Error sending notification');
+                    }
+
+                    // Respond to the client
+                    res.status(200).send('Lost pet approval status updated and notification sent');
+                });
+        });
+    });
+});
+
+// Endpoint to approve or ignore a found pet (based on approved column)
+app.patch('/foundPets/approve/:id', (req, res) => {
+    const foundPetId = req.params.id;
+    const { approved } = req.body; // Expecting { approved: 1 or 0 }
+
+    if (approved === undefined) {
+        return res.status(400).send('Approved field is required');
+    }
+
+    // Step 1: Fetch the found pet's owner username from the foundPets table
+    db.get('SELECT owner_username FROM foundPets WHERE id = ?', [foundPetId], (err, foundPet) => {
+        if (err) {
+            console.error('Error fetching found pet owner:', err);
+            return res.status(500).send('Error fetching found pet owner');
+        }
+
+        if (!foundPet) {
+            return res.status(404).send('Found pet not found');
+        }
+
+        const ownerUsername = foundPet.owner_username;  // Get the username of the found pet's owner
+
+        // Step 2: Update the found pet approval status
+        db.run('UPDATE foundPets SET approved = ? WHERE id = ?', [approved, foundPetId], function (err) {
+            if (err) {
+                console.error('Error updating found pet approval:', err);
+                return res.status(500).send('Error updating found pet approval');
+            }
+
+            if (this.changes === 0) {
+                return res.status(404).send('Found pet not found');
+            }
+
+            // Step 3: Create a notification for the found pet owner
+            const message = approved === 1 ? 'Your found pet has been approved.' : 'Your found pet has been ignored.';
+            const petType = 'found'; // Set the pet type as 'foundPets'
+            const datePosted = new Date().toISOString(); // Get current timestamp
+
+            db.run('INSERT INTO notifications (username, message, petId, petType, datePosted) VALUES (?, ?, ?, ?, ?)', 
+                [ownerUsername, message, foundPetId, petType, datePosted], function (err) {
+                    if (err) {
+                        console.error('Error inserting notification:', err);
+                        return res.status(500).send('Error sending notification');
+                    }
+
+                    // Respond to the client
+                    res.status(200).send('Found pet approval status updated and notification sent');
+                });
+        });
     });
 });
 
