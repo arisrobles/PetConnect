@@ -957,12 +957,12 @@ function displayAdoptPetsStatistics(petType = 'all', month = 'all', year = 'all'
             // Count the number of pets in each status category
             const totalPets = filteredPets.length;
             const adoptedCount = filteredPets.filter(pet => pet.status === 'Adopted').length;
-            const pendingCount = filteredPets.filter(pet => pet.status === 'Pending Adoption').length;
+            const pendingCount = filteredPets.filter(pet => pet.status === 'On Process').length;
             const availableCount = filteredPets.filter(pet => pet.status === 'Available' || pet.status === null).length;
 
             // Update context statement
             const adoptPetsContext = document.getElementById('adoptPetsContext');
-            adoptPetsContext.textContent = `Total Pets: ${totalPets}, Adopted: ${adoptedCount}, Pending Adoption: ${pendingCount}, Available: ${availableCount}`;
+            adoptPetsContext.textContent = `Total Pets: ${totalPets}, Adopted: ${adoptedCount}, On Process: ${pendingCount}, Available: ${availableCount}`;
 
             // Get the chart context
             const ctx = document.getElementById('adoptPetsChart').getContext('2d');
@@ -976,7 +976,7 @@ function displayAdoptPetsStatistics(petType = 'all', month = 'all', year = 'all'
             adoptPetsChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Adopted', 'Pending Adoption', 'Available'],
+                    labels: ['Adopted', 'On Process', 'Available'],
                     datasets: [{
                         label: 'Number of Pets',
                         data: [adoptedCount, pendingCount, availableCount],

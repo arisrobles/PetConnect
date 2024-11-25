@@ -68,13 +68,19 @@ const uploadCoverImage = multer({ storage: coverStorage });
 
 // Multer configuration for handling file uploads for pets for adoption
 const storage = multer.diskStorage({
-    destination: function (_req, _file, cb) {
-        cb(null, './adoptPetImages'); // Updated destination path
-    },   
+    destination: function (_req, file, cb) {
+        // Store images and documents in respective folders
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, './adoptPetImages'); // Images destination
+        } else {
+            cb(null, './adoptPetDocuments'); // Documents destination
+        }
+    },
     filename: function (_req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname); // Generate unique filenames
     }
 });
+
 const upload = multer({ storage: storage });
 
 // Multer configuration for handling file uploads for lost pets
@@ -147,7 +153,7 @@ app.post('/signup', (req, res) => {
                     subject: 'Email Verification - PetConnect',
                     html: `
                         <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f9f9f9;">
-                            <img src="https://ibb.co/pbzPDY4" alt="PetConnect Logo" style="width: 150px; margin-bottom: 20px;">
+                            <img src="assets/logos/PetConnect_Logo.png" alt="PetConnect Logo" style="width: 150px; margin-bottom: 20px;">
                             <h2 style="color: #333;">Welcome to PetConnect, ${firstname}!</h2>
                             <p style="color: #555;">We're excited to have you on board. To get started, please verify your email by clicking the button below:</p>
                             <a href="${verificationLink}" style="display: inline-block; padding: 10px 20px; background-color: #ff6b6b; color: #fff; text-decoration: none; border-radius: 5px; margin: 20px 0;">
@@ -205,7 +211,6 @@ app.get('/api/barangays/:municipalityId', (req, res) => {
     });
 });
 
-
 app.get('/verify-email', (req, res) => {
     const { token } = req.query;
 
@@ -230,7 +235,6 @@ app.get('/verify-email', (req, res) => {
         });
     });
 });
-
 
 // Check username availability endpoint
 app.get('/check-username', (req, res) => {
@@ -344,7 +348,6 @@ app.post('/verify-token', (req, res) => {
     });
 });
 
-
 // Check session endpoint
 app.get('/check-session', (req, res) => {
     if (req.session.user) {
@@ -356,10 +359,11 @@ app.get('/check-session', (req, res) => {
     }
 });
 
-// Modify the add-pet endpoint to accept file uploads and include datePosted
-app.post('/add-pet', upload.array('images'), (req, res) => {
+// Modify the add-pet endpoint to accept file uploads for both images and documents
+app.post('/add-pet', upload.fields([{ name: 'images' }, { name: 'documents' }]), (req, res) => {
     const { name, age, breed, description, location, contact, type, gender, owner_username } = req.body;
-    const images = req.files.map(file => file.path); // Array of paths to uploaded images
+    const images = req.files['images'] ? req.files['images'].map(file => file.path) : [];
+    const documents = req.files['documents'] ? req.files['documents'].map(file => file.path) : [];
     const datePosted = new Date().toISOString(); // Current date and time in ISO format
 
     // Check if the owner_username exists in the users table
@@ -373,8 +377,8 @@ app.post('/add-pet', upload.array('images'), (req, res) => {
         }
 
         // Insert the pet data into the database, including datePosted
-        db.run('INSERT INTO pets (name, age, breed, description, location, contact, type, gender, owner_username, image, datePosted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-            [name, age, breed, description, location, contact, type, gender, owner_username, images.join(','), datePosted], 
+        db.run('INSERT INTO pets (name, age, breed, description, location, contact, type, gender, owner_username, image, document, datePosted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+            [name, age, breed, description, location, contact, type, gender, owner_username, images.join(','), documents.join(','), datePosted], 
             (err) => {
                 if (err) {
                     console.error('Error adding pet:', err);
@@ -384,6 +388,7 @@ app.post('/add-pet', upload.array('images'), (req, res) => {
             });
     });
 });
+
 // Endpoint for displaying Adopted Pets
 app.get('/pets', (_req, res) => {
     // Retrieve all pets from the database
@@ -434,6 +439,35 @@ app.put('/updatePetProcessStage', (req, res) => {
     });
 });
 
+app.put('/updateLostPetProcessStage', (req, res) => {
+    const { petId, stage } = req.query;
+    let sql = `UPDATE lostPets SET return_process_stage = ? WHERE id = ?`;
+    let params = [stage, petId];
+
+    db.run(sql, params, function(err) {
+        if (err) {
+            console.error(`Error updating process stage for pet with ID ${petId}:`, err);
+            return res.status(500).send(`Failed to update adoption process for pet with ID ${petId}`);
+        }
+        res.status(200).send(`Adoption process stage of pet with ID ${petId} updated successfully.`);
+    });
+});
+
+
+app.put('/updateFoundPetProcessStage', (req, res) => {
+    const { petId, stage } = req.query;
+    let sql = `UPDATE foundPets SET return_process_stage = ? WHERE id = ?`;
+    let params = [stage, petId];
+
+    db.run(sql, params, function(err) {
+        if (err) {
+            console.error(`Error updating process stage for pet with ID ${petId}:`, err);
+            return res.status(500).send(`Failed to update adoption process for pet with ID ${petId}`);
+        }
+        res.status(200).send(`Adoption process stage of pet with ID ${petId} updated successfully.`);
+    });
+});
+
 
 // Endpoint to fetch a pet by petId
 app.get('/pet/:petId', (req, res) => {
@@ -453,25 +487,41 @@ app.get('/pet/:petId', (req, res) => {
     });
 });
 
-app.put('/pets/:id', upload.array('images', 5), (req, res) => { 
+app.put('/pets/:id', upload.fields([
+    { name: 'images', maxCount: 5 },  // Accept up to 5 images
+    { name: 'documents', maxCount: 5 }  // Accept up to 5 documents
+]), (req, res) => {
     const petId = req.params.id;
     const updatedData = req.body;
-    const images = req.files ? req.files.map(file => file.path) : []; // New images uploaded
-    const existingImages = updatedData.existingImages ? updatedData.existingImages.split(',') : []; // Existing images
-    const deletedImages = updatedData.deletedImages ? JSON.parse(updatedData.deletedImages) : []; // Deleted images
+    const images = req.files['images'] ? req.files['images'].map(file => file.path) : [];
+    const documents = req.files['documents'] ? req.files['documents'].map(file => file.path) : [];
 
-    // Remove the deleted images from the existing images array
+    const existingImages = updatedData.existingImages ? updatedData.existingImages.split(',') : [];
+    const existingDocuments = updatedData.existingDocuments ? updatedData.existingDocuments.split(',') : [];
+    const deletedImages = updatedData.deletedImages ? JSON.parse(updatedData.deletedImages) : [];
+    const deletedDocuments = updatedData.deletedDocuments ? JSON.parse(updatedData.deletedDocuments) : [];
+
     const remainingExistingImages = existingImages.filter(image => !deletedImages.includes(image));
+    const remainingExistingDocuments = existingDocuments.filter(document => !deletedDocuments.includes(document));
 
-    // Combine existing images (after deletion) with new images
     const allImages = [...remainingExistingImages, ...images];
+    const allDocuments = [...remainingExistingDocuments, ...documents];
 
     const updateQuery = `
         UPDATE pets
-        SET name = ?, breed = ?, description = ?, location = ?, contact = ?, image = ?
+        SET name = ?, breed = ?, description = ?, location = ?, contact = ?, image = ?, document = ?
         WHERE id = ?
     `;
-    const values = [updatedData.name, updatedData.breed, updatedData.description, updatedData.location, updatedData.contact, allImages.join(','), petId];
+    const values = [
+        updatedData.name,
+        updatedData.breed,
+        updatedData.description,
+        updatedData.location,
+        updatedData.contact,
+        allImages.join(','),
+        allDocuments.join(','),
+        petId
+    ];
 
     db.run(updateQuery, values, function(err) {
         if (err) {
@@ -482,7 +532,6 @@ app.put('/pets/:id', upload.array('images', 5), (req, res) => {
         }
     });
 });
-
 
 app.put('/updateLostPetStatus', (req, res) => {
     const { petId, status, returnerName, contactNumber, address } = req.query;

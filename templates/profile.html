@@ -8,6 +8,72 @@
     <link rel="icon" href="/assets/logos/logo_browser.png" type="image/x-icon">
     <link rel="stylesheet" href="/assets/css/profile.css">
     <style>
+        /* Container for the existing documents */
+#existingDocuments {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Wrapper for each document item */
+.document-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    position: relative;
+    transition: background-color 0.3s;
+}
+
+/* Hover effect to highlight the document item */
+.document-wrapper:hover {
+    background-color: #f0f0f0;
+}
+
+/* Style for the document link */
+.document-wrapper a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 14px;
+    max-width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Change color on hover for the document link */
+.document-wrapper a:hover {
+    color: #0056b3;
+}
+
+/* Style for the delete button */
+.delete-document {
+    background-color: rgb(229, 224, 224);
+    color: rgb(0, 0, 0);
+    border: none;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+/* Hover effect for the delete button */
+.delete-document:hover {
+    background-color: #e60000;
+}
+
+/* Style for the hidden or deleted items */
+.document-wrapper.marked-for-deletion {
+    opacity: 0.5;
+    text-decoration: line-through;
+    pointer-events: none;
+}
+
 /* Styling the plus icon */
 .plus-icon {
     font-size: 24px;
@@ -23,16 +89,16 @@
 
 /* Style for the delete button */
 .delete-image {
-    background-color: red;
-    color: white;
+    background-color: rgb(229, 224, 224);
+    color: rgb(0, 0, 0);
     border: none;
     padding: 3px 6px;
     cursor: pointer;
     position: absolute;
-    top: 5px;
+    top: 2px;
     right: 5px;
     border-radius: 50%;
-    font-size: 12px;
+    font-size: 7px;
     line-height: 1;
     z-index: 1;
 }
@@ -42,8 +108,8 @@
     position: relative;
     display: inline-block;
     margin: 5px;
-    width: 100px;
-    height: 100px;
+    width: 50px;
+    height: 50px;
 }
 
 .image-wrapper img {
@@ -316,11 +382,16 @@ button[type="submit"]:hover {
             <input type="text" id="editPetContact">
 
             <div id="existingImages" class="existing-images-container"></div>
-
             <label for="editPetImages" class="upload-button">
                 <span class="plus-icon">+</span> Upload New Images
             </label>
+
+            <div id="existingDocuments" class="existing-documents-container"></div>
             <input type="file" id="editPetImages" name="images" accept="image/*" multiple style="display: none;">
+            <label for="editPetDocuments" class="upload-button">
+                <span class="plus-icon">+</span> Upload New Documents
+            </label>
+            <input type="file" id="editPetDocuments" name="documents" accept=".pdf,.docx,.txt" multiple style="display: none;">            
 
             <button type="submit">Save Changes</button>
         </form>
@@ -657,6 +728,7 @@ function editPet(petId) {
     fetch(`http://localhost:3000/pet/${petId}`)
     .then(response => response.json())
     .then(pet => {
+        console.log(pet);
         document.getElementById('editPetId').value = pet.id;
         document.getElementById('editPetName').value = pet.name;
         document.getElementById('editPetBreed').value = pet.breed;
@@ -664,31 +736,59 @@ function editPet(petId) {
         document.getElementById('editPetLocation').value = pet.location;
         document.getElementById('editPetContact').value = pet.contact;
 
+        // Safe handling for existing images
         const imageContainer = document.getElementById('existingImages');
         imageContainer.innerHTML = ''; // Clear the existing images
 
-        pet.image.split(',').forEach((imagePath, index) => {
+        // If pet.image is undefined or an empty string, set it to an empty array
+        const petImages = pet.image ? pet.image.split(',') : [];
+
+        petImages.forEach((imagePath, index) => {
             const imgWrapper = document.createElement('div');
             imgWrapper.classList.add('image-wrapper');
-
             const imgElement = document.createElement('img');
             imgElement.src = `/${imagePath}`;
             imgElement.alt = 'Pet image';
-
             const deleteButton = document.createElement('button');
             deleteButton.innerHTML = 'X';
             deleteButton.classList.add('delete-image');
-
             deleteButton.onclick = function(event) {
                 event.preventDefault();
-                imgWrapper.style.display = 'none'; // Hide the image in the UI
-                imgWrapper.classList.add('marked-for-deletion'); // Mark it for deletion
+                imgWrapper.style.display = 'none';
+                imgWrapper.classList.add('marked-for-deletion');
             };
-
             imgWrapper.appendChild(imgElement);
             imgWrapper.appendChild(deleteButton);
             imgWrapper.dataset.imagePath = imagePath;
             imageContainer.appendChild(imgWrapper);
+        });
+
+        // Safe handling for existing documents
+        const documentContainer = document.getElementById('existingDocuments');
+        documentContainer.innerHTML = ''; // Clear the existing documents
+
+        // If pet.documents is undefined or an empty string, set it to an empty array
+        const petDocuments = pet.documents ? pet.documents.split(',') : [];
+
+        petDocuments.forEach((documentPath, index) => {
+            const docWrapper = document.createElement('div');
+            docWrapper.classList.add('document-wrapper');
+            const docElement = document.createElement('a');
+            docElement.href = `/${documentPath}`;
+            docElement.textContent = documentPath.split('/').pop();
+            docElement.target = '_blank';  // Open document in a new tab
+            const deleteButton = document.createElement('button');
+            deleteButton.innerHTML = 'X';
+            deleteButton.classList.add('delete-document');
+            deleteButton.onclick = function(event) {
+                event.preventDefault();
+                docWrapper.style.display = 'none';
+                docWrapper.classList.add('marked-for-deletion');
+            };
+            docWrapper.appendChild(docElement);
+            docWrapper.appendChild(deleteButton);
+            docWrapper.dataset.documentPath = documentPath;
+            documentContainer.appendChild(docWrapper);
         });
 
         // Open the modal
@@ -736,7 +836,45 @@ document.getElementById('editPetImages').addEventListener('change', function(eve
     }
 });
 
-// Event listener to handle form submission
+// Handle document file input change
+document.getElementById('editPetDocuments').addEventListener('change', function(event) {
+    const documentContainer = document.getElementById('existingDocuments');
+    const files = event.target.files;
+
+    // Iterate through the selected documents and display them
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        // Create a new document link element
+        const docElement = document.createElement('a');
+        docElement.href = URL.createObjectURL(file);  // Create an object URL for the document
+        docElement.textContent = file.name;
+        docElement.target = '_blank';
+
+        // Create a wrapper for the document
+        const docWrapper = document.createElement('div');
+        docWrapper.classList.add('document-wrapper');
+
+        // Add the delete button for the document
+        const deleteButton = document.createElement('button');
+        deleteButton.innerHTML = 'X';
+        deleteButton.classList.add('delete-document');
+        deleteButton.onclick = function(event) {
+            event.preventDefault();
+            docWrapper.style.display = 'none';
+            docWrapper.classList.add('marked-for-deletion');
+        };
+
+        // Append document and delete button to the wrapper
+        docWrapper.appendChild(docElement);
+        docWrapper.appendChild(deleteButton);
+
+        // Append the wrapper to the document container
+        documentContainer.appendChild(docWrapper);
+    }
+});
+
+// Handle form submission with both images and documents
 document.getElementById('editPetForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
@@ -756,40 +894,52 @@ document.getElementById('editPetForm').addEventListener('submit', function(event
     formData.append('location', updatedPetData.location);
     formData.append('contact', updatedPetData.contact);
 
-    // Get images marked for deletion (those hidden in the UI)
+    // Get images and documents marked for deletion
     const deletedImages = Array.from(document.querySelectorAll('.marked-for-deletion'))
                                .map(div => div.dataset.imagePath);
     formData.append('deletedImages', JSON.stringify(deletedImages));
 
-    // Get existing images (those not marked for deletion)
+    const deletedDocuments = Array.from(document.querySelectorAll('.document-wrapper.marked-for-deletion'))
+                                  .map(div => div.dataset.documentPath);
+    formData.append('deletedDocuments', JSON.stringify(deletedDocuments));
+
+    // Get existing images and documents
     const existingImages = Array.from(document.querySelectorAll('.image-wrapper'))
                                 .filter(wrapper => !wrapper.classList.contains('marked-for-deletion'))
                                 .map(imgWrapper => imgWrapper.dataset.imagePath);
+    formData.append('existingImages', existingImages.filter(Boolean).join(','));
 
-    // Append existing images to form data, filtered to remove any empty paths
-    formData.append('existingImages', existingImages.filter(Boolean).join(','));  // Filters out any empty strings
+    const existingDocuments = Array.from(document.querySelectorAll('.document-wrapper'))
+                                    .filter(wrapper => !wrapper.classList.contains('marked-for-deletion'))
+                                    .map(docWrapper => docWrapper.dataset.documentPath);
+    formData.append('existingDocuments', existingDocuments.filter(Boolean).join(','));
 
-    // Append new images
-    const imageFiles = document.getElementById('editPetImages').files;
-    for (let i = 0; i < imageFiles.length; i++) {
-        formData.append('images', imageFiles[i]);
+    // Append new image and document files
+    const imageInput = document.getElementById('editPetImages');
+    const documentInput = document.getElementById('editPetDocuments');
+
+    for (let i = 0; i < imageInput.files.length; i++) {
+        formData.append('images', imageInput.files[i]);
     }
 
-    // Send the PUT request
+    for (let i = 0; i < documentInput.files.length; i++) {
+        formData.append('documents', documentInput.files[i]);
+    }
+
+    // Submit the form data
     fetch(`http://localhost:3000/pets/${petId}`, {
         method: 'PUT',
-        body: formData,
+        body: formData
     })
-    .then(response => {
-        if (response.ok) {
-            console.log('Pet updated successfully.');
-            closeEditModal();
-            getPets(); // Refresh the list of pets
-        } else {
-            throw new Error('Failed to update pet.');
-        }
+    .then(response => response.json())
+    .then(data => {
+        console.log('Pet updated successfully', data);
+        // Close the modal
+        document.getElementById('editPetModal').style.display = 'none';
     })
-    .catch(error => console.error('Error updating pet:', error));
+    .catch(error => {
+        console.error('Error updating pet:', error);
+    });
 });
 
 // Function to close the modal
@@ -1024,81 +1174,116 @@ function getLost() {
                 isLoggedIn = true;
             }
 
-            // Fetch and display lost pets after verifying token
-            fetch(`http://localhost:3000/lost-pets?owner_username=${username}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(pets => {
-                lostPetsContainer.innerHTML = ''; // Clear the container before adding new content
-                const userLostPets = pets.filter(pet => pet.owner_username === username);
-                userLostPets.forEach(pet => {
+          // Fetch and display lost pets after verifying token
+        fetch(`http://localhost:3000/lost-pets?owner_username=${username}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(pets => {
+            lostPetsContainer.innerHTML = ''; // Clear the container before adding new content
+            const userLostPets = pets.filter(pet => pet.owner_username === username);
+            userLostPets.forEach(pet => {
                 // Skip displaying pets with approved column set to 0, null, or an empty string
                 if (pet.approved === 0 || pet.approved === null || pet.approved === '') {
-                            return;
-                        }
-                    const petElement = document.createElement('div');
-                    petElement.classList.add('pet');
-                    const statusOptions = ['Lost', 'On Process', 'Returned'];
+                    return;
+                }
+                const petElement = document.createElement('div');
+                petElement.classList.add('pet');
+                const statusOptions = ['Lost', 'On Process', 'Returned'];
 
-                    // If status is null, default it to 'Lost'
-                    const status = pet.status ? pet.status : 'Lost';
+                // If status is null, default it to 'Lost'
+                const status = pet.status ? pet.status : 'Lost';
 
-                    // Determine if select wrapper should be disabled based on Confirm column
-                    const isConfirmYes = pet.Confirm === 'Yes';
-                    const disableSelect = isConfirmYes || !isLoggedIn ? 'disabled' : '';
+                // Determine if select wrapper should be disabled based on Confirm column
+                const isConfirmYes = pet.Confirm === 'Yes';
+                const disableSelect = isConfirmYes || !isLoggedIn ? 'disabled' : '';
 
-                    petElement.innerHTML = `
-                    <!-- Three dots menu -->
-                    <div class="menu" ${isLoggedIn ? '' : 'style="display: none;"'}>
-                        <i class="fas fa-ellipsis-v" onclick="toggleMenu(event)"></i>
-                        <div class="menu-content">
-                            <button onclick="editLostPet(${pet.id})">Edit</button>
-                            <button onclick="deleteLostPet(${pet.id})">Delete</button>
-                            ${status === 'Returned' ? `
-                                <button onclick="showReturnerDetails(${pet.id})">Returner</button>
-                            ` : ''}
-                        </div>
+                // Fetch the current process stage (if any) from the backend
+                const returnProcessStage = pet.return_process_stage || 'Owner Contacted'; // Default if not set
+
+                petElement.innerHTML = `
+                <!-- Three dots menu -->
+                <div class="menu" ${isLoggedIn ? '' : 'style="display: none;"'}>
+                    <i class="fas fa-ellipsis-v" onclick="toggleMenu(event)"></i>
+                    <div class="menu-content">
+                        <button onclick="editLostPet(${pet.id})">Edit</button>
+                        <button onclick="deleteLostPet(${pet.id})">Delete</button>
+                        ${status === 'Returned' ? `
+                            <button onclick="showReturnerDetails(${pet.id})">Returner</button>
+                        ` : ''}
                     </div>
-                    <h2>${pet.name}</h2>
-                    <p>Breed: ${pet.breed}</p>
-                    <div class="select-wrapper">
-                        <select onchange="updateLostStatus(${pet.id}, this.value)" ${disableSelect}>
-                            ${statusOptions.map(option => `
-                                <option value="${option}" ${status === option ? 'selected' : ''}>${option}</option>
-                            `).join('')}
+                </div>
+                <h2>${pet.name}</h2>
+                <p>Breed: ${pet.breed}</p>
+                
+                <!-- Status Dropdown -->
+                <div class="select-wrapper">
+                    <select onchange="updateLostStatus(${pet.id}, this.value)" ${disableSelect}>
+                        ${statusOptions.map(option => `
+                            <option value="${option}" ${status === option ? 'selected' : ''}>${option}</option>
+                        `).join('')}
+                    </select>
+                </div>
+
+                <!-- Process Stage Dropdown (Below Status Dropdown) -->
+                ${status === 'On Process' ? `
+                    <div class="process-options">
+                        <label for="returnProcess"></label>
+                        <select id="returnProcess-${pet.id}" onchange="handleReturnProcessStage(${pet.id}, this.value)" ${disableSelect}>
+                            <option value="Owner Contacted" ${returnProcessStage === 'Owner Contacted' ? 'selected' : ''}>Owner Contacted</option>
+                            <option value="Home Visitation" ${returnProcessStage === 'Home Visitation' ? 'selected' : ''}>Home Visitation</option>
+                            <option value="Verified Ownership" ${returnProcessStage === 'Verified Ownership' ? 'selected' : ''}>Verified Ownership</option>
                         </select>
                     </div>
-                    <br>
-                    <a href="petDetails.html?id=${pet.id}&source=lost&token=${token}&username=${usernameParam}">
-                        <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
-                    </a>
-                    <div id="returnerModal-${pet.id}" class="modal" style="display: none;">
-                        <div class="modal-content">
-                           <span onclick="closeModal('returnerModal', ${pet.id})" class="close-btn">&times;</span>
-                            <h3>Returner Details</h3>
-                            <p id="returnerDetails-${pet.id}">Loading...</p>
-                        </div>
+                ` : ''}
+                <br>
+                <a href="petDetails.html?id=${pet.id}&source=lost&token=${token}&username=${usernameParam}">
+                    <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
+                </a>
+                <div id="returnerModal-${pet.id}" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <span onclick="closeModal('returnerModal', ${pet.id})" class="close-btn">&times;</span>
+                        <h3>Returner Details</h3>
+                        <p id="returnerDetails-${pet.id}">Loading...</p>
                     </div>
+                </div>
                 `;
 
-                    lostPetsContainer.appendChild(petElement);
-                });
-            })
-            .catch(error => console.error('Error fetching lost pets:', error));
+                lostPetsContainer.appendChild(petElement);
+            });
+        })
+        .catch(error => console.error('Error fetching lost pets:', error));
         })
         .catch(error => {
             console.error('There was a problem with the token verification:', error);
             window.location.href = "signin.html";
         });
-    } else {
-        console.error('Token is missing.');
-        window.location.href = "signin.html";
-    }
-}
+        } else {
+            console.error('Token is missing.');
+            window.location.href = "signin.html";
+        }
+        }
+
+        // Function to handle process stage updates for lost pets
+        function handleReturnProcessStage(petId, stage) {
+            console.log(`Return process stage for pet ${petId} updated to: ${stage}`);
+            
+            // Send the selected stage to the server
+            fetch(`http://localhost:3000/updateLostPetProcessStage?petId=${petId}&stage=${stage}`, {
+                method: 'PUT',
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log(`Return process stage for pet ${petId} updated successfully.`);
+                } else {
+                    throw new Error(`Failed to update return process stage for pet ${petId}.`);
+                }
+            })
+            .catch(error => console.error('Error updating return process stage:', error));
+        }
 
 function showReturnerDetails(petId) {
     // Make a request to fetch adopter details by petId
@@ -1498,87 +1683,125 @@ function getFound() {
                 isLoggedIn = true;
             }
 
-            // Fetch and display found pets after verifying token
-            fetch(`http://localhost:3000/found-pets?owner_username=${username}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(pets => {
-                foundPetsContainer.innerHTML = ''; // Clear the container before adding new content
-                const userFoundPets = pets.filter(pet => pet.owner_username === username);
-                userFoundPets.forEach(pet => {
-                // Skip displaying pets with approved column set to 0, null, or an empty string
-                if (pet.approved === 0 || pet.approved === null || pet.approved === '') {
-                            return;
-                        }
-                    const petElement = document.createElement('div');
-                    petElement.classList.add('pet');
-                    const statusOptions = ['Lost', 'Adoptable', 'Reunited', 'Adopted', 'Deceased'];
-
-                    // If status is null, default it to 'Lost'
-                    const status = pet.status ? pet.status : 'Lost';
-
-                    // Determine if select wrapper should be disabled based on Confirm column
-                    const isConfirmYes = pet.Confirm === 'Yes';
-                    const disableSelect = isConfirmYes || !isLoggedIn ? 'disabled' : '';
-
-                    petElement.innerHTML = `
-                    <!-- Three dots menu -->
-                    <div class="menu" ${isLoggedIn ? '' : 'style="display: none;"'}>
-                        <i class="fas fa-ellipsis-v" onclick="toggleMenu(event)"></i>
-                        <div class="menu-content">
-                            <button onclick="editFoundPet(${pet.id})">Edit</button>
-                            <button onclick="deleteFoundPet(${pet.id})">Delete</button>
-                            ${status === 'Reunited' ? `
-                                <button onclick="showOwnerDetails(${pet.id})">Owner</button>
-                            ` : ''}
-                        </div>
-                    </div>
-                    <h2>${pet.breed}</h2>
-                    <div class="select-wrapper">
-                        <select onchange="updateFoundStatus(${pet.id}, this.value)" ${disableSelect}>
-                            ${statusOptions.map(option => `
-                                <option value="${option}" ${status === option ? 'selected' : ''}>${option}</option>
-                            `).join('')}
-                        </select>
-                    </div>
-                    <br>
-                    <a href="petDetails.html?id=${pet.id}&source=found&token=${token}&username=${usernameParam}">
-                        <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
-                    </a>
-                    <div id="ownerModal-${pet.id}" class="modal" style="display: none;">
-                        <div class="modal-content">
-                            <span onclick="closeModal('ownerModal', ${pet.id})" class="close-btn">&times;</span>
-                            <h3>Owner Details</h3>
-                            <p id="ownerDetails-${pet.id}">Loading...</p>
-                        </div>
-                    </div>
-                `;
-                    foundPetsContainer.appendChild(petElement);
-                });
-
-                // Show success or sad message if applicable
-                if (localStorage.getItem('showFoundSuccessMessage') === 'true') {
-                    showFoundSuccessMessage();
-                    localStorage.removeItem('showFoundSuccessMessage'); // Clear the flag after showing message
-                } else if (localStorage.getItem('showFoundSadMessage') === 'true') {
-                    showFoundSadMessage();
-                    localStorage.removeItem('showFoundSadMessage'); // Clear the flag after showing message
-                }
-            })
-            .catch(error => console.error('Error fetching found pets:', error));
-        })
-        .catch(error => {
-            console.error('There was a problem with the token verification:', error);
-            window.location.href = "signin.html";
-        });
-    } else {
-        console.error('Token is missing.');
-        window.location.href = "signin.html";
+          // Fetch and display found pets after verifying token
+fetch(`http://localhost:3000/found-pets?owner_username=${username}`, {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json'
     }
+})
+.then(response => response.json())
+.then(pets => {
+    foundPetsContainer.innerHTML = ''; // Clear the container before adding new content
+    const userFoundPets = pets.filter(pet => pet.owner_username === username);
+    userFoundPets.forEach(pet => {
+        // Skip displaying pets with approved column set to 0, null, or an empty string
+        if (pet.approved === 0 || pet.approved === null || pet.approved === '') {
+            return;
+        }
+        const petElement = document.createElement('div');
+        petElement.classList.add('pet');
+        
+        // Add 'On Process' to status options
+        const statusOptions = ['Lost', 'Adoptable', 'Reunited', 'Adopted', 'Deceased', 'On Process'];
+
+        // If status is null, default it to 'Lost'
+        const status = pet.status ? pet.status : 'Lost';
+
+        // Determine if select wrapper should be disabled based on Confirm column
+        const isConfirmYes = pet.Confirm === 'Yes';
+        const disableSelect = isConfirmYes || !isLoggedIn ? 'disabled' : '';
+
+        // Fetch the current process stage (if any) from the backend
+        const returnProcessStage = pet.return_process_stage || 'Owner Contacted'; // Default if not set
+
+        petElement.innerHTML = `
+        <!-- Three dots menu -->
+        <div class="menu" ${isLoggedIn ? '' : 'style="display: none;"'}>
+            <i class="fas fa-ellipsis-v" onclick="toggleMenu(event)"></i>
+            <div class="menu-content">
+                <button onclick="editFoundPet(${pet.id})">Edit</button>
+                <button onclick="deleteFoundPet(${pet.id})">Delete</button>
+                ${status === 'Reunited' ? `
+                    <button onclick="showOwnerDetails(${pet.id})">Owner</button>
+                ` : ''}
+            </div>
+        </div>
+        <h2>${pet.breed}</h2>
+        
+        <!-- Status Dropdown -->
+        <div class="select-wrapper">
+            <select onchange="updateFoundStatus(${pet.id}, this.value)" ${disableSelect}>
+                ${statusOptions.map(option => `
+                    <option value="${option}" ${status === option ? 'selected' : ''}>${option}</option>
+                `).join('')}
+            </select>
+        </div>
+
+        <!-- Process Stage Dropdown (Below Status Dropdown) -->
+        ${status === 'On Process' ? `
+            <div class="process-options">
+                <label for="returnProcess"></label>
+                <select id="returnProcess-${pet.id}" onchange="handleFoundProcessStage(${pet.id}, this.value)" ${disableSelect}>
+                    <option value="Owner Contacted" ${returnProcessStage === 'Owner Contacted' ? 'selected' : ''}>Owner Contacted</option>
+                    <option value="Home Visitation" ${returnProcessStage === 'Home Visitation' ? 'selected' : ''}>Home Visitation</option>
+                    <option value="Verified Ownership" ${returnProcessStage === 'Verified Ownership' ? 'selected' : ''}>Verified Ownership</option>
+                </select>
+            </div>
+        ` : ''}
+        <br>
+        <a href="petDetails.html?id=${pet.id}&source=found&token=${token}&username=${usernameParam}">
+            <img src="/${pet.image.split(',')[0]}" alt="${pet.name}">
+        </a>
+        <div id="ownerModal-${pet.id}" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span onclick="closeModal('ownerModal', ${pet.id})" class="close-btn">&times;</span>
+                <h3>Owner Details</h3>
+                <p id="ownerDetails-${pet.id}">Loading...</p>
+            </div>
+        </div>
+        `;
+
+        foundPetsContainer.appendChild(petElement);
+    });
+
+    // Show success or sad message if applicable
+    if (localStorage.getItem('showFoundSuccessMessage') === 'true') {
+        showFoundSuccessMessage();
+        localStorage.removeItem('showFoundSuccessMessage'); // Clear the flag after showing message
+    } else if (localStorage.getItem('showFoundSadMessage') === 'true') {
+        showFoundSadMessage();
+        localStorage.removeItem('showFoundSadMessage'); // Clear the flag after showing message
+    }
+})
+.catch(error => console.error('Error fetching found pets:', error));
+})
+.catch(error => {
+    console.error('There was a problem with the token verification:', error);
+    window.location.href = "signin.html";
+});
+} else {
+    console.error('Token is missing.');
+    window.location.href = "signin.html";
+}
+}
+
+// Function to handle process stage updates for found pets
+function handleFoundProcessStage(petId, stage) {
+    console.log(`Return process stage for found pet ${petId} updated to: ${stage}`);
+
+    // Send the selected stage to the server
+    fetch(`http://localhost:3000/updateFoundPetProcessStage?petId=${petId}&stage=${stage}`, {
+        method: 'PUT',
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log(`Return process stage for found pet ${petId} updated successfully.`);
+        } else {
+            throw new Error(`Failed to update return process stage for found pet ${petId}.`);
+        }
+    })
+    .catch(error => console.error('Error updating return process stage:', error));
 }
 
 function showOwnerDetails(petId) {

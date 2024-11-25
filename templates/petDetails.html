@@ -173,6 +173,46 @@
             text-decoration: underline;
         }
 
+            /* Style for the document item */
+        .document-item {
+            flex: 1 1 calc(33.333% - 10px); /* Each document takes up 1/3 of the container width */
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* For smaller screens (e.g., mobile), stack the items vertically */
+        @media (max-width: 768px) {
+            .document-item {
+                flex: 1 1 100%; /* Each document takes up the full width */
+            }
+        }
+
+        /* Styling for file icon */
+        .document-icon {
+            font-size: 24px; /* Adjust icon size */
+            color: #007bff;
+        }
+
+        /* Link styling inside each document item */
+        .document-item a {
+            display: block;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #007bff;
+            flex: 1; /* Make the link take up the remaining space */
+        }
+
+        /* Hover effect for links */
+        .document-item a:hover {
+            background-color: #e8e8e8;
+            color: #007bff;
+        }
     </style>
 </head>
 <body>
@@ -213,7 +253,14 @@
                 <p id="petContact" class="d-none"><strong>Contact:</strong> <span></span></p>
                 <p id="petStatus" class="d-none"><strong>Status:</strong> <span></span></p>
                 <p id="petFav" class="d-none"><i class="fas fa-heart interested-icon"></i> <strong></strong> <span></span></p> <!-- Add icon here -->
-                <!--<a href="javascript:history.back()" class="btn btn-primary">Back</a> -->
+            </div>
+    
+            <!-- Uploaded Documents Section -->
+            <div class="col-12 mt-3" id="documentConatiner">
+                <h4>Documents</h4>
+                <div id="documentList" class="row">
+                    <!-- Documents will be dynamically added here -->
+                </div>
             </div>
 
             <!-- Comment Section -->
@@ -239,8 +286,8 @@
                     </div>
                 </div>
             </div>
-            </div>
-        </div><br> 
+        </div>
+    </div><br>    
 
 <!-- Javascript to fetch pet, lost and found details -->
 <script>
@@ -326,7 +373,7 @@
                     'Returned': 'fas fa-arrow-circle-left',
                     'Reunited': 'fas fa-handshake',
                     'Adoptable': 'fas fa-paw',
-                    'Deceased': 'fas fa-skull-crossbones'
+                    'Deceased': 'fas fa-skull-crossbones',
                 };
 
                 const colors = {
@@ -361,7 +408,8 @@
                         'Reunited': { icon: icons['Reunited'], color: colors['Reunited'] },
                         'Adoptable': { icon: icons['Adoptable'], color: colors['Adoptable'] },
                         'Deceased': { icon: icons['Deceased'], color: colors['Deceased'] },
-                        'Adopted': { icon: icons['Adopted'], color: colors['Adopted'] }
+                        'Adopted': { icon: icons['Adopted'], color: colors['Adopted'] },
+                        'On Process': { icon: icons['On Process'], color: colors['On Process'] },
                     }
                 };
 
@@ -370,109 +418,176 @@
             }
 
            // Fetch pet details and user details based on source
-            fetchPetDetails()
-                .then(pet => {
-                    if (pet.owner_username) {
-                        // Fetch user details based on the owner_username
-                        fetchUserDetails(pet.owner_username)
-                            .then(user => {
-                                if (user.firstname && user.lastname) {
-                                    document.getElementById('ownerName').innerHTML = `<a href="profile.html?username=${pet.owner_username}" style="text-decoration: none; color: inherit;">${user.firstname} ${user.lastname}</a>`;
-                                    document.getElementById('ownerName').classList.remove('d-none');
-                                } else {
-                                    document.getElementById('ownerName').classList.add('d-none');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error fetching owner details:', error);
+        fetchPetDetails()
+            .then(pet => {
+                if (pet.owner_username) {
+                    // Fetch user details based on the owner_username
+                    fetchUserDetails(pet.owner_username)
+                        .then(user => {
+                            if (user.firstname && user.lastname) {
+                                document.getElementById('ownerName').innerHTML = `<a href="profile.html?username=${pet.owner_username}" style="text-decoration: none; color: inherit;">${user.firstname} ${user.lastname}</a>`;
+                                document.getElementById('ownerName').classList.remove('d-none');
+                            } else {
                                 document.getElementById('ownerName').classList.add('d-none');
-                            });
-                    } else {
-                        document.getElementById('ownerName').classList.add('d-none');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching owner details:', error);
+                            document.getElementById('ownerName').classList.add('d-none');
+                        });
+                } else {
+                    document.getElementById('ownerName').classList.add('d-none');
+                }
+
+                document.getElementById('petName').textContent = pet.name || '';
+                document.getElementById('petBreed').querySelector('span').textContent = pet.breed || '';
+                document.getElementById('petAge').querySelector('span').textContent = pet.age || '';
+                document.getElementById('petGender').querySelector('span').textContent = pet.gender || '';
+                document.getElementById('petDescription').querySelector('span').textContent = pet.description || '';
+                document.getElementById('petLocation').querySelector('span').textContent = pet.location || '';
+                document.getElementById('petContact').querySelector('span').textContent = pet.contact || '';
+
+                  // Define a function to get the icon based on file type
+                    function getFileIcon(fileExtension) {
+                        // File type to FontAwesome icon mapping
+                        const icons = {
+                            pdf: 'fas fa-file-pdf',           // PDF icon
+                            docx: 'fas fa-file-word',         // Word icon
+                            doc: 'fas fa-file-word',          // Older Word format
+                            xlsx: 'fas fa-file-excel',        // Excel icon
+                            pptx: 'fas fa-file-powerpoint',   // PowerPoint icon
+                            txt: 'fas fa-file-alt',           // Text file icon
+                            jpg: 'fas fa-file-image',         // Image file icon (JPG)
+                            jpeg: 'fas fa-file-image',        // Image file icon (JPEG)
+                            png: 'fas fa-file-image',         // Image file icon (PNG)
+                            gif: 'fas fa-file-image',         // Image file icon (GIF)
+                            mp4: 'fas fa-video',              // Video file icon
+                            mp3: 'fas fa-file-audio',         // Audio file icon
+                            default: 'fas fa-file'            // Default icon for unknown file types
+                        };
+                        
+                        // Return the appropriate icon class based on file extension
+                        return icons[fileExtension.toLowerCase()] || icons['default'];
                     }
 
-                    document.getElementById('petName').textContent = pet.name || '';
-                    document.getElementById('petBreed').querySelector('span').textContent = pet.breed || '';
-                    document.getElementById('petAge').querySelector('span').textContent = pet.age || '';
-                    document.getElementById('petGender').querySelector('span').textContent = pet.gender || '';
-                    document.getElementById('petDescription').querySelector('span').textContent = pet.description || '';
-                    document.getElementById('petLocation').querySelector('span').textContent = pet.location || '';
-                    document.getElementById('petContact').querySelector('span').textContent = pet.contact || '';
-
-                    // Assign default status based on source if status is null or empty
-                    if (!pet.status) {
-                        if (source === 'pets' || source === 'saved') {
-                            pet.status = 'Available';
-                        } else if (source === 'lost' || source === 'found') {
-                            pet.status = 'Lost';
-                        }
-                    }
-
-                    const statusInfo = getStatusIcon(pet.status, source);
-                    let statusContent = `<i class="${statusInfo.icon} ${statusInfo.color}"></i> ${pet.status}`;
-
-                    // Display adoption process stage next to status if the status is "On Process"
-                    if (pet.status === 'On Process') {
-                        const adoptionProcessStage = pet.adoption_process_stage || 'Initial Screening'; // Default if null
-                        statusContent += `<span class="process-stage" style="margin-left: 10px;">(${adoptionProcessStage})</span>`;
-                    }
-
-                    document.getElementById('petStatus').querySelector('span').innerHTML = statusContent;
-
-                    // Format and display datePosted
-                    if (pet.datePosted) {
-                        const formattedDate = formatRelativeDate(pet.datePosted);
-                        document.getElementById('petDatePosted').querySelector('span').textContent = formattedDate;
-                        document.getElementById('petDatePosted').classList.remove('d-none');
-                    } else {
-                        document.getElementById('petDatePosted').classList.add('d-none');
-                    }
-
-                    // Calculate number of interested people only for pets source
+                  // Display the uploaded documents only for the 'pets' source
                     if (source === 'pets') {
-                        const interestedPeople = pet.favorites || '';
-                        const numberInterested = interestedPeople.split(',').filter(Boolean).length;
-                        document.getElementById('petFav').querySelector('span').textContent = `${numberInterested} people interested`;
-                        document.getElementById('petFav').classList.remove('d-none');
+                        if (pet.document) {
+                            const documentList = document.getElementById('documentList');
+                            const documents = pet.document.split(','); // Assume documents are stored as a comma-separated string
+
+                            documents.forEach(doc => {
+                                // Extract the filename from the full path and remove the directory and numbers
+                                let filename = doc.split('\\').pop(); // Get just the filename
+                                filename = filename.replace(/^\d+-/, ''); // Remove leading numbers and dash (e.g., "1731229495889-58-cv-uk.docx" becomes "58-cv-uk.docx")
+
+                                const fileExtension = filename.split('.').pop(); // Get the file extension
+                                const iconClass = getFileIcon(fileExtension); // Get the icon class based on file extension
+
+                                const documentElement = document.createElement('div');
+                                documentElement.classList.add('col-12', 'col-md-4', 'document-item'); // Use Bootstrap grid classes
+                                documentElement.innerHTML = `
+                                    <i class="${iconClass} document-icon"></i> <!-- Display the file icon -->
+                                    <a href="/${doc}" target="_blank">
+                                        ${filename}  <!-- Display the cleaned filename -->
+                                    </a>
+                                `;
+                                documentList.appendChild(documentElement);
+                            });
+                        } else {
+                            document.getElementById('documentList').innerHTML = '<p>No documents uploaded.</p>';
+                        }
+                        document.getElementById('documentConatiner').classList.remove('d-none'); // Show the container
                     } else {
-                        document.getElementById('petFav').classList.add('d-none');
+                        document.getElementById('documentConatiner').classList.add('d-none'); // Hide the container
                     }
 
-                    const detailsToShow = [
-                        'petBreed',
-                        'petAge',
-                        'petGender',
-                        'petDescription',
-                        'petLocation',
-                        'petContact',
-                        'petStatus',
-                        'petDatePosted' // Add datePosted to the list
-                    ];
+                // Assign default status based on source if status is null or empty
+                if (!pet.status) {
+                    if (source === 'pets' || source === 'saved') {
+                        pet.status = 'Available';
+                    } else if (source === 'lost' || source === 'found') {
+                        pet.status = 'Lost';
+                    }
+                }
 
-                    detailsToShow.forEach(id => {
-                        if (!document.getElementById(id).querySelector('span').textContent.trim()) {
-                            document.getElementById(id).classList.add('d-none');
-                        } else {
-                            document.getElementById(id).classList.remove('d-none');
-                        }
-                    });
+                const statusInfo = getStatusIcon(pet.status, source);
+                let statusContent = `<i class="${statusInfo.icon} ${statusInfo.color}"></i> ${pet.status}`;
 
-                    const images = (pet.image || '').split(',');
-                    const carouselImages = document.getElementById('carouselImages');
+                // Display adoption process stage next to status if the status is "On Process" for pets
+                if (source === 'pets' && pet.status === 'On Process') {
+                    const adoptionProcessStage = pet.adoption_process_stage || 'Initial Screening'; // Default if null
+                    statusContent += `<span class="process-stage" style="margin-left: 10px;">(${adoptionProcessStage})</span>`;
+                }
 
-                    images.forEach((image, index) => {
-                        const carouselItem = document.createElement('div');
-                        carouselItem.classList.add('carousel-item');
-                        if (index === 0) carouselItem.classList.add('active');
+                // Display return process stage next to status if the status is "On Process" for lost pets
+                if (source === 'lost' && pet.status === 'On Process') {
+                    const returnProcessStage = pet.return_process_stage || 'Owner Contacted'; // Default if null
+                    statusContent += `<span class="process-stage" style="margin-left: 10px;">(${returnProcessStage})</span>`;
+                }
 
-                        carouselItem.innerHTML = `<img src="/${image}" class="d-block w-100 pet-image" alt="${pet.name}">`;
-                        carouselImages.appendChild(carouselItem);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error displaying pet details:', error);
-                    alert('Failed to load pet details.');
+                    // Display return process stage next to status if the status is "On Process" for lost pets
+                    if (source === 'found' && pet.status === 'On Process') {
+                    const returnProcessStage = pet.return_process_stage || 'Owner Contacted'; // Default if null
+                    statusContent += `<span class="process-stage" style="margin-left: 10px;">(${returnProcessStage})</span>`;
+                }
+
+                document.getElementById('petStatus').querySelector('span').innerHTML = statusContent;
+
+                // Format and display datePosted
+                if (pet.datePosted) {
+                    const formattedDate = formatRelativeDate(pet.datePosted);
+                    document.getElementById('petDatePosted').querySelector('span').textContent = formattedDate;
+                    document.getElementById('petDatePosted').classList.remove('d-none');
+                } else {
+                    document.getElementById('petDatePosted').classList.add('d-none');
+                }
+
+                // Calculate number of interested people only for pets source
+                if (source === 'pets') {
+                    const interestedPeople = pet.favorites || '';
+                    const numberInterested = interestedPeople.split(',').filter(Boolean).length;
+                    document.getElementById('petFav').querySelector('span').textContent = `${numberInterested} people interested`;
+                    document.getElementById('petFav').classList.remove('d-none');
+                } else {
+                    document.getElementById('petFav').classList.add('d-none');
+                }
+
+                const detailsToShow = [
+                    'petBreed',
+                    'petAge',
+                    'petGender',
+                    'petDescription',
+                    'petLocation',
+                    'petContact',
+                    'petStatus',
+                    'petDatePosted' // Add datePosted to the list
+                ];
+
+                detailsToShow.forEach(id => {
+                    if (!document.getElementById(id).querySelector('span').textContent.trim()) {
+                        document.getElementById(id).classList.add('d-none');
+                    } else {
+                        document.getElementById(id).classList.remove('d-none');
+                    }
                 });
+
+                const images = (pet.image || '').split(',');
+                const carouselImages = document.getElementById('carouselImages');
+
+                images.forEach((image, index) => {
+                    const carouselItem = document.createElement('div');
+                    carouselItem.classList.add('carousel-item');
+                    if (index === 0) carouselItem.classList.add('active');
+
+                    carouselItem.innerHTML = `<img src="/${image}" class="d-block w-100 pet-image" alt="${pet.name}">`;
+                    carouselImages.appendChild(carouselItem);
+                });
+            })
+            .catch(error => {
+                console.error('Error displaying pet details:', error);
+                alert('Failed to load pet details.');
+            });
 
         });
 </script>

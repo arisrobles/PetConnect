@@ -79,6 +79,67 @@
 .icon {
     margin-right: 8px; /* Spacing between icon and text */
 }
+#imagePreview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 20px;
+}
+
+/* Style each previewed image */
+#imagePreview img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: transform 0.3s ease;
+}
+
+/* Hover effect for previewed images */
+#imagePreview img:hover {
+    transform: scale(1.1);
+}
+#documentPreview {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Wrapper for each document item */
+.document-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    position: relative;
+    transition: background-color 0.3s;
+}
+
+/* Hover effect to highlight the document item */
+.document-wrapper:hover {
+    background-color: #f0f0f0;
+}
+
+/* Style for the document link */
+.document-wrapper a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 14px;
+    max-width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Change color on hover for the document link */
+.document-wrapper a:hover {
+    color: #0056b3;
+}
 
 </style>
 <body>
@@ -354,8 +415,15 @@
             <label for="location">Location:</label>
             <input type="text" id="location" name="location" required>
             
+            <!-- Image file input with preview section -->
             <label for="photo">Add Photos:</label>
-            <input type="file" name="images" multiple required><br> <!-- Allow multiple image selection -->
+            <input type="file" name="images" id="imageUpload" multiple required>
+            <div id="imagePreview"></div> <!-- Preview for images -->
+
+            <!-- Document file input with preview section -->
+            <label for="documents">Upload Documents:</label>
+            <input type="file" name="documents" id="documentUpload" accept=".pdf, .docx, .doc, image/*" multiple>
+            <div id="documentPreview"></div> <!-- Preview for documents -->
             <button type="submit">Add Pet</button>
         </form>
     </div>
@@ -757,120 +825,173 @@ function closeDialog() {
 }
 </script>
 
-<!-- Javascript for adding pets -->
 <script>
+    let selectedImageFiles = [];
+    let selectedDocumentFiles = [];
+
+    // Function to handle image preview
+    document.getElementById("imageUpload").addEventListener("change", function() {
+        Array.from(this.files).forEach(file => {
+            // Check if the file is an image and hasn't already been added
+            if (file.type.startsWith("image/") && !selectedImageFiles.some(f => f.name === file.name)) {
+                selectedImageFiles.push(file); // Add to selected images array
+
+                const img = document.createElement("img");
+                img.src = URL.createObjectURL(file);
+                img.style.width = "50px";   // Default width
+                img.style.height = "50px";  // Default height
+                img.style.objectFit = "cover"; // Ensures the image fits within the dimensions
+                img.style.margin = "5px";
+
+                document.getElementById("imagePreview").appendChild(img);
+            } else if (!file.type.startsWith("image/")) {
+                alert("Please upload only image files for photos.");
+                this.value = ""; // Clear the file input if the file is not an image
+            }
+        });
+    });
+
+    // Function to handle document preview
+    document.getElementById("documentUpload").addEventListener("change", function() {
+        const allowedExtensions = /(\.pdf|\.docx|\.doc|\.jpg|\.jpeg|\.png|\.gif)$/i;
+
+        Array.from(this.files).forEach(file => {
+            // Check if the file has a valid extension and hasn't already been added
+            if (allowedExtensions.exec(file.name) && !selectedDocumentFiles.some(f => f.name === file.name)) {
+                selectedDocumentFiles.push(file); // Add to selected documents array
+
+                const doc = document.createElement("p");
+                doc.textContent = file.name; // Display document name
+
+                document.getElementById("documentPreview").appendChild(doc);
+            } else if (!allowedExtensions.exec(file.name)) {
+                alert("Invalid file type. Please upload PDF, DOCX, DOC, or image files.");
+                this.value = ""; // Clear the file input if the file type is not allowed
+            }
+        });
+    });
+
+    // Handle form submission
     document.addEventListener('DOMContentLoaded', function() {
-    const petForm = document.getElementById("petForm");
+        const petForm = document.getElementById("petForm");
 
-    petForm.addEventListener("submit", function(event) {
-        event.preventDefault(); // Prevent form submission
+        petForm.addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent form submission
 
-        // Gather form data including image
-        const formData = new FormData(petForm);
+            // Gather form data including image and document files
+            const formData = new FormData(petForm);
 
-        // Get the currently logged-in username from local storage
-        const username = localStorage.getItem('username');
-        if (username) {
-            formData.append('owner_username', username);
+            // Append previously selected files
+            selectedImageFiles.forEach(file => {
+                formData.append('images', file);
+            });
+            selectedDocumentFiles.forEach(file => {
+                formData.append('documents', file);
+            });
+
+            // Get the currently logged-in username from local storage
+            const username = localStorage.getItem('username');
+            if (username) {
+                formData.append('owner_username', username);
+            }
+
+            // Send pet data to the server
+            fetch("http://localhost:3000/add-pet", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.text())
+            .then(message => {
+                console.log(message); // Log the server response
+                // Store the form submission status and pet type in session storage
+                sessionStorage.setItem('formSubmitted', 'true');
+                sessionStorage.setItem('petType', formData.get('type')); // Store pet type
+                // Redirect to the same page to trigger load event
+                window.location.href = window.location.href;
+            })
+            .catch(error => console.error("Error:", error));
+        });
+
+        window.addEventListener('load', function() {
+            // Check if the form was submitted
+            if (sessionStorage.getItem('formSubmitted') === 'true') {
+                // Clear the form submission status
+                sessionStorage.removeItem('formSubmitted');
+                const petType = sessionStorage.getItem('petType');
+                sessionStorage.removeItem('petType');
+                showThankYouMessage(petType); // Show thank you message and GIF based on pet type
+            }
+        });
+
+        function showThankYouMessage(petType) {
+            // Create overlay to block page interaction
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // Darker overlay background
+            overlay.style.zIndex = '9999';
+            overlay.style.pointerEvents = 'auto';
+            overlay.style.display = 'flex';
+            overlay.style.justifyContent = 'center';
+            overlay.style.alignItems = 'center';
+
+            // Create main container for GIF and message
+            const messageContainer = document.createElement('div');
+            messageContainer.style.backgroundColor = '#fff'; // Dark background for message container
+            messageContainer.style.padding = '20px';
+            messageContainer.style.borderRadius = '10px';
+            messageContainer.style.display = 'flex';
+            messageContainer.style.flexDirection = 'column'; // Stack items vertically
+            messageContainer.style.alignItems = 'center'; // Center horizontally
+            messageContainer.style.zIndex = '10000';
+            messageContainer.style.position = 'relative'; // Ensure positioning within the overlay
+            messageContainer.style.overflow = 'hidden'; // Hide overflow for animation
+
+            // Create GIF element
+            const gifImage = document.createElement('img');
+            // Set GIF source based on pet type
+            if (petType === 'cat') {
+                gifImage.src = '/assets/gifs/cat-walking-with-shopping-bags-unscreen.gif'; 
+            } else {
+                gifImage.src = '/assets/gifs/dog-animated-icon-download-in--unscreen.gif'; 
+            }
+            gifImage.alt = 'Thank You GIF';
+            gifImage.style.width = '150px'; // Adjust size as needed
+            gifImage.style.position = 'absolute'; // Absolute positioning to animate
+            gifImage.style.top = '50px'; // Start a bit lower to create space above
+            gifImage.style.left = '0'; // Start off-screen to the left of the container
+
+            // Add animation to GIF
+            gifImage.style.animation = 'walkRight 10s linear forwards'; // Adjust duration as needed
+
+            // Create thank you message element
+            const thankYouMessage = document.createElement('p');
+            thankYouMessage.textContent = 'Your pet is under approval! We appreciate your effort in helping them find a loving home.';
+            thankYouMessage.style.fontSize = '20px';
+            thankYouMessage.style.color = 'black';
+            thankYouMessage.style.marginTop = '220px'; // Adjust margin to create space below the GIF
+
+            // Append GIF and message to the container
+            messageContainer.appendChild(gifImage);
+            messageContainer.appendChild(thankYouMessage);
+
+            // Append the container and overlay to the body
+            document.body.appendChild(overlay);
+            overlay.appendChild(messageContainer); // Append to overlay to center it
+
+            // Extend the container width to match the GIF animation length
+            const containerWidth = window.innerWidth * 2; // Extend to twice the viewport width or as needed
+            messageContainer.style.width = containerWidth + 'px';
+
+            // Remove the overlay and message after 10 seconds
+            setTimeout(function() {
+                document.body.removeChild(overlay);
+            }, 10000); // Adjust duration as needed
         }
-
-        // Send pet data to the server
-        fetch("http://localhost:3000/add-pet", {
-            method: "POST",
-            body: formData
-        })
-        .then(response => response.text())
-        .then(message => {
-            console.log(message); // Log the server response
-            // Store the form submission status and pet type in session storage
-            sessionStorage.setItem('formSubmitted', 'true');
-            sessionStorage.setItem('petType', formData.get('type')); // Store pet type
-            // Redirect to the same page to trigger load event
-            window.location.href = window.location.href;
-        })
-        .catch(error => console.error("Error:", error));
     });
-
-    window.addEventListener('load', function() {
-        // Check if the form was submitted
-        if (sessionStorage.getItem('formSubmitted') === 'true') {
-            // Clear the form submission status
-            sessionStorage.removeItem('formSubmitted');
-            const petType = sessionStorage.getItem('petType');
-            sessionStorage.removeItem('petType');
-            showThankYouMessage(petType); // Show thank you message and GIF based on pet type
-        }
-    });
-
-    function showThankYouMessage(petType) {
-        // Create overlay to block page interaction
-        const overlay = document.createElement('div');
-        overlay.style.position = 'fixed';
-        overlay.style.top = '0';
-        overlay.style.left = '0';
-        overlay.style.width = '100%';
-        overlay.style.height = '100%';
-        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // Darker overlay background
-        overlay.style.zIndex = '9999';
-        overlay.style.pointerEvents = 'auto';
-        overlay.style.display = 'flex';
-        overlay.style.justifyContent = 'center';
-        overlay.style.alignItems = 'center';
-
-        // Create main container for GIF and message
-        const messageContainer = document.createElement('div');
-        messageContainer.style.backgroundColor = '#fff'; // Dark background for message container
-        messageContainer.style.padding = '20px';
-        messageContainer.style.borderRadius = '10px';
-        messageContainer.style.display = 'flex';
-        messageContainer.style.flexDirection = 'column'; // Stack items vertically
-        messageContainer.style.alignItems = 'center'; // Center horizontally
-        messageContainer.style.zIndex = '10000';
-        messageContainer.style.position = 'relative'; // Ensure positioning within the overlay
-        messageContainer.style.overflow = 'hidden'; // Hide overflow for animation
-
-        // Create GIF element
-        const gifImage = document.createElement('img');
-        // Set GIF source based on pet type
-        if (petType === 'cat') {
-            gifImage.src = '/assets/gifs/cat-walking-with-shopping-bags-unscreen.gif'; 
-        } else {
-            gifImage.src = '/assets/gifs/dog-animated-icon-download-in--unscreen.gif'; 
-        }
-        gifImage.alt = 'Thank You GIF';
-        gifImage.style.width = '150px'; // Adjust size as needed
-        gifImage.style.position = 'absolute'; // Absolute positioning to animate
-        gifImage.style.top = '50px'; // Start a bit lower to create space above
-        gifImage.style.left = '0'; // Start off-screen to the left of the container
-
-        // Add animation to GIF
-        gifImage.style.animation = 'walkRight 10s linear forwards'; // Adjust duration as needed
-
-        // Create thank you message element
-        const thankYouMessage = document.createElement('p');
-        thankYouMessage.textContent = 'Your pet is under approval! We appreciate your effort in helping them find a loving home.';
-        thankYouMessage.style.fontSize = '20px';
-        thankYouMessage.style.color = 'black';
-        thankYouMessage.style.marginTop = '220px'; // Adjust margin to create space below the GIF
-
-        // Append GIF and message to the container
-        messageContainer.appendChild(gifImage);
-        messageContainer.appendChild(thankYouMessage);
-
-        // Append the container and overlay to the body
-        document.body.appendChild(overlay);
-        overlay.appendChild(messageContainer); // Append to overlay to center it
-
-        // Extend the container width to match the GIF animation length
-        const containerWidth = window.innerWidth * 2; // Extend to twice the viewport width or as needed
-        messageContainer.style.width = containerWidth + 'px';
-
-        // Remove the overlay and message after 10 seconds
-        setTimeout(function() {
-            document.body.removeChild(overlay);
-        }, 10000); // Adjust duration as needed
-    }
-});
 </script>
  
 <!-- Javascript for logout button -->

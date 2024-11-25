@@ -43,6 +43,27 @@
 .icon {
     margin-right: 8px; /* Spacing between icon and text */
 }
+#imagePreview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 20px;
+}
+
+/* Style each previewed image */
+#imagePreview img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: transform 0.3s ease;
+}
+
+/* Hover effect for previewed images */
+#imagePreview img:hover {
+    transform: scale(1.1);
+}
     </style>
 </head>
 <body>
@@ -309,8 +330,10 @@
             <label for="location">Location:</label>
             <input type="text" id="location" name="location" required>
             
+            <!-- Image file input with preview section -->
             <label for="photo">Add Photos:</label>
-            <input type="file" name="images" multiple required><br> <!-- Allow multiple image selection -->
+            <input type="file" name="images" id="imageUpload" multiple required><br>
+            <div id="imagePreview"></div> <!-- Preview for images -->
             <button type="submit">Add Pet</button>
         </form>
     </div>
@@ -679,6 +702,31 @@ populateBreeds();
 
 <!-- Javascript for adding lost pets -->
 <script>
+     let selectedImageFiles = [];
+    let selectedDocumentFiles = [];
+
+    // Function to handle image preview
+    document.getElementById("imageUpload").addEventListener("change", function() {
+        Array.from(this.files).forEach(file => {
+            // Check if the file is an image and hasn't already been added
+            if (file.type.startsWith("image/") && !selectedImageFiles.some(f => f.name === file.name)) {
+                selectedImageFiles.push(file); // Add to selected images array
+
+                const img = document.createElement("img");
+                img.src = URL.createObjectURL(file);
+                img.style.width = "50px";   // Default width
+                img.style.height = "50px";  // Default height
+                img.style.objectFit = "cover"; // Ensures the image fits within the dimensions
+                img.style.margin = "5px";
+
+                document.getElementById("imagePreview").appendChild(img);
+            } else if (!file.type.startsWith("image/")) {
+                alert("Please upload only image files for photos.");
+                this.value = ""; // Clear the file input if the file is not an image
+            }
+        });
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         const petForm = document.getElementById("petForm");
     
@@ -1097,9 +1145,10 @@ function displayPets(pets) {
         const petElement = document.createElement('div');
         petElement.classList.add('pet');
 
-         // Determine the status icon and color based on pet status
-         let statusIcon, statusColor;
+                    // Determine the status icon and color based on pet status
+                    let statusIcon, statusColor;
                     let statusText = pet.status || 'Lost'; // Default status text to 'Lost' if null
+                    let returnProcessStage = pet.return_process_stage || 'Owner Contacted'; // Default to 'Initial Screening' if null
                     
                     switch (statusText) {
                         case 'Lost':
@@ -1126,7 +1175,12 @@ function displayPets(pets) {
                 <p>Age: ${pet.age}</p>
                 <p>Breed: ${pet.breed}</p>
                 <p>Gender: ${pet.gender}</p><br>
-                <p>Status: <i class="${statusIcon}" style="color: ${statusColor};"></i> ${statusText}</p>
+                        <p>Status: <i class="${statusIcon}" style="color: ${statusColor};"></i> ${statusText}
+                        <!-- If status is 'On Process', display the adoption process stage next to it -->
+                        ${statusText === 'On Process' ? `
+                            <span class="process-stage" style="margin-left: 5px;">(${returnProcessStage})</span>
+                        ` : ''}
+                        </p>
                 <div class="image-container">
                     <a href="petDetails.html?id=${pet.id}&source=lost&token=${token}&username=${username}&token=${token}">
                     <img class="main-image" src="/${pet.image.split(',')[0]}" alt="${pet.name}">
